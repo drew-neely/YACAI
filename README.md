@@ -22,3 +22,6 @@ Planning (aka Drew's rambling thoughts):
 Links for Quantum Computing
 * Qiskit installation: https://qiskit.org/documentation/install.html#access-ibm-quantum-systems
 * Quiskit Hello World: https://qiskit.org/documentation/tutorials/circuits/1_getting_started_with_qiskit.html
+
+Links for RL 
+* RL and Chess: https://colab.research.google.com/drive/1Xk9MibJ9Fli5tIlDvo88hcZrI76rqZN5#scrollTo=VLNm1D9s_O0O
