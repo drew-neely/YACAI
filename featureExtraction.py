@@ -36,12 +36,12 @@ class TwoOfAKind(Feature) :
 		valueK = valueB = valueR = valueK2 = valueB2 = valueR2 = Kpair = Bpair = Rpair = Kpair2 = Bpair2 = Rpair2 = 0
 
 		for sq in chess.SQUARES: 
-			p = piece_type_at(sq)
-			if p == chess.KNIGHT and player_color == p.color:
+			p = game.piece_at(sq)
+			if p.piece_type == chess.KNIGHT and player_color == p.color:
 				valueK += 1
-			elif p == chess.BISHOP and player_color == p.color:
+			elif p.piece_type == chess.BISHOP and player_color == p.color:
 				valueB += 1
-			elif p == chess.ROOK and player_color == p.color:
+			elif p.piece_type == chess.ROOK and player_color == p.color:
 				valueR += 1
 			
 		if valueK == 2:
@@ -52,12 +52,12 @@ class TwoOfAKind(Feature) :
 			Rpair = 1
 
 		for sq in chess.SQUARES: 
-			p = piece_type_at(sq)
-			if p == chess.KNIGHT and player_color != p.color:
+			p = game.piece_at(sq)
+			if p.piece_type == chess.KNIGHT and player_color != p.color:
 				valueK2 += 1
-			elif p == chess.BISHOP and player_color != p.color:
+			elif p.piece_type == chess.BISHOP and player_color != p.color:
 				valueB2 += 1
-			elif p == chess.ROOK and player_color != p.color:
+			elif p.piece_type == chess.ROOK and player_color != p.color:
 				valueR2 += 1
 			
 		if valueK == 2:
@@ -73,12 +73,14 @@ class TwoOfAKind(Feature) :
 
 class Checkmated(Feature) :
 
+	# Are you in checkmate? Courtesy of Drew.
+
 	def extract(self, game, player_color) :
 
 		for col in chess.Color:
-			if player_color == col and is_checkmate() == True:
+			if player_color == col and is_checkmate(game) == True:
 				value = 1
-			elif player_color != col and is_checkmate() == True:
+			elif player_color != col and is_checkmate(game) == True:
 				value = -1
 			else:
 				value = 0
@@ -87,7 +89,18 @@ class Checkmated(Feature) :
 
 class HaveQueen(Feature) :		
 
+	# difference in the number of queens the players have
+
 	def extract(self, game, player_color) :
 
+		value = 0
+		for sq in chess.SQUARES: 
+			p = game.piece_at(sq)
+			if p.piece_type == chess.QUEEN and player_color == p.color:
+				value += 1
+		for sq in chess.SQUARES: 
+			p = p.piece_type
+			if p.piece_type == chess.QUEEN and player_color != p.color:
+				value -= 1
 
-		
+		return value
