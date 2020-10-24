@@ -4,3 +4,4 @@
 class Feature :
 	def extract(self, game, player_color) :
 		raise NotImplementedError()
+	# straight
