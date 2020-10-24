@@ -31,7 +31,20 @@ class PointDifference(Feature) :
 		
 		return total
 
-		
+class TwoOfAKind(Feature) :		
+
+class Checkmated(Feature) :
+
+	def extract(self, game, player_color) :
+
+		if player_color == p.color and is_checkmate() == True:
+			value = 1
+		elif player_color != p.color and is_checkmate() == True:
+			value = -1
+		else:
+			value = 0
+
+		return value
 
 
 
