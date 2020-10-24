@@ -2,5 +2,5 @@
 #     in case we need to add other functionality to stuff
 
 class Feature :
-	def extract(self, game) :
+	def extract(self, game, player_color) :
 		raise NotImplementedError()
