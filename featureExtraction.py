@@ -2,19 +2,13 @@ import chess
 
 from feature import Feature
 
-class ExampleFeature(Feature) :
-	
-	# game is a chess board from the chess library
-	# player_color is one of chess.WHITE or chess.BLACK
-	def extract(self, game, player_color) :
-		return 50
-
 class PointDifference(Feature) :
 	
 	piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
 
-	# game is a chess board from the chess library
-	# player_color is one of chess.WHITE or chess.BLACK
+	# determines the difference in the value of the pieces of the two players.
+	# game is a chess board from the chess library.
+	# player_color is one of chess.WHITE or chess.BLACK.
 	def extract(self, game, player_color) :
 		pieces = []
 		for sq in chess.SQUARES :
@@ -33,19 +27,67 @@ class PointDifference(Feature) :
 
 class TwoOfAKind(Feature) :		
 
+	# two of a kind means having 2 knights or 2 bishops.
+	# adds the number of two of a kind of a knight, bishop, or rook, and subtracts from how many 
+	# two of a kind the opponent has.
+
+	def extract(self, game, player_color) :
+
+		valueK = valueB = valueR = valueK2 = valueB2 = valueR2 = Kpair = Bpair = Rpair = Kpair2 = Bpair2 = Rpair2 = 0
+
+		for sq in chess.SQUARES: 
+			p = piece_type_at(sq)
+			if p == chess.KNIGHT and player_color == p.color:
+				valueK += 1
+			elif p == chess.BISHOP and player_color == p.color:
+				valueB += 1
+			elif p == chess.ROOK and player_color == p.color:
+				valueR += 1
+			
+		if valueK == 2:
+			Kpair = 1
+		if valueB == 2:
+			Bpair = 1
+		if valueR == 2:
+			Rpair = 1
+
+		for sq in chess.SQUARES: 
+			p = piece_type_at(sq)
+			if p == chess.KNIGHT and player_color != p.color:
+				valueK2 += 1
+			elif p == chess.BISHOP and player_color != p.color:
+				valueB2 += 1
+			elif p == chess.ROOK and player_color != p.color:
+				valueR2 += 1
+			
+		if valueK == 2:
+			Kpair2 = 1
+		if valueB == 2:
+			Bpair2 = 1
+		if valueR == 2:
+			Rpair2 = 1
+
+		total = Kpair + Bpair + Rpair - Kpair2 - Bpair2 - Rpair2
+
+		return total
+
 class Checkmated(Feature) :
 
 	def extract(self, game, player_color) :
 
-		if player_color == p.color and is_checkmate() == True:
-			value = 1
-		elif player_color != p.color and is_checkmate() == True:
-			value = -1
-		else:
-			value = 0
+		for col in chess.Color:
+			if player_color == col and is_checkmate() == True:
+				value = 1
+			elif player_color != col and is_checkmate() == True:
+				value = -1
+			else:
+				value = 0
 
-		return value
+			return value
 
+class HaveQueen(Feature) :		
+
+	def extract(self, game, player_color) :
 
 
 		
