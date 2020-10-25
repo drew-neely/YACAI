@@ -19,7 +19,7 @@ class PointDifference(Feature) :
 			if p != None and p.piece_type != chess.KING and p.color != player_color:
 				total -= self.piece_values[p]
 		
-		return total
+		return [total]
 class simpleFeatures(Feature) :
 	piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
 
@@ -44,7 +44,7 @@ class simpleFeatures(Feature) :
 				valueK -= 1
 			elif p.piece_type == chess.ROOK and player_color == p.color:
 				valueR += 1
-			elif p.piece_type == chess.ROOK and player_color -= p.color:
+			elif p.piece_type == chess.ROOK and player_color != p.color:
 				valueR -= 1
 			if p.piece_type == chess.QUEEN and player_color == p.color:
 				queenDiff += 1
@@ -92,14 +92,14 @@ class Checkmated(Feature) :
 	def extract(self, game, player_color) :
 
 		for col in chess.Color:
-			if player_color == col and game.is_checkmate() == True:
+			if p != None and player_color == col and game.is_checkmate() == True:
 				value = 1
-			elif player_color != col and game.is_checkmate() == True:
+			elif  p != None and player_color != col and game.is_checkmate() == True:
 				value = -1
 			else:
 				value = 0
 
-			return value
+			return [value]
 
 #class HaveQueen(Feature) :		
 
@@ -130,10 +130,37 @@ class PawnDistance(Feature) :
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
 
-			if p.piece_type == chess.PAWN and player_color == chess.WHITE:
-			value += abs(chess.square_rank(p)-1)
+			if p != None and p.piece_type == chess.PAWN and player_color == chess.WHITE:
+				value += abs(chess.square_rank(p)-1)
+			elif p != None and p.piece_type == chess.PAWN and player_color != chess.BLACK:
+				value -= abs(chess.square_rank(p)-6)
 
-			elif p.piece_type == chess.PAWN and player_color != chess.BLACK:
-			value -= abs(chess.square_rank(p)-6)
+		return [value]
 
-		return value
+class AvgDisFromKing(Feature) :	
+
+	def extract(self, game, player_color) :
+		
+		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor = NumOfMyColor = NumOfNotMyColor = 0
+		for sq in chess.SQUARES:
+			p = game.piece_at(sq)
+
+			if p != None and player_color == p.color and p.piece_type != chess.KING:
+				myKingDisMyColor += chess.square_distance(sq,king(player_color))
+			if p != None and player_color != p.color and p.piece_type != chess.KING:
+				myKingDisNotMyColor += chess.square_distance(sq,king(player_color))
+			if p != None and player_color == p.color and p.piece_type != chess.KING:
+				NotMyKingDisMyColor += chess.square_distance(sq,king(not player_color))
+			if p != None and player_color != p.color and p.piece_type != chess.KING:
+				NotMyKingDisNotMyColor += chess.square_distance(sq,king(not player_color))
+			if p != None and player_color == p.color and p.piece_type != chess.KING:
+				myColor += 1
+			if p != None and player_color != p.color and p.piece_type != chess.KING:
+				notMyColor += 1
+
+		return [myKingDisMyColor/myColor , myKingDisNotMyColor/notMyColor , NotMyKingDisMyColor/myColor , NotMyKingDisNotMyColor/notMyColor ]
+
+class AvgDisFromKing(Feature) :	
+
+	def extract(self, game, player_color) : 
+		
