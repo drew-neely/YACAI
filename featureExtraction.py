@@ -11,12 +11,12 @@ class PointDifference(Feature) :
 	# player_color is one of chess.WHITE or chess.BLACK.
 	def extract(self, game, player_color) :
 		pieces = []
+		total = 0
 		for sq in chess.SQUARES :
 			p = game.piece_at(sq)
-			if p != None and p.piece_type != chess.KING:
-				pieces.append(p)
+			if p != None and p.piece_type != chess.KING and p.color == player_color:
+				total += pieces.append(p)
 
-		total = 0
 		for p in pieces :
 			value = self.piece_values[p]
 			if player_color != p.color :
@@ -98,9 +98,11 @@ class HaveQueen(Feature) :
 			p = game.piece_at(sq)
 			if p.piece_type == chess.QUEEN and player_color == p.color:
 				value += 1
-		for sq in chess.SQUARES: 
-			p = p.piece_type
 			if p.piece_type == chess.QUEEN and player_color != p.color:
 				value -= 1
+		# for sq in chess.SQUARES: 
+		# 	p = p.piece_type
+		# 	if p.piece_type == chess.QUEEN and player_color != p.color:
+		# 		value -= 1
 
 		return value
