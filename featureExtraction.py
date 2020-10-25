@@ -141,7 +141,8 @@ class AvgDisFromKing(Feature) :
 
 	def extract(self, game, player_color) :
 		
-		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor = NumOfMyColor = NumOfNotMyColor = 0
+		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor 
+		= NumOfMyColor = NumOfNotMyColor = 0
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
 
@@ -154,11 +155,15 @@ class AvgDisFromKing(Feature) :
 			if p != None and player_color != p.color and p.piece_type != chess.KING:
 				NotMyKingDisNotMyColor += chess.square_distance(sq,king(not player_color))
 			if p != None and player_color == p.color and p.piece_type != chess.KING:
-				myColor += 1
+				NumOfMyColor += 1
 			if p != None and player_color != p.color and p.piece_type != chess.KING:
-				notMyColor += 1
+				NumOfNotMyColor += 1
 
-		return [myKingDisMyColor/myColor , myKingDisNotMyColor/notMyColor , NotMyKingDisMyColor/myColor , NotMyKingDisNotMyColor/notMyColor ]
+		myProduct = math.floor(ply()/2)*(NumOfMyColor)**2
+		otherProduct = math.floor(ply()/2)*(NumOfNotMyColor)**2
+
+		return [myKingDisMyColor/myColor , myKingDisNotMyColor/notMyColor , NotMyKingDisMyColor/myColor , 
+		NotMyKingDisNotMyColor/notMyColor, 16 - NumOfMyColor , 16 - NumOfNotMyColor , myProduct , otherProduct]
 
 class UnitDisFromKing(Feature) :	
 
@@ -174,3 +179,11 @@ class UnitDisFromKing(Feature) :
 				valNotMyColor += 1
 		
 		return [valMyColor, valNotMyColor]
+
+class NumOfLegalMoves(Feature) :	
+
+	def extract(self, game, player_color) : 
+
+		board = chess.Board()
+		return [board.legal_moves.count()]
+
