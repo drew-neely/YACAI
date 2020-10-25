@@ -16,10 +16,10 @@ def eval_genomes(genomes, config):
 	nets = [ neat.nn.FeedForwardNetwork.create(genome[1], config) for genome in genomes ]
 	agents = [ Agent(net) for net in nets ]
 	
-	ranks = ref.get_ranks(agents, 16)
+	ranks = ref.get_ranks(agents, 1)
 
 	for (genome, rank) in zip(genomes, ranks) :
-		genome.fitness = rank
+		genome[1].fitness = rank
 
 
 
@@ -40,7 +40,7 @@ def run(config_file):
 	p.add_reporter(neat.Checkpointer(5))
 
 	# Run for up to 300 generations.
-	winner = p.run(eval_genomes, 1)
+	winner = p.run(eval_genomes, 2)
 
 	# Display the winning genome.
 	print('\nBest genome:\n{!s}'.format(winner))

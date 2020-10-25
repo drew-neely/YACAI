@@ -89,41 +89,21 @@ class TwoOfAKind(Feature) :
 			
 		return [Kpair, Bpair, Rpair]
 
-class Checkmated(Feature) :
+class CheckCheckmate(Feature) :
 
 	# Are you in checkmate? Courtesy of Drew.
 
 	def extract(self, game, player_color) :
+		checkmate = 1 if game.is_checkmate() else 0
+		check = 1 if game.is_check() else 0
+		
+		opens_check = 0
+		for move in game.legal_moves :
+			if game.gives_check(move) :
+				opens_check += 1
 
-		for col in chess.Color:
-			if p != None and player_color == col and game.is_checkmate() == True:
-				value = 1
-			elif  p != None and player_color != col and game.is_checkmate() == True:
-				value = -1
-			else:
-				value = 0
-
-			return [value]
-
-#class HaveQueen(Feature) :		
-
-	# difference in the number of queens the players have
-
-#	def extract(self, game, player_color) :
-
-#		value = 0
-#		for sq in chess.SQUARES: 
-#			p = game.piece_at(sq)
-#			if p.piece_type == chess.QUEEN and player_color == p.color:
-#				value += 1
-#			if p.piece_type == chess.QUEEN and player_color != p.color:
-#				value -= 1
-		# for sq in chess.SQUARES: 
-		# 	p = p.piece_type
-		# 	if p.piece_type == chess.QUEEN and player_color != p.color:
-		# 		value -= 1
-
-#		return value
+		return [checkmate, check, opens_check]
+			
 
 class PawnDistance(Feature) :	
 
@@ -135,9 +115,9 @@ class PawnDistance(Feature) :
 			p = game.piece_at(sq)
 
 			if p != None and p.piece_type == chess.PAWN and player_color == chess.WHITE:
-				value += abs(chess.square_rank(p)-1)
+				value += abs(chess.square_rank(sq)-1)
 			elif p != None and p.piece_type == chess.PAWN and player_color != chess.BLACK:
-				value -= abs(chess.square_rank(p)-6)
+				value -= abs(chess.square_rank(sq)-6)
 
 		return [value]
 
@@ -145,29 +125,30 @@ class AvgDisFromKing(Feature) :
 
 	def extract(self, game, player_color) :
 		
-		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor 
-		= NumOfMyColor = NumOfNotMyColor = 0
+		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor = 0
+		NumOfMyColor = NumOfNotMyColor = 1
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
 
-			if p != None and player_color == p.color and p.piece_type != chess.KING:
-				myKingDisMyColor += chess.square_distance(sq,king(player_color))
-			if p != None and player_color != p.color and p.piece_type != chess.KING:
-				myKingDisNotMyColor += chess.square_distance(sq,king(player_color))
-			if p != None and player_color == p.color and p.piece_type != chess.KING:
-				NotMyKingDisMyColor += chess.square_distance(sq,king(not player_color))
-			if p != None and player_color != p.color and p.piece_type != chess.KING:
-				NotMyKingDisNotMyColor += chess.square_distance(sq,king(not player_color))
-			if p != None and player_color == p.color and p.piece_type != chess.KING:
-				NumOfMyColor += 1
-			if p != None and player_color != p.color and p.piece_type != chess.KING:
-				NumOfNotMyColor += 1
+			if p != None :
+				if player_color == p.color and p.piece_type != chess.KING:
+					myKingDisMyColor += chess.square_distance(sq,game.king(player_color))
+				if player_color != p.color and p.piece_type != chess.KING:
+					myKingDisNotMyColor += chess.square_distance(sq,game.king(player_color))
+				if player_color == p.color and p.piece_type != chess.KING:
+					NotMyKingDisMyColor += chess.square_distance(sq,game.king(not player_color))
+				if player_color != p.color and p.piece_type != chess.KING:
+					NotMyKingDisNotMyColor += chess.square_distance(sq,game.king(not player_color))
+				if player_color == p.color and p.piece_type != chess.KING:
+					NumOfMyColor += 1
+				if player_color != p.color and p.piece_type != chess.KING:
+					NumOfNotMyColor += 1
 
-		myProduct = fullmove_number*(NumOfMyColor)**2
-		otherProduct = fullmove_number*(NumOfNotMyColor)**2
+		myProduct = game.fullmove_number*(NumOfMyColor)**2
+		otherProduct = game.fullmove_number*(NumOfNotMyColor)**2
 
-		return [myKingDisMyColor/myColor , myKingDisNotMyColor/notMyColor , NotMyKingDisMyColor/myColor , 
-		NotMyKingDisNotMyColor/notMyColor, 16 - NumOfMyColor , 16 - NumOfNotMyColor , myProduct , otherProduct]
+		return [myKingDisMyColor/NumOfMyColor , myKingDisNotMyColor/NumOfNotMyColor , NotMyKingDisMyColor/NumOfMyColor , 
+		NotMyKingDisNotMyColor/NumOfNotMyColor, 16 - NumOfMyColor , 16 - NumOfNotMyColor , myProduct , otherProduct]
 
 class UnitDisFromKing(Feature) :	
 
@@ -177,9 +158,9 @@ class UnitDisFromKing(Feature) :
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
 			
-			if p != None and player_color == p.color and chess.square_distance(sq,king(player_color)) == 1:
+			if p != None and player_color == p.color and chess.square_distance(sq,game.king(player_color)) == 1:
 				valMyColor += 1
-			if p != None and player_color != p.color and chess.square_distance(sq,king(not player_color)) == 1:
+			if p != None and player_color != p.color and chess.square_distance(sq,game.king(not player_color)) == 1:
 				valNotMyColor += 1
 		
 		return [valMyColor, valNotMyColor]
@@ -191,18 +172,45 @@ class NumOfLegalMoves(Feature) :
 		board = chess.Board()
 		return [board.legal_moves.count()]
 
-class NumOfLegalMoves(Feature) :	
+class NumAttackDefendMoves(Feature) :	
+
+	piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0}
 
 	def extract(self, game, player_color) : 
 
 		myAttackNum = otherAttackNum = 0
+		myDefendNum = otherDefendNum = 0
+		myAttackNumP = otherAttackNumP = 0
+		myDefendNumP = otherDefendNumP = 0
+		middleAttacks = middlePieces = 0
+
+		middle = ["d4", "d5", "e4", "e5", "c4", "c5", "f4", "f5"]
 
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
+			if p != None :
+				sqs = game.attacks(sq)
+				for sq2 in sqs :
+					p2 = game.piece_at(sq2)
+					if p2 != None :
+						if player_color == p.color and player_color != p2.color:
+							myAttackNum += 1
+							myAttackNumP += self.piece_values[p2.piece_type]
+						elif player_color != p.color and player_color == p2.color:
+							otherAttackNum += 1
+							otherAttackNumP += self.piece_values[p2.piece_type]
+						elif player_color == p.color and player_color == p2.color:
+							myDefendNum += 1
+							myDefendNumP += self.piece_values[p2.piece_type]
+						elif player_color != p.color and player_color != p2.color:
+							otherDefendNum += 1
+							otherDefendNumP += self.piece_values[p2.piece_type]
+					if p.color == player_color and chess.square_name(sq2) in middle :
+						middleAttacks += 1
+				if p.color == player_color and chess.square_name(sq) in middle :
+					middlePieces += 1
 
-			if p != None and player_color == p.color
-				myAttackNum += attacks(sq)
-			elif p != None and player_color != p.color
-				otherAttackNum += attacks(sq)
-
-		return [myAttackNum,otherAttackNum]
+					
+		return [myAttackNum, otherAttackNum, myDefendNum, otherDefendNum, 
+					myAttackNumP, otherAttackNumP, myDefendNumP, otherDefendNumP,
+					middleAttacks, middlePieces]
