@@ -160,7 +160,17 @@ class AvgDisFromKing(Feature) :
 
 		return [myKingDisMyColor/myColor , myKingDisNotMyColor/notMyColor , NotMyKingDisMyColor/myColor , NotMyKingDisNotMyColor/notMyColor ]
 
-class AvgDisFromKing(Feature) :	
+class UnitDisFromKing(Feature) :	
 
 	def extract(self, game, player_color) : 
+		valMyColor = valNotMyColor = 0
+
+		for sq in chess.SQUARES:
+			p = game.piece_at(sq)
+			
+			if p != None and player_color == p.color and chess.square_distance(sq,king(player_color)) == 1:
+				valMyColor += 1
+			if p != None and player_color != p.color and chess.square_distance(sq,king(not player_color)) == 1:
+				valNotMyColor += 1
 		
+		return [valMyColor, valNotMyColor]
