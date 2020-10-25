@@ -12,7 +12,7 @@ import visualize
 # xor_outputs = [   (0.0,),     (1.0,),     (1.0,),     (0.0,)]
 
 inputs = [(1,), (2,), (3,), (4,), (5,), (6,)]
-outputs = [(5,), (10,), (15,), (20,), (25,), (30,)]
+outputs = [(1,), (4,), (9,), (16,), (25,), (36,)]
 
 
 # def eval_genomes(genomes, config):
@@ -30,9 +30,8 @@ def eval_genomes(genomes, config):
 		diff = 0
 		for i, o in zip(inputs, outputs):
 			output = net.activate(i)
-			# diff = 2.718 ** (-1 * ((output[0] / i[0] - 5) ** 2))
-			diff += output[0] - o[0]
-			# diff += 
+			output = (0.000001,) if output[0] == 0 else output
+			diff += 2.718 ** (-10 * ((output[0]/i[0] - i[0]) ** 2))
 		genome.fitness = diff
 
 
@@ -50,11 +49,11 @@ def run(config_file):
 
 	# p.add_reporter(neat.StdOutReporter(True))
 	stats = neat.StatisticsReporter()
-	# p.add_reporter(stats)
+	p.add_reporter(stats)
 	# p.add_reporter(neat.Checkpointer(5))
 
 	# Run for up to 300 generations.
-	winner = p.run(eval_genomes, 100)
+	winner = p.run(eval_genomes, 300)
 
 	# Display the winning genome.
 	print('\nBest genome:\n{!s}'.format(winner))
@@ -66,10 +65,10 @@ def run(config_file):
 		output = winner_net.activate(xi)
 		print("input {!r}, expected output {!r}, got {!r}".format(xi, xo, output))
 
-	# node_names = {-1:'A', -2: 'B', 0:'A XOR B'}
-	# visualize.draw_net(config, winner, True, node_names=node_names)
-	# visualize.plot_stats(stats, ylog=False, view=True)
-	# visualize.plot_species(stats, view=True)
+	node_names = {-1:'A', 0:'A * 5'}
+	visualize.draw_net(config, winner, True, node_names=node_names)
+	visualize.plot_stats(stats, ylog=False, view=True)
+	visualize.plot_species(stats, view=True)
 
 	# p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
 	# p.run(eval_genomes, 100)

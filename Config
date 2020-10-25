@@ -1,16 +1,16 @@
 #--- parameters for the XOR-2 experiment ---#
 
 [NEAT]
-fitness_criterion     = min
-fitness_threshold     = 5
+fitness_criterion     = max
+fitness_threshold     = 5.99999
 pop_size              = 150
 reset_on_extinction   = False
 
 [DefaultGenome]
 # node activation options
-activation_default      = sigmoid
-activation_mutate_rate  = 0.0
-activation_options      = sigmoid
+activation_default      = identity
+activation_mutate_rate  = 0.01
+activation_options      = identity square
 
 # node aggregation options
 aggregation_default     = sum

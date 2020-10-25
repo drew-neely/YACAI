@@ -31,10 +31,10 @@ def run(config_file):
     p = neat.Population(config)
 
     # Add a stdout reporter to show progress in the terminal.
-    # p.add_reporter(neat.StdOutReporter(True))
-    # stats = neat.StatisticsReporter()
-    # p.add_reporter(stats)
-    # p.add_reporter(neat.Checkpointer(5))
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+    p.add_reporter(neat.Checkpointer(5))
 
     # Run for up to 300 generations.
     winner = p.run(eval_genomes, 300)
