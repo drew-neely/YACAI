@@ -92,6 +92,7 @@ class Checkmated(Feature) :
 	def extract(self, game, player_color) :
 
 		for col in chess.Color:
+
 			if p != None and player_color == col and game.is_checkmate() == True:
 				value = 1
 			elif  p != None and player_color != col and game.is_checkmate() == True:
@@ -100,26 +101,6 @@ class Checkmated(Feature) :
 				value = 0
 
 			return [value]
-
-#class HaveQueen(Feature) :		
-
-	# difference in the number of queens the players have
-
-#	def extract(self, game, player_color) :
-
-#		value = 0
-#		for sq in chess.SQUARES: 
-#			p = game.piece_at(sq)
-#			if p.piece_type == chess.QUEEN and player_color == p.color:
-#				value += 1
-#			if p.piece_type == chess.QUEEN and player_color != p.color:
-#				value -= 1
-		# for sq in chess.SQUARES: 
-		# 	p = p.piece_type
-		# 	if p.piece_type == chess.QUEEN and player_color != p.color:
-		# 		value -= 1
-
-#		return value
 
 class PawnDistance(Feature) :	
 
@@ -141,8 +122,7 @@ class AvgDisFromKing(Feature) :
 
 	def extract(self, game, player_color) :
 		
-		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor 
-		= NumOfMyColor = NumOfNotMyColor = 0
+		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor = NumOfMyColor = NumOfNotMyColor = 0
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
 
@@ -162,8 +142,8 @@ class AvgDisFromKing(Feature) :
 		myProduct = fullmove_number*(NumOfMyColor)**2
 		otherProduct = fullmove_number*(NumOfNotMyColor)**2
 
-		return [myKingDisMyColor/myColor , myKingDisNotMyColor/notMyColor , NotMyKingDisMyColor/myColor , 
-		NotMyKingDisNotMyColor/notMyColor, 16 - NumOfMyColor , 16 - NumOfNotMyColor , myProduct , otherProduct]
+		return [myKingDisMyColor/NumOfMyColor , myKingDisNotMyColor/NumOfNotMyColor , NotMyKingDisMyColor/NumOfMyColor , 
+		NotMyKingDisNotMyColor/NumOfNotMyColor, 16 - NumOfMyColor , 16 - NumOfNotMyColor , myProduct , otherProduct]
 
 class UnitDisFromKing(Feature) :	
 
@@ -173,9 +153,9 @@ class UnitDisFromKing(Feature) :
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
 			
-			if p != None and player_color == p.color and chess.square_distance(sq,king(player_color)) == 1:
+			if p != None and player_color == p.color and chess.square_distance(sq,game.king(player_color)) == 1:
 				valMyColor += 1
-			if p != None and player_color != p.color and chess.square_distance(sq,king(not player_color)) == 1:
+			if p != None and player_color != p.color and chess.square_distance(sq,game.king(not player_color)) == 1:
 				valNotMyColor += 1
 		
 		return [valMyColor, valNotMyColor]
@@ -187,7 +167,7 @@ class NumOfLegalMoves(Feature) :
 		board = chess.Board()
 		return [board.legal_moves.count()]
 
-class NumOfLegalMoves(Feature) :	
+class NumOfAttackMoves(Feature) :	
 
 	def extract(self, game, player_color) : 
 
@@ -196,9 +176,9 @@ class NumOfLegalMoves(Feature) :
 		for sq in chess.SQUARES:
 			p = game.piece_at(sq)
 
-			if p != None and player_color == p.color
+			if p != None and player_color == p.color:
 				myAttackNum += attacks(sq)
-			elif p != None and player_color != p.color
+			elif p != None and player_color != p.color:
 				otherAttackNum += attacks(sq)
 
 		return [myAttackNum,otherAttackNum]
