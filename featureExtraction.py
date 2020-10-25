@@ -62,26 +62,35 @@ class TwoOfAKind(Feature) :
 
 	def extract(self, game, player_color) :
 
-		valueK = valueB = valueR = valueK2 = valueB2 = valueR2 = Kpair = Bpair = Rpair = Kpair2 = Bpair2 = Rpair2 = 0
+		valueK = valueB = valueR = valueK2 = valueB2 = valueR2 = 0
 
 		for sq in chess.SQUARES: 
 			p = game.piece_at(sq)
 			if p.piece_type == chess.KNIGHT and player_color == p.color:
 				valueK += 1
 			elif p.piece_type == chess.KNIGHT and player_color != p.color:
-				valueK -= 1
-			elif p.piece_type == chess.BISHOP and player_color == p.color:
+				valueK2 -= 1
+			if p.piece_type == chess.BISHOP and player_color == p.color:
 				valueB += 1
 			elif p.piece_type == chess.BISHOP and player_color != p.color:
-				valueK -= 1
-			elif p.piece_type == chess.ROOK and player_color == p.color:
+				valueB2 -= 1
+			if p.piece_type == chess.ROOK and player_color == p.color:
 				valueR += 1
 			elif p.piece_type == chess.ROOK and player_color != p.color:
-				valueR -= 1
+				valueR2 -= 1
 
-		total = valueB+valueR+valueK
+		Kpair = valueK//2 + math.ceil(valueK2/2)
+		Bpair = valueB//2 + math.ceil(valueB2/2)
+		Rpair = valueR//2 + math.ceil(valueR2/2)
+			
+		return [Kpair, Bpair, Rpair]
 
-		return total
+
+
+
+
+
+
 
 class Checkmated(Feature) :
 
@@ -99,22 +108,22 @@ class Checkmated(Feature) :
 
 			return value
 
-class HaveQueen(Feature) :		
+#class HaveQueen(Feature) :		
 
 	# difference in the number of queens the players have
 
-	def extract(self, game, player_color) :
+#	def extract(self, game, player_color) :
 
-		value = 0
-		for sq in chess.SQUARES: 
-			p = game.piece_at(sq)
-			if p.piece_type == chess.QUEEN and player_color == p.color:
-				value += 1
-			if p.piece_type == chess.QUEEN and player_color != p.color:
-				value -= 1
+#		value = 0
+#		for sq in chess.SQUARES: 
+#			p = game.piece_at(sq)
+#			if p.piece_type == chess.QUEEN and player_color == p.color:
+#				value += 1
+#			if p.piece_type == chess.QUEEN and player_color != p.color:
+#				value -= 1
 		# for sq in chess.SQUARES: 
 		# 	p = p.piece_type
 		# 	if p.piece_type == chess.QUEEN and player_color != p.color:
 		# 		value -= 1
 
-		return value
+#		return value
