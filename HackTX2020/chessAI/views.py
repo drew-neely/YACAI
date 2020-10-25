@@ -7,6 +7,7 @@ import chess.svg
 board = chess.Board()
 # Henlo
 # Create your views here.
+#Shrey's comment
 def index(request):
     global board
     """View function for home page of site."""
