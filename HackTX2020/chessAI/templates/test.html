@@ -1,28 +1,27 @@
-{% extends "base_generic.html" %}
-
-{% block content %}
-  <h1>Chess Home</h1>
-  <p>Welcome to YACAI, a website developed by <em>thoseKids</em>!</p>
-  <div>
-    <h1>{{chess_svg | safe}}</h1> 
-  </div>
-  <div>
-    
-    <form action="" method="post">
-      {% csrf_token %}
-      <table>
-      {{ form.as_table }}
-      </table>
-      <input type="submit" value="Submit">
-    </form>
-  </div>
-  <div>
-  <p><button id="btnStart">START RECORDING</button><br/>
-    <button id="btnStop">STOP RECORDING</button></p>
-    
-    <video controls></video>
-    
-    <video id="vid2" controls></video>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MediaCapture and Streams API</title>
+    <meta name="viewport" content="width=device-width">
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <header>
+        <h1>MediaCapture, MediaRecorder and Streams API</h1>
+    </header>
+    <main>
+        <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Impedit molestiae itaque facere totam saepe tempore esse temporibus, quae reprehenderit aliquid iusto ea laborum, iure eligendi odio exercitationem sapiente illum quos.</p>
+        
+        <p><button id="btnStart">START RECORDING</button><br/>
+        <button id="btnStop">STOP RECORDING</button></p>
+        
+        <video controls></video>
+        
+        <video id="vid2" controls></video>
+        
+        <!-- could save to canvas and do image manipulation and saving too -->
+    </main>    
     <script>
         
         let constraintObj = { 
@@ -56,21 +55,6 @@
             .catch(err=>{
                 console.log(err.name, err.message);
             })
-        }
-        function getCookie(name) {
-          var cookieValue = null;
-          if (document.cookie && document.cookie !== '') {
-              var cookies = document.cookie.split(';');
-              for (var i = 0; i < cookies.length; i++) {
-                  var cookie = cookies[i].trim();
-                  // Does this cookie string begin with the name we want?
-                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                      break;
-                  }
-              }
-          }
-          return cookieValue;
         }
 
         navigator.mediaDevices.getUserMedia(constraintObj)
@@ -108,18 +92,10 @@
                 chunks.push(ev.data);
             }
             mediaRecorder.onstop = (ev)=>{
-                let blob = new Blob(chunks, { 'type' : 'audio/wav;' });
+                let blob = new Blob(chunks, { 'type' : 'video/mp4;' });
                 chunks = [];
                 let videoURL = window.URL.createObjectURL(blob);
                 vidSave.src = videoURL;
-                //let formdata = new FormData() ; //create a from to of data to upload to the server
-                //formdata.append('blob', blob,  'moveAudio.wav') ;
-                let csrftoken = getCookie('csrftoken');
-                let response=fetch("voice_request", {
-                method: "POST",
-                body: blob,
-                headers: { "X-CSRFToken": csrftoken },
-                })
             }
         })
         .catch(function(err) { 
@@ -138,5 +114,5 @@
         TypeError - audio: false, video: false
         *********************************/
     </script>
-  </div>
-{% endblock %}
+</body>
+</html>
