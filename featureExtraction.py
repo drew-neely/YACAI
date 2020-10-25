@@ -1,4 +1,5 @@
 import chess
+import math
 
 from feature import Feature
 
@@ -15,11 +16,12 @@ class PointDifference(Feature) :
 		for sq in chess.SQUARES :
 			p = game.piece_at(sq)
 			if p != None and p.piece_type != chess.KING and p.color == player_color:
-				total += self.piece_values[p]
+				total += self.piece_values[p.piece_type]
 			if p != None and p.piece_type != chess.KING and p.color != player_color:
-				total -= self.piece_values[p]
+				total -= self.piece_values[p.piece_type]
 		
-		return total
+		return [total]
+
 class simpleFeatures(Feature) :
 	piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
 
@@ -30,26 +32,27 @@ class simpleFeatures(Feature) :
 		queenDiff = 0
 		for sq in chess.SQUARES :
 			p = game.piece_at(sq)
-			if p != None and p.piece_type != chess.KING and p.color == player_color:
-				pieceTotal += self.piece_values[p]
-			if p != None and p.piece_type != chess.KING and p.color != player_color:
-				pieceTotal -= self.piece_values[p]
-			if p.piece_type == chess.KNIGHT and player_color == p.color:
-				valueK += 1
-			elif p.piece_type == chess.KNIGHT and player_color != p.color:
-				valueK -= 1
-			elif p.piece_type == chess.BISHOP and player_color == p.color:
-				valueB += 1
-			elif p.piece_type == chess.BISHOP and player_color != p.color:
-				valueK -= 1
-			elif p.piece_type == chess.ROOK and player_color == p.color:
-				valueR += 1
-			elif p.piece_type == chess.ROOK and player_color -= p.color:
-				valueR -= 1
-			if p.piece_type == chess.QUEEN and player_color == p.color:
-				queenDiff += 1
-			if p.piece_type == chess.QUEEN and player_color != p.color:
-				queenDiff -= 1
+			if p != None :
+				if p.piece_type != chess.KING and p.color == player_color:
+					pieceTotal += self.piece_values[p.piece_type]
+				if p.piece_type != chess.KING and p.color != player_color:
+					pieceTotal -= self.piece_values[p.piece_type]
+				if p.piece_type == chess.KNIGHT and player_color == p.color:
+					valueK += 1
+				elif p.piece_type == chess.KNIGHT and player_color != p.color:
+					valueK -= 1
+				elif p.piece_type == chess.BISHOP and player_color == p.color:
+					valueB += 1
+				elif p.piece_type == chess.BISHOP and player_color != p.color:
+					valueK -= 1
+				elif p.piece_type == chess.ROOK and player_color == p.color:
+					valueR += 1
+				elif p.piece_type == chess.ROOK and player_color != p.color:
+					valueR -= 1
+				if p.piece_type == chess.QUEEN and player_color == p.color:
+					queenDiff += 1
+				if p.piece_type == chess.QUEEN and player_color != p.color:
+					queenDiff -= 1
 
 		
 		return [pieceTotal, valueK, valueB, valueR, queenDiff]
@@ -66,18 +69,19 @@ class TwoOfAKind(Feature) :
 
 		for sq in chess.SQUARES: 
 			p = game.piece_at(sq)
-			if p.piece_type == chess.KNIGHT and player_color == p.color:
-				valueK += 1
-			elif p.piece_type == chess.KNIGHT and player_color != p.color:
-				valueK2 -= 1
-			if p.piece_type == chess.BISHOP and player_color == p.color:
-				valueB += 1
-			elif p.piece_type == chess.BISHOP and player_color != p.color:
-				valueB2 -= 1
-			if p.piece_type == chess.ROOK and player_color == p.color:
-				valueR += 1
-			elif p.piece_type == chess.ROOK and player_color != p.color:
-				valueR2 -= 1
+			if p != None :
+				if p.piece_type == chess.KNIGHT and player_color == p.color:
+					valueK += 1
+				elif p.piece_type == chess.KNIGHT and player_color != p.color:
+					valueK2 -= 1
+				if p.piece_type == chess.BISHOP and player_color == p.color:
+					valueB += 1
+				elif p.piece_type == chess.BISHOP and player_color != p.color:
+					valueB2 -= 1
+				if p.piece_type == chess.ROOK and player_color == p.color:
+					valueR += 1
+				elif p.piece_type == chess.ROOK and player_color != p.color:
+					valueR2 -= 1
 
 		Kpair = valueK//2 + math.ceil(valueK2/2)
 		Bpair = valueB//2 + math.ceil(valueB2/2)
@@ -106,7 +110,7 @@ class Checkmated(Feature) :
 			else:
 				value = 0
 
-			return value
+			return [value]
 
 #class HaveQueen(Feature) :		
 

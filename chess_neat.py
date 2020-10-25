@@ -13,10 +13,10 @@ from referee import Referee
 def eval_genomes(genomes, config):
 	ref = Referee()
 
-	nets = [ neat.nn.FeedForwardNetwork.create(genome, config) for genome in genomes ]
+	nets = [ neat.nn.FeedForwardNetwork.create(genome[1], config) for genome in genomes ]
 	agents = [ Agent(net) for net in nets ]
 	
-	ranks = ref.get_ranks()
+	ranks = ref.get_ranks(agents, 16)
 
 	for (genome, rank) in zip(genomes, ranks) :
 		genome.fitness = rank
@@ -35,12 +35,12 @@ def run(config_file):
 	# Add a stdout reporter to show progress in the terminal.
 
 	p.add_reporter(neat.StdOutReporter(True))
-    stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
-    p.add_reporter(neat.Checkpointer(5))
+	stats = neat.StatisticsReporter()
+	p.add_reporter(stats)
+	p.add_reporter(neat.Checkpointer(5))
 
 	# Run for up to 300 generations.
-	winner = p.run(eval_genomes, 300)
+	winner = p.run(eval_genomes, 1)
 
 	# Display the winning genome.
 	print('\nBest genome:\n{!s}'.format(winner))

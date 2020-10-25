@@ -5,7 +5,7 @@ import math
 from featureExtraction import * 
 
 # List of instaces of objects which are subclasses of Feature
-extractors = [PointDifference()]
+extractors = [PointDifference(), simpleFeatures(), TwoOfAKind()]
 
 class Agent :
 
@@ -22,11 +22,14 @@ class Agent :
 		best_move = None
 
 		for move in moves :
-			next_state = board.copy(False)
-			next_state.push_san(move)
-			features = tuple([f.extract(next_state, color) for f in extractors])
-			quality = self.net.activate(features)
-			if(quality > max_quality) :
+			next_state = board.copy(stack=False)
+			next_state.push(move)
+			features = []
+			for f in extractors :
+				res = f.extract(next_state, color)
+				features += res
+			quality = self.net.activate(tuple(features))[0]
+			if quality > max_quality :
 				max_quality = quality
 				best_move = move
 		
