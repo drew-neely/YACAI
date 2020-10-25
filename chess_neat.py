@@ -6,6 +6,7 @@ from __future__ import print_function
 import os
 import neat
 import visualize
+import pickle
 
 from agent import Agent
 from referee import Referee
@@ -19,7 +20,7 @@ def eval_genomes(genomes, config):
 	ranks = ref.get_ranks(agents, 1)
 
 	for (genome, rank) in zip(genomes, ranks) :
-		genome[1].fitness = rank
+		genome[1].fitness = 2.718 ** (- rank / 1.5)
 
 
 
@@ -40,22 +41,10 @@ def run(config_file):
 	p.add_reporter(neat.Checkpointer(5))
 
 	# Run for up to 300 generations.
-	winner = p.run(eval_genomes, 2)
-
-	# Display the winning genome.
-	print('\nBest genome:\n{!s}'.format(winner))
-
-	# Show output of the most fit genome against training data.
-	print('\nOutput:')
-	winner_net = neat.nn.FeedForwardNetwork.create(winner, config)
-
-	# node_names = {-1:'A', 0:'A * 5'}
-	visualize.draw_net(config, winner, True) # , node_names=node_names)
-	visualize.plot_stats(stats, ylog=False, view=True)
-	visualize.plot_species(stats, view=True)
-
-	# p = neat.Checkpointer.restore_checkpoint('neat-checkpoint-4')
-	# p.run(eval_genomes, 100)
+	for i in range(0, 20000) :
+		winner = p.run(eval_genomes, 1)
+		pickle.dump(winner, open("best_iter" + str(i) + ".pickle", "wb"))
+		print(winner)
 
 
 if __name__ == '__main__':

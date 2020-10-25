@@ -62,22 +62,31 @@ class Referee :
 		self.pool = Pool(processes=cpu_count())
 
 	# returns the ranks of the agents in a dictionary - most scores are ties
-	@staticmethod
-	def run_bracket(agents) :
+	def run_bracket(self, agents) :
 		print("Starting a bracket")
 		assert math.log2(len(agents)) % 1 == 0
 		ranks = { a.id : math.log2(len(agents)) for a in agents }
 
-		n = len(agents)
 		new_agents = []
 
 		while len(agents) > 1 :
+			matches = []
 			for i in range(0, len(agents), 2) :
-				winner = Referee.run_match(agents[i], agents[i + 1])
+				matches.append((agents[i], agents[i + 1]))
+			winners = self.pool.starmap(Referee.run_match, matches)
+			for winner in winners :
 				ranks[winner.id] -= 1
 				new_agents.append(winner)
 			agents = new_agents
 			new_agents = []
+
+		# while len(agents) > 1 :
+		# 	for i in range(0, len(agents), 2) :
+		# 		winner = Referee.run_match(agents[i], agents[i + 1])
+		# 		ranks[winner.id] -= 1
+		# 		new_agents.append(winner)
+		# 	agents = new_agents
+		# 	new_agents = []
 
 		return ranks
 
@@ -88,7 +97,8 @@ class Referee :
 			random.shuffle(new_agents)
 			bracket_seedings.append(new_agents)
 
-		ranks = self.pool.map(Referee.run_bracket, bracket_seedings)
+		# ranks = self.pool.map(Referee.run_bracket, bracket_seedings)
+		ranks = [self.run_bracket(seed) for seed in bracket_seedings]
 		agent_ranks = [ mean([ d[a.id] for d in ranks ]) for a in agents ]
 		return agent_ranks
 		
