@@ -159,8 +159,8 @@ class AvgDisFromKing(Feature) :
 			if p != None and player_color != p.color and p.piece_type != chess.KING:
 				NumOfNotMyColor += 1
 
-		myProduct = math.floor(ply()/2)*(NumOfMyColor)**2
-		otherProduct = math.floor(ply()/2)*(NumOfNotMyColor)**2
+		myProduct = fullmove_number*(NumOfMyColor)**2
+		otherProduct = fullmove_number*(NumOfNotMyColor)**2
 
 		return [myKingDisMyColor/myColor , myKingDisNotMyColor/notMyColor , NotMyKingDisMyColor/myColor , 
 		NotMyKingDisNotMyColor/notMyColor, 16 - NumOfMyColor , 16 - NumOfNotMyColor , myProduct , otherProduct]
@@ -187,3 +187,18 @@ class NumOfLegalMoves(Feature) :
 		board = chess.Board()
 		return [board.legal_moves.count()]
 
+class NumOfLegalMoves(Feature) :	
+
+	def extract(self, game, player_color) : 
+
+		myAttackNum = otherAttackNum = 0
+
+		for sq in chess.SQUARES:
+			p = game.piece_at(sq)
+
+			if p != None and player_color == p.color
+				myAttackNum += attacks(sq)
+			elif p != None and player_color != p.color
+				otherAttackNum += attacks(sq)
+
+		return [myAttackNum,otherAttackNum]
