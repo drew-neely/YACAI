@@ -15,15 +15,44 @@ class PointDifference(Feature) :
 		for sq in chess.SQUARES :
 			p = game.piece_at(sq)
 			if p != None and p.piece_type != chess.KING and p.color == player_color:
-				total += pieces.append(p)
-
-		for p in pieces :
-			value = self.piece_values[p]
-			if player_color != p.color :
-				value *= -1
-			total += value
+				total += self.piece_values[p]
+			if p != None and p.piece_type != chess.KING and p.color != player_color:
+				total -= self.piece_values[p]
 		
 		return total
+class simpleFeatures(Feature) :
+	piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
+
+	def extract(self, game, player_color) :
+		pieces = []
+		pieceTotal = 0
+		valueK = valueB = valueR = 0
+		queenDiff = 0
+		for sq in chess.SQUARES :
+			p = game.piece_at(sq)
+			if p != None and p.piece_type != chess.KING and p.color == player_color:
+				pieceTotal += self.piece_values[p]
+			if p != None and p.piece_type != chess.KING and p.color != player_color:
+				pieceTotal -= self.piece_values[p]
+			if p.piece_type == chess.KNIGHT and player_color == p.color:
+				valueK += 1
+			elif p.piece_type == chess.KNIGHT and player_color != p.color:
+				valueK -= 1
+			elif p.piece_type == chess.BISHOP and player_color == p.color:
+				valueB += 1
+			elif p.piece_type == chess.BISHOP and player_color != p.color:
+				valueK -= 1
+			elif p.piece_type == chess.ROOK and player_color == p.color:
+				valueR += 1
+			elif p.piece_type == chess.ROOK and player_color -= p.color:
+				valueR -= 1
+			if p.piece_type == chess.QUEEN and player_color == p.color:
+				queenDiff += 1
+			if p.piece_type == chess.QUEEN and player_color != p.color:
+				queenDiff -= 1
+
+		
+		return [pieceTotal, valueK, valueB, valueR, queenDiff]
 
 class TwoOfAKind(Feature) :		
 
@@ -39,35 +68,18 @@ class TwoOfAKind(Feature) :
 			p = game.piece_at(sq)
 			if p.piece_type == chess.KNIGHT and player_color == p.color:
 				valueK += 1
+			elif p.piece_type == chess.KNIGHT and player_color != p.color:
+				valueK -= 1
 			elif p.piece_type == chess.BISHOP and player_color == p.color:
 				valueB += 1
+			elif p.piece_type == chess.BISHOP and player_color != p.color:
+				valueK -= 1
 			elif p.piece_type == chess.ROOK and player_color == p.color:
 				valueR += 1
-			
-		if valueK == 2:
-			Kpair = 1
-		if valueB == 2:
-			Bpair = 1
-		if valueR == 2:
-			Rpair = 1
-
-		for sq in chess.SQUARES: 
-			p = game.piece_at(sq)
-			if p.piece_type == chess.KNIGHT and player_color != p.color:
-				valueK2 += 1
-			elif p.piece_type == chess.BISHOP and player_color != p.color:
-				valueB2 += 1
 			elif p.piece_type == chess.ROOK and player_color != p.color:
-				valueR2 += 1
-			
-		if valueK == 2:
-			Kpair2 = 1
-		if valueB == 2:
-			Bpair2 = 1
-		if valueR == 2:
-			Rpair2 = 1
+				valueR -= 1
 
-		total = Kpair + Bpair + Rpair - Kpair2 - Bpair2 - Rpair2
+		total = valueB+valueR+valueK
 
 		return total
 
