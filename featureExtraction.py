@@ -85,13 +85,6 @@ class TwoOfAKind(Feature) :
 			
 		return [Kpair, Bpair, Rpair]
 
-
-
-
-
-
-
-
 class Checkmated(Feature) :
 
 	# Are you in checkmate? Courtesy of Drew.
@@ -127,3 +120,20 @@ class Checkmated(Feature) :
 		# 		value -= 1
 
 #		return value
+
+class PawnDistance(Feature) :	
+
+	def extract(self, game, player_color) :
+
+		value = 0
+
+		for sq in chess.SQUARES:
+			p = game.piece_at(sq)
+
+			if p.piece_type == chess.PAWN and player_color == chess.WHITE:
+			value += abs(chess.square_rank(p)-1)
+
+			elif p.piece_type == chess.PAWN and player_color != chess.BLACK:
+			value -= abs(chess.square_rank(p)-6)
+
+		return value
