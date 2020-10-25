@@ -78,9 +78,9 @@ class Checkmated(Feature) :
 	def extract(self, game, player_color) :
 
 		for col in chess.Color:
-			if player_color == col and is_checkmate(game) == True:
+			if player_color == col and game.is_checkmate() == True:
 				value = 1
-			elif player_color != col and is_checkmate(game) == True:
+			elif player_color != col and game.is_checkmate() == True:
 				value = -1
 			else:
 				value = 0
