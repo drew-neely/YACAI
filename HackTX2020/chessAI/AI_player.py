@@ -3,7 +3,7 @@ import pickle
 import os
 from chessAI.agent import Agent
 
-filename = "./chessAI/best_iter29.pickle"
+filename = "./chessAI/best_iter110.pickle"
 
 class AI_Player :
     def __init__(self) :

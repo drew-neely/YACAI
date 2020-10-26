@@ -75,7 +75,12 @@ def voice_request(request):
         move = r.recognize_google(audio)
         print(" I heard:  ", move)
         board.push_san(move.lower())
+        board.push(player.get_move(board, chess.BLACK))
         print(board)
+    else:
+        print("get Request")
+        form = UpdateBoardForm()
+        board = chess.Board()
     #board.push(player.get_move(board, chess.BLACK))
     form = UpdateBoardForm()
     chess_svg = chess.svg.board(board, size=600)
@@ -84,4 +89,4 @@ def voice_request(request):
         'chess_board': board,
         'chess_svg': chess_svg
     }
-    return render(request, 'index.html', context=context)
+    return HttpResponse(chess_svg, content_type='image/vnd.ms-excel')
