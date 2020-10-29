@@ -93,6 +93,7 @@
             let start = document.getElementById('btnStart');
             let stop = document.getElementById('btnStop');
             let vidSave = document.getElementById('vid2');
+            let chessBoard = document.getElementById('chesBord');
             let mediaRecorder = new MediaRecorder(mediaStreamObj);
             let chunks = [];
             
@@ -119,7 +120,8 @@
                 method: "POST",
                 body: blob,
                 headers: { "X-CSRFToken": csrftoken },
-                })
+                }).then((value) => {chessBoard = value});
+                
             }
         })
         .catch(function(err) { 

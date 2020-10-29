@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from chessAI.forms import UpdateBoardForm
 from django.http import HttpResponse
+from django.http import FileResponse
 import speech_recognition as sr
 import librosa
 import soundfile as sf
@@ -57,36 +58,33 @@ def test(request):
 
 def voice_request(request):
     global board
-    if request.method == 'POST':
-        print("rescievedRequest")
-        #print(request.body)
-        f = open('./file.wav', 'wb')
-        f.write(request.body)
-        f.close()
-        #command = ['ffmpeg', '-y', '-i', './file.webm', '-c:a', 'pcm_f32le', './out.wav']
-        #subprocess.run(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
-        r = sr.Recognizer()
-        x,_ = librosa.load('./file.wav', sr=16000)
-        sf.write('tmp.wav', x, 16000)
-        time.sleep(1)
-        soundM = sr.AudioFile("./tmp.wav")
-        with soundM as source:
-            audio = r.record(source)
-        move = r.recognize_google(audio)
-        print(" I heard:  ", move)
-        board.push_san(move.lower())
-        board.push(player.get_move(board, chess.BLACK))
-        print(board)
-    else:
-        print("get Request")
-        form = UpdateBoardForm()
-        board = chess.Board()
+    print("rescievedRequest")
+    #print(request.body)
+    f = open('./file.wav', 'wb')
+    f.write(request.body)
+    f.close()
+    #command = ['ffmpeg', '-y', '-i', './file.webm', '-c:a', 'pcm_f32le', './out.wav']
+    #subprocess.run(command,stdout=subprocess.PIPE,stdin=subprocess.PIPE)
+    r = sr.Recognizer()
+    x,_ = librosa.load('./file.wav', sr=16000)
+    sf.write('tmp.wav', x, 16000)
+    time.sleep(1)
+    soundM = sr.AudioFile("./tmp.wav")
+    with soundM as source:
+        audio = r.record(source)
+    move = r.recognize_google(audio)
+    print(" I heard:  ", move)
+    board.push_san(move.lower())
+    board.push(player.get_move(board, chess.BLACK))
+    print(board)
     #board.push(player.get_move(board, chess.BLACK))
     form = UpdateBoardForm()
     chess_svg = chess.svg.board(board, size=600)
-    context = {
-        'form': form,
-        'chess_board': board,
-        'chess_svg': chess_svg
-    }
-    return HttpResponse(chess_svg, content_type='image/vnd.ms-excel')
+    # context = {
+    #     'form': form,
+    #     'chess_board': board,
+    #     'chess_svg': chess_svg
+    # }
+    #return HttpResponse(chess_svg, content_type='image/svg+xml')
+    return FileResponse(chess_svg)
+    
