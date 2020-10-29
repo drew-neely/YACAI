@@ -3,7 +3,7 @@
 [NEAT]
 fitness_criterion     = max
 fitness_threshold     = 999999999
-pop_size              = 1024
+pop_size              = 32
 reset_on_extinction   = False
 
 [DefaultGenome]
@@ -14,7 +14,7 @@ activation_options      = identity square sigmoid hat abs
 
 # node aggregation options
 aggregation_default     = sum
-aggregation_mutate_rate = 0.005
+aggregation_mutate_rate = 0.05
 aggregation_options     = sum max min product
 
 # node bias options

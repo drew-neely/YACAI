@@ -17,7 +17,7 @@ def eval_genomes(genomes, config):
 	nets = [ neat.nn.FeedForwardNetwork.create(genome[1], config) for genome in genomes ]
 	agents = [ Agent(net) for net in nets ]
 	
-	ranks = ref.get_ranks(agents, 1)
+	ranks = ref.get_ranks(agents, 3)
 
 	for (genome, rank) in zip(genomes, ranks) :
 		genome[1].fitness = 2.718 ** (- rank / 1.5)
