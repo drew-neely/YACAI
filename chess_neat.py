@@ -11,13 +11,15 @@ import pickle
 from agent import Agent
 from referee import Referee
 
+referee = Referee()
+
 def eval_genomes(genomes, config):
-	ref = Referee()
+	global referee
 
 	nets = [ neat.nn.FeedForwardNetwork.create(genome[1], config) for genome in genomes ]
 	agents = [ Agent(net) for net in nets ]
 	
-	ranks = ref.get_ranks(agents, 3)
+	ranks = referee.get_ranks(agents, 3)
 
 	for (genome, rank) in zip(genomes, ranks) :
 		genome[1].fitness = 2.718 ** (- rank / 1.5)
