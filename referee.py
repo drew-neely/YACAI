@@ -2,13 +2,15 @@ import chess
 import chess.svg
 import math
 import random
-from threading import Thread
-from queue import Queue
-from multiprocessing import cpu_count
+from multiprocessing import cpu_count, Process, Queue
 from statistics import mean
 from featureExtraction import PointDifference
 
-
+def worker(match_queue, result_queue) :
+		while True :
+			(agent1, agent2, i, level, round) = match_queue.get()
+			winner = Referee.run_match(agent1, agent2)
+			result_queue.put((winner, i, level + 1, round))
 
 class Referee :
 
@@ -61,27 +63,22 @@ class Referee :
 				print("\tUnfinished game: Black gets the win - moves: ", moves, ", pd: ", abs(diff))
 				return player_color[chess.BLACK]
 
-	def worker(self) :
-		while self.alive :
-			(agent1, agent2, i, level, round) = self.match_queue.get()
-			#print("starting game - (match_queue, result_queue): (", self.match_queue.qsize(), self.result_queue.qsize(), ")")
-			winner = Referee.run_match(agent1, agent2)
-			self.result_queue.put((winner, i, level + 1, round))
-			self.match_queue.task_done()
-
 	def __init__(self) :
-		self.alive = True
 		self.match_queue = Queue()    # format (a1, a2, i, l, r)
 		self.result_queue = Queue()   # format (winner, i, l, r)
-		self.workers = [Thread(target=self.worker, daemon=True) for _ in range(cpu_count())]
+		self.workers = [Process(target=worker, args=(self.match_queue, self.result_queue), daemon=True) for _ in range(cpu_count())]
 		for w in self.workers :
 			w.start()
 
 	def __del__(self) :
-		self.alive = False
-		# most threads will still be in a get when this happens, so fix this
-		# or just only make 1 ref so you dont have to delete the threads...
-		# !!!
+		for w in self.workers :
+			w.terminate()
+		for w in self.workers :
+			# wait for process to die - doesn't happen immediately on terminate
+			while w.is_alive() :
+				pass
+			w.close()
+
 
 	# rank calculated by average placement in bracket -
 	# 	One is subtracted for each win and at the end the number of rounds is divided out
@@ -109,14 +106,14 @@ class Referee :
 		while num_matches < expected_matches :
 			(winner, i, level, round) = self.result_queue.get()
 			ranks[winner.id] -= 1
-			#print("(r l i) = (", round, level, i, ")")
+			print("(r l i) = (", round, level, i, ")")
+			print("matches left =", expected_matches - num_matches)
 			bracket_seedings[round][level][i] = winner
 			if level != max_level : # final winner of bracket
 				opponent = bracket_seedings[round][level][i - 2 * (i%2) + 1] # last index is equation to get paired index
 				if opponent != None :
 					self.match_queue.put((winner, opponent, int(i/2), level, round))
 			num_matches += 1
-			self.result_queue.task_done()
 
 		ranks = [ ranks[a.id] / num_rounds for a in agents ]
 		return ranks

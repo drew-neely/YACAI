@@ -4,14 +4,17 @@
 
 from __future__ import print_function
 import os
+import sys
 import neat
 import visualize
 import pickle
+from multiprocessing import freeze_support
 
 from agent import Agent
 from referee import Referee
 
-referee = Referee()
+if __name__ == "__main__" :
+	referee = Referee()
 
 def eval_genomes(genomes, config):
 	global referee
@@ -48,11 +51,17 @@ def run(config_file):
 		pickle.dump(winner, open("best_iter" + str(i) + ".pickle", "wb"))
 		print(winner)
 
-
 if __name__ == '__main__':
 	# Determine path to configuration file. This path manipulation is
 	# here so that the script will run successfully regardless of the
 	# current working directory.
+	freeze_support()
 	local_dir = os.path.dirname(__file__)
 	config_path = os.path.join(local_dir, 'Config')
-	run(config_path)
+
+	try:
+		run(config_path)
+	except (KeyboardInterrupt, BrokenPipeError) : # on "^C" just kill children and exit
+		sys.stderr.close()
+		del referee
+		exit()
