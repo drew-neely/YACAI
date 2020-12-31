@@ -9,14 +9,14 @@ from statistics import mean
 def worker(match_queue, result_queue) :
 	while True :
 		(agent1, agent2, i, level, round) = match_queue.get()
-		winner = run_match(agent1, agent2)
-		result_queue.put((winner, i, level + 1, round))
+		result = run_match(agent1, agent2)
+		result_queue.put((result, i, level + 1, round))
 
 class Referee :
 
 	def __init__(self) :
 		self.match_queue = Queue()    # format (a1, a2, i, l, r)
-		self.result_queue = Queue()   # format (winner, i, l, r)
+		self.result_queue = Queue()   # format (result, i, l, r)
 		self.workers = [Process(target=worker, args=(self.match_queue, self.result_queue), daemon=True) for _ in range(cpu_count())]
 		for w in self.workers :
 			w.start()
@@ -54,19 +54,25 @@ class Referee :
 		expected_matches = (len(agents) - 1) * num_rounds
 		max_level = math.log2(len(agents))
 		num_matches = 0
+		perf_data = [0]*9
 		while num_matches < expected_matches :
-			(winner, i, level, round) = self.result_queue.get()
-			ranks[winner.id] -= 1
+			(result, i, level, round) = self.result_queue.get()
+			ranks[result.winner.id] -= 1
 			print("(r l i) = (", round, level, i, ")")
 			print("matches left =", expected_matches - num_matches)
-			bracket_seedings[round][level][i] = winner
+			bracket_seedings[round][level][i] = result.winner
 			if level != max_level : # final winner of bracket
 				opponent = bracket_seedings[round][level][i - 2 * (i%2) + 1] # last index is equation to get paired index
 				if opponent != None :
-					self.match_queue.put((winner, opponent, int(i/2), level, round))
+					self.match_queue.put((result.winner, opponent, int(i/2), level, round))
+			for i in range(9):
+				perf_data[i] += result.perf_data[i]
+			print(perf_data)
 			num_matches += 1
 
 		ranks = [ ranks[a.id] / num_rounds for a in agents ]
+		print("performance data:")
+		print(perf_data)
 		return ranks
 		
 	

@@ -1,6 +1,19 @@
 import chess
 from featureExtraction import PointDifference
 import random
+from agent import extractors
+
+class Result :
+	# arguments:
+	#	white, black -> the white and black agents
+	#	winner       -> the winning agent or None for a draw
+	#	board        -> the resultant board
+	def __init__(self, white, black, winner, board):
+		self.white = white
+		self.black = black
+		self.winner = winner
+		self.moves = ' '.join([move.uci() for move in board.move_stack])
+		self.perf_data = [e.time_running for e in extractors]
 
 def is_game_end(board) :
 	w = b = 0
@@ -34,16 +47,18 @@ def run_match(p1, p2) :
 	# assert result != "*", "Referee declared game over before it ended"
 	if result == "1-0" :
 		print("\tWin: White - moves: ", moves)
-		return player_color[chess.WHITE]
+		winner = player_color[chess.WHITE]
 	elif result == "0-1" :
 		print("\tWin: Black - moves: ", moves)
-		return player_color[chess.BLACK]
+		winner = player_color[chess.BLACK]
 	else :
 		pd = PointDifference()
 		diff = pd.extract(board, chess.WHITE)[0]
 		if diff > 0 :
 			print("\tUnfinished game: White gets the win - moves: ", moves, ", pd: ", abs(diff))
-			return player_color[chess.WHITE]
+			winner = player_color[chess.WHITE]
 		else :
 			print("\tUnfinished game: Black gets the win - moves: ", moves, ", pd: ", abs(diff))
-			return player_color[chess.BLACK]
+			winner = player_color[chess.BLACK]
+	res = Result(player_color[chess.WHITE], player_color[chess.BLACK], winner, board)
+	return res

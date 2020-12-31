@@ -10,7 +10,7 @@ class PointDifference(Feature) :
 	# determines the difference in the value of the pieces of the two players.
 	# game is a chess board from the chess library.
 	# player_color is one of chess.WHITE or chess.BLACK.
-	def extract(self, game, player_color) :
+	def _extract(self, game, player_color) :
 		pieces = []
 		total = 0
 		for sq in chess.SQUARES :
@@ -25,7 +25,7 @@ class PointDifference(Feature) :
 class simpleFeatures(Feature) :
 	piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9}
 
-	def extract(self, game, player_color) :
+	def _extract(self, game, player_color) :
 		pieces = []
 		pieceTotal = 0
 		valueK = valueB = valueR = 0
@@ -63,7 +63,7 @@ class TwoOfAKind(Feature) :
 	# adds the number of two of a kind of a knight, bishop, or rook, and subtracts from how many 
 	# two of a kind the opponent has.
 
-	def extract(self, game, player_color) :
+	def _extract(self, game, player_color) :
 
 		valueK = valueB = valueR = valueK2 = valueB2 = valueR2 = 0
 
@@ -93,7 +93,7 @@ class CheckCheckmate(Feature) :
 
 	# Are you in checkmate? Courtesy of Drew.
 
-	def extract(self, game, player_color) :
+	def _extract(self, game, player_color) :
 		checkmate = 1 if game.is_checkmate() else 0
 		check = 1 if game.is_check() else 0
 		
@@ -107,7 +107,7 @@ class CheckCheckmate(Feature) :
 
 class PawnDistance(Feature) :	
 
-	def extract(self, game, player_color) :
+	def _extract(self, game, player_color) :
 
 		value = 0
 
@@ -123,7 +123,7 @@ class PawnDistance(Feature) :
 
 class AvgDisFromKing(Feature) :	
 
-	def extract(self, game, player_color) :
+	def _extract(self, game, player_color) :
 		
 		myKingDisMyColor = myKingDisNotMyColor = NotMyKingDisMyColor = NotMyKingDisNotMyColor = 0
 		NumOfMyColor = NumOfNotMyColor = 1
@@ -152,7 +152,7 @@ class AvgDisFromKing(Feature) :
 
 class UnitDisFromKing(Feature) :	
 
-	def extract(self, game, player_color) : 
+	def _extract(self, game, player_color) : 
 		valMyColor = valNotMyColor = 0
 
 		for sq in chess.SQUARES:
@@ -167,7 +167,7 @@ class UnitDisFromKing(Feature) :
 
 class NumOfLegalMoves(Feature) :	
 
-	def extract(self, game, player_color) : 
+	def _extract(self, game, player_color) : 
 
 		board = chess.Board()
 		return [board.legal_moves.count()]
@@ -176,7 +176,7 @@ class NumAttackDefendMoves(Feature) :
 
 	piece_values = {chess.PAWN: 1, chess.KNIGHT: 3, chess.BISHOP: 3, chess.ROOK: 5, chess.QUEEN: 9, chess.KING: 0}
 
-	def extract(self, game, player_color) : 
+	def _extract(self, game, player_color) : 
 
 		myAttackNum = otherAttackNum = 0
 		myDefendNum = otherDefendNum = 0
