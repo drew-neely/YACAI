@@ -9,9 +9,9 @@ class Result :
 	#	winner       -> the winning agent or None for a draw
 	#	board        -> the resultant board
 	def __init__(self, white, black, winner, board):
-		self.white = white
-		self.black = black
-		self.winner = winner
+		self.white_id = white.id
+		self.black_id = black.id
+		self.winner_id = winner.id if winner != None else None
 		self.moves = ' '.join([move.uci() for move in board.move_stack])
 		self.perf_data = [e.time_running for e in extractors]
 
