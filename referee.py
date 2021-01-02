@@ -2,14 +2,15 @@ import chess
 import chess.svg
 import math
 import random
-from match import run_match
+from match import Match
 from multiprocessing import cpu_count, Process, Queue
 from statistics import mean
 
 def worker(match_queue, result_queue) :
 	while True :
 		(agent1, agent2, i, level, round) = match_queue.get()
-		result = run_match(agent1, agent2)
+		match = Match(agent1, agent2, random_colors = True)
+		result = match.run()
 		result_queue.put((result, i, level + 1, round))
 
 class Referee :

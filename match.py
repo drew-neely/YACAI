@@ -15,50 +15,60 @@ class Result :
 		self.moves = ' '.join([move.uci() for move in board.move_stack])
 		self.perf_data = [e.time_running for e in extractors]
 
-def is_game_end(board) :
-	w = b = 0
-	for sq in chess.SQUARES :
-		p = board.piece_at(sq)
-		if p != None :
-			if p.color == chess.BLACK:
-				b += 1
-			elif p.color == chess.WHITE:
-				w += 1
+class Match :
 
-	return board.is_game_over() or w == 1 or b == 1
-	
-def run_match(p1, p2) :
-	# white and black randomly selected
-	board = chess.Board()
-	if random.randint(0,1) :
-		player_color = {chess.WHITE: p1, chess.BLACK: p2}
-	else :
-		player_color = {chess.WHITE: p2, chess.BLACK: p1}
-
-	moves = 0
-	while not is_game_end(board) :
-		move = player_color[board.turn].get_move(board, board.turn)
-		assert move in board.legal_moves
-		board.push(move)
-		moves += 1
-		if board.can_claim_fifty_moves() :
-			break
-	result = board.result(claim_draw=True)
-	# assert result != "*", "Referee declared game over before it ended"
-	if result == "1-0" :
-		print("\tWin: White - moves: ", moves)
-		winner = player_color[chess.WHITE]
-	elif result == "0-1" :
-		print("\tWin: Black - moves: ", moves)
-		winner = player_color[chess.BLACK]
-	else :
-		pd = PointDifference()
-		diff = pd.extract(board, chess.WHITE)[0]
-		if diff > 0 :
-			print("\tUnfinished game: White gets the win - moves: ", moves, ", pd: ", abs(diff))
-			winner = player_color[chess.WHITE]
+	def __init__(self, white, black, random_colors=False) :
+		# if random_color then do random assignment of colors - else randomize it
+		if random_colors and random.randint(0,1) :
+			self.players = {chess.WHITE: black, chess.BLACK: white}
 		else :
-			print("\tUnfinished game: Black gets the win - moves: ", moves, ", pd: ", abs(diff))
-			winner = player_color[chess.BLACK]
-	res = Result(player_color[chess.WHITE], player_color[chess.BLACK], winner, board)
-	return res
+			self.players = {chess.WHITE: white, chess.BLACK: black}
+
+	def is_game_end(self, board) :
+		w = b = 0
+		for sq in chess.SQUARES :
+			p = board.piece_at(sq)
+			if p != None :
+				if p.color == chess.BLACK:
+					b += 1
+				elif p.color == chess.WHITE:
+					w += 1
+
+		return board.is_game_over() or w == 1 or b == 1
+
+	def run(self) :
+		# !!! Add logic to determine cause of game end - especially for draws
+
+		# init board
+		board = chess.Board()
+		
+		# conduct game
+		moves = 0 
+		while not self.is_game_end(board) :
+			move = self.players[board.turn].get_move(board, board.turn)
+			board.push(move)
+			moves += 1
+			if board.can_claim_fifty_moves() :
+				break
+		
+		# get result
+		result = board.result(claim_draw=True)
+
+		# return result
+		if result == "1-0" :
+			print("\tWin: White - moves: ", moves)
+			winner = self.players[chess.WHITE]
+		elif result == "0-1" :
+			print("\tWin: Black - moves: ", moves)
+			winner = self.players[chess.BLACK]
+		else :
+			pd = PointDifference()
+			diff = pd.extract(board, chess.WHITE)[0]
+			if diff > 0 :
+				print("\tUnfinished game: White gets the win - moves: ", moves, ", pd: ", abs(diff))
+				winner = self.players[chess.WHITE]
+			else :
+				print("\tUnfinished game: Black gets the win - moves: ", moves, ", pd: ", abs(diff))
+				winner = self.players[chess.BLACK]
+		res = Result(self.players[chess.WHITE], self.players[chess.BLACK], winner, board)
+		return res
