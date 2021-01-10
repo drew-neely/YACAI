@@ -6,7 +6,6 @@ from __future__ import print_function
 import os
 import sys
 import neat
-import visualize
 import pickle
 from multiprocessing import freeze_support
 

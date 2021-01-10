@@ -40,19 +40,19 @@ class Match :
 		# !!! Add logic to determine cause of game end - especially for draws
 
 		# init board
-		board = chess.Board()
+		self.board = chess.Board()
 		
 		# conduct game
 		moves = 0 
-		while not self.is_game_end(board) :
-			move = self.players[board.turn].get_move(board, board.turn)
-			board.push(move)
+		while not self.is_game_end(self.board) :
+			move = self.players[self.board.turn].get_move(self.board, self.board.turn)
+			self.board.push(move)
 			moves += 1
-			if board.can_claim_fifty_moves() :
+			if self.board.can_claim_fifty_moves() :
 				break
 		
 		# get result
-		result = board.result(claim_draw=True)
+		result = self.board.result(claim_draw=True)
 
 		# return result
 		if result == "1-0" :
@@ -63,12 +63,12 @@ class Match :
 			winner = self.players[chess.BLACK]
 		else :
 			pd = PointDifference()
-			diff = pd.extract(board, chess.WHITE)[0]
+			diff = pd.extract(self.board, chess.WHITE)[0]
 			if diff > 0 :
 				print("\tUnfinished game: White gets the win - moves: ", moves, ", pd: ", abs(diff))
 				winner = self.players[chess.WHITE]
 			else :
 				print("\tUnfinished game: Black gets the win - moves: ", moves, ", pd: ", abs(diff))
 				winner = self.players[chess.BLACK]
-		res = Result(self.players[chess.WHITE], self.players[chess.BLACK], winner, board)
+		res = Result(self.players[chess.WHITE], self.players[chess.BLACK], winner, self.board)
 		return res
