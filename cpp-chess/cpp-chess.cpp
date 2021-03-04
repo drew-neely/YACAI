@@ -53,6 +53,11 @@ extern "C" void make_move(int bd, uint8_t from_square, uint8_t to_square, uint8_
 	boardDescriptorTable[bd]->makeMove(move);
 }
 
+extern "C" void unmake_move(int bd) {
+	assert_valid_bd(bd);
+	boardDescriptorTable[bd]->unmakeMove();
+}
+
 
 extern "C" const char* get_fen(int bd) {
 	assert_valid_bd(bd);
@@ -65,6 +70,6 @@ extern "C" const char* get_fen(int bd) {
 
 
 int main() {
-    printf("Hello, world - why are you executing me? I'm a library. Let me sleep.");
+    printf("Hello, world - wait... I'm a library. Why are you executing me? Let me sleep.");
     return 0;
 }

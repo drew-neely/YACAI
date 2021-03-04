@@ -16,6 +16,7 @@ if __name__ == "__main__":
 	for i in range(0, 1000) :
 		move = None
 		moves = []
+		fail = False
 		while(True) :
 			if move != None :
 				board.make_move(move)
@@ -28,6 +29,7 @@ if __name__ == "__main__":
 				print("CORRECT" if passed else "INCORRECT - should be:\n"+py_board.fen())
 				print("moves -\n", [m.uci() for m in moves])
 				print("\n-------------")
+				fail = True
 				break
 			if py_board.is_game_over(claim_draw = True) :
 				if((i + 1) % 1 == 0) :
@@ -36,8 +38,20 @@ if __name__ == "__main__":
 			else :
 				count += 1
 				move = choice([m for m in py_board.legal_moves])
-				# print(move)
 				moves.append(move)
+		if not fail : # undo all moves
+			for move in reversed(moves) :
+				board.unmake_move()
+				py_board.pop()
+				fen = board.get_fen()
+				passed = fen == py_board.fen()
+				if(not passed) :
+					print(fen)
+					print(PyBoard(fen))
+					print("CORRECT" if passed else "INCORRECT IN REVERSAL - should be:\n"+py_board.fen())
+					print("moves -\n", [m.uci() for m in moves])
+					print("\n-------------")
+					break
 		board.free()
 		board = Board()
 		py_board = PyBoard()

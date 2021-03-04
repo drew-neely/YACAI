@@ -5,9 +5,12 @@
 
 #include "board.h"
 #include "move.h"
+#include "attack-squares.h"
 #include "zobrist.h"
 
 using namespace std;
+
+#define TRANSITION_VECTOR_STARTING_SIZE 128
 
 Board::Board(const char* fen) {
 	char* pos = (char*) fen;
@@ -114,6 +117,9 @@ Board::Board(const char* fen) {
 	pos += idx;
 	assert(*pos == '\0'); // should have reached end of fen string
 
+	// initialize transition vector
+	transitions.reserve(TRANSITION_VECTOR_STARTING_SIZE);
+
 	// Generate Zobstist hash and store it - this should be the only place this needs to be sone from scratch
 	zobrist = 0;
 	for(uint8_t i = 0; i < 64; i++) {
@@ -173,12 +179,19 @@ Board::Board() {
 	clock = 0;
 	halfmoves = 0;
 
+	// initialize transition vector
+	transitions.reserve(TRANSITION_VECTOR_STARTING_SIZE);
+
 	zobrist = starting_hash;
+}
+
+vector<Move> Board::legal_moves() {
+
 }
 
 // precondition: move must be a valid move - undefined behavior if not
 void Board::makeMove(Move move) {
-	Transition trans(move, this);
+	Transition* trans = new Transition(move, this);
 
 	// set variables for special moves (enpassant, castling right changes, and promotion)
 	uint8_t from_pid = squares[move.from_square];
@@ -189,17 +202,17 @@ void Board::makeMove(Move move) {
 	uint8_t new_clock = clock + 1;
 
 
-	if(trans.is_special == TRANSITION_ENPASS) { // enpassant
+	if(trans->is_special == TRANSITION_ENPASS) { // enpassant
 		new_clock = 0;
-		squares[trans.special_info.capture_square_id] = 0;
+		squares[trans->special_info.capture_square_id] = 0;
 		goto endUpdate;
-	} else if(trans.is_special == TRANSITION_PROMOTE) { // promotion
+	} else if(trans->is_special == TRANSITION_PROMOTE) { // promotion
 		new_clock = 0;
 		new_to_square_pid = turn | piece(move.promotion_type);
-	} else if(trans.is_special == TRANSITION_CASTLE) { // castle
+	} else if(trans->is_special == TRANSITION_CASTLE) { // castle
 		castle_avail(turn, CASTLE_KING) = false;
 		castle_avail(turn, CASTLE_QUEEN) = false;
-		switch(turn | trans.special_info.castle_type) {
+		switch(turn | trans->special_info.castle_type) {
 			case WHITE | CASTLE_QUEEN :
 				squares[3] = squares[0];
 				squares[0] = 0;
@@ -218,6 +231,7 @@ void Board::makeMove(Move move) {
 				break;
 			default : assert(false);
 		}
+		king_pos(turn) = move.to_square;
 		goto endUpdate;
 	} else if(piece(from_pid) == PAWN) { // pawn move (double push, single push, or normal capture)
 		new_clock = 0; // pawn move resets 50 move counter
@@ -233,6 +247,7 @@ void Board::makeMove(Move move) {
 	} else if(piece(from_pid) == KING) { // normal king move
 		castle_avail(turn, CASTLE_KING) = false;
 		castle_avail(turn, CASTLE_QUEEN) = false;
+		king_pos(turn) = move.to_square;
 	}
 	
 	// Check castling rights by rook moves and captures
@@ -254,20 +269,83 @@ void Board::makeMove(Move move) {
 	enpass_square = new_enpass_square;
 	squares[move.to_square] = new_to_square_pid;
 	squares[move.from_square] = 0;
-	if(trans.capture_p_id != 0) {
+	if(trans->capture_p_id != 0) {
 		new_clock = 0;
 	}
 	clock = new_clock;
 	halfmoves++;
 	
-	if(turn == WHITE) {
-		turn = BLACK;
-	} else {
-		turn = WHITE;
-	}
+	// change turn
+	turn = other_color(turn);
+
+	// add transition to transition vector
+	transitions.push_back(trans);
 
 	// !!!
 	// Update zobrist hash
+}
+
+Move Board::unmakeMove() {
+	assert(!transitions.empty());
+
+	// get transition info
+	Transition* trans = transitions.back();
+
+	// restore board metadata
+	turn = other_color(turn);
+	*((uint32_t*)&castling_avail) = *((uint32_t*)&trans->castling_avail);
+	enpass_square = trans->enpass_square;
+	clock = trans->clock;
+	halfmoves -= 1;
+	zobrist = trans->zobrist;
+
+	// restore piece positions
+	if(trans->is_special == TRANSITION_PROMOTE) { // promotion
+		squares[trans->move.from_square] = turn | PAWN;
+		if(trans->capture_p_id != 0) { // replace captured piece if there was one
+			squares[trans->special_info.capture_square_id] = trans->capture_p_id;
+		} else { // remove promoted piece
+			squares[trans->move.to_square] = 0;
+		}
+	} else if(trans->is_special == TRANSITION_CASTLE) { // castle
+		switch(turn | trans->special_info.castle_type) { // move the rook back
+			case WHITE | CASTLE_QUEEN :
+				squares[0] = squares[3];
+				squares[3] = 0;
+				break;
+			case WHITE | CASTLE_KING :
+				squares[7] = squares[5];
+				squares[5] = 0;
+				break;
+			case BLACK | CASTLE_QUEEN :
+				squares[56] = squares[59];
+				squares[59] = 0;
+				break;
+			case BLACK | CASTLE_KING :
+				squares[63] = squares[61];
+				squares[61] = 0;
+				break;
+			default : assert(false);
+		}
+		squares[trans->move.from_square] = squares[trans->move.to_square];
+		squares[trans->move.to_square] = 0;
+		king_pos(turn) = trans->move.from_square;
+	} else { // Not a castle or promotion
+		squares[trans->move.from_square] = squares[trans->move.to_square];
+		squares[trans->move.to_square] = 0;
+		if(trans->capture_p_id != 0) { // replace captured piece if there was one
+			squares[trans->special_info.capture_square_id] = trans->capture_p_id;
+		}
+		if(piece(squares[trans->move.from_square]) == KING) {
+			king_pos(turn) = trans->move.from_square;
+		}
+	}
+
+	// clean up and return
+	Move move = trans->move;
+	delete trans;
+	transitions.pop_back();
+	return move;
 }
 
 // Technically uses x-fen specification (enpass squares are only recorded when enpass is valid move)

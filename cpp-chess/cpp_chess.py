@@ -29,6 +29,11 @@ make_move = chess.make_move
 make_move.res_type = None
 make_move.argtypes = [c_int, c_ubyte, c_ubyte, c_ubyte]
 
+# unmake_move(int bd) => void
+unmake_move = chess.unmake_move
+unmake_move.res_type = None
+unmake_move.argtypes = [c_int]
+
 # get_fen(int bd) => const char*
 get_fen = chess.get_fen
 get_fen.restype = c_void_p # really returns a c_char_p, but can only be freed if a raw pointer is returned
@@ -48,6 +53,9 @@ class Board() :
 	def make_move(self, move) :
 		promotion = move.promotion - 1 if move.promotion else 255
 		make_move(self.bd, move.from_square, move.to_square, promotion)
+	
+	def unmake_move(self) :
+		unmake_move(self.bd)
 
 	def get_fen(self) :
 		_fen = get_fen(self.bd)

@@ -41,6 +41,9 @@ const uint8_t NO_ENPASS = 255;
 
 #define rank(square_id) ((square_id) / 8)
 #define file(square_id) ((square_id) % 8)
+#define square_id(rank, file) ((rank) * 8 + (file))
+
+#define other_color(color) (24 - (color))
 
 // Gives the square_id of the king of specified color
 #define king_pos(color) king_pos[((color) >> 3) - 1] 
@@ -60,14 +63,19 @@ struct Board {
 	uint8_t clock; // set to zero on a capture or pawn move, incremented otherwise - draw if clock == 100
 	uint16_t halfmoves; // number of halfmoves since the start of the game
 	uint64_t zobrist;
+	vector<Transition*> transitions;
 	
 	Board();
 	Board(const char* fen);
 
 	const char* get_fen();
 
+	vector<Move> legal_moves();
+
 	// move is not checked to be legal
 	// move not legal => undefined behavior
 	void makeMove(Move move);
+
+	Move unmakeMove();
 	
 };

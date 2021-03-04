@@ -6,6 +6,8 @@
 #include "move.h"
 #include "board.h"
 
+using namespace std;
+
 // precondition: move is legal
 Transition::Transition(Move move, Board* board) : move(move) {
 	// copy prev data and init other fields to 0

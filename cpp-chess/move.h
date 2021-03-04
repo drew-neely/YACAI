@@ -5,7 +5,9 @@
 #include <stdio.h>
 
 struct Move;
+struct Transition;
 #include "board.h"
+using namespace std;
 
 struct Move {
 	uint8_t from_square;
