@@ -19,35 +19,37 @@ Board::Board(const char* fen) {
 	// Parse position info
 	uint8_t rank = 7;
 	uint8_t* square;
-	for(square = &squares[63]; square >= squares; ) {
+	for(square = &squares[56]; square >= squares && rank >= 0; ) {
+	// for(square = &squares[63]; square >= squares; ) {
 		switch(*pos) {
-			case 'P' : *square = WHITE | PAWN   ; square--; break;
-			case 'N' : *square = WHITE | KNIGHT ; square--; break;
-			case 'B' : *square = WHITE | BISHOP ; square--; break;
-			case 'R' : *square = WHITE | ROOK   ; square--; break;
-			case 'Q' : *square = WHITE | QUEEN  ; square--; break;
-			case 'p' : *square = BLACK | PAWN   ; square--; break;
-			case 'n' : *square = BLACK | KNIGHT ; square--; break;
-			case 'b' : *square = BLACK | BISHOP ; square--; break;
-			case 'r' : *square = BLACK | ROOK   ; square--; break;
-			case 'q' : *square = BLACK | QUEEN  ; square--; break;
+			case 'P' : *square = WHITE | PAWN   ; square++; break;
+			case 'N' : *square = WHITE | KNIGHT ; square++; break;
+			case 'B' : *square = WHITE | BISHOP ; square++; break;
+			case 'R' : *square = WHITE | ROOK   ; square++; break;
+			case 'Q' : *square = WHITE | QUEEN  ; square++; break;
+			case 'p' : *square = BLACK | PAWN   ; square++; break;
+			case 'n' : *square = BLACK | KNIGHT ; square++; break;
+			case 'b' : *square = BLACK | BISHOP ; square++; break;
+			case 'r' : *square = BLACK | ROOK   ; square++; break;
+			case 'q' : *square = BLACK | QUEEN  ; square++; break;
 			case 'K' : *square = WHITE | KING   ; 
 					   king_pos(WHITE) = (uint8_t) (square - squares);
-					   square--;
+					   square++;
 					   break;
 			case 'k' : *square = BLACK | KING   ;
 					   king_pos(BLACK) = (uint8_t) (square - squares);
-					   square--;
+					   square++;
 					   break;
-			case '8' : *square = 0; square--;
-			case '7' : *square = 0; square--;
-			case '6' : *square = 0; square--;
-			case '5' : *square = 0; square--;
-			case '4' : *square = 0; square--;
-			case '3' : *square = 0; square--;
-			case '2' : *square = 0; square--;
-			case '1' : *square = 0; square--; break;
-			case '/' : rank--; break;
+			case '8' : *square = 0; square++;
+			case '7' : *square = 0; square++;
+			case '6' : *square = 0; square++;
+			case '5' : *square = 0; square++;
+			case '4' : *square = 0; square++;
+			case '3' : *square = 0; square++;
+			case '2' : *square = 0; square++;
+			case '1' : *square = 0; square++; break;
+			case '/' : rank--; square -= 16; break;
+			case ' ' : goto end_placement;
 			default : assert(false); // unexpected character
 		}
 		pos++;
@@ -55,7 +57,6 @@ Board::Board(const char* fen) {
 	// verify position info
 	end_placement :
 	assert(rank == 0);
-	assert(square == squares - 1);
 	pos ++; // consume the space
 
 	// parse turn info
@@ -185,8 +186,123 @@ Board::Board() {
 	zobrist = starting_hash;
 }
 
+static void print_vector(vector<uint8_t> v) {
+	printf("<");
+	for(int i = 0; i < v.size(); i++) {
+		printf("%c%c", 'a' + file(v[i]), '1' + rank(v[i]));
+		if(i != v.size() - 1) {
+			printf(", ");
+		}
+	}
+	printf(">\n");
+}
+
+static void print_vector(vector<vector<uint8_t> > v) {
+	if(v.size() == 0) {
+		printf("<>\n");
+	} else {
+		printf("<\n");
+		for(int i = 0; i < v.size(); i++) {
+			printf("\t");
+			print_vector(v[i]);
+		}
+		printf(">\n");
+	}
+}
+
 vector<Move> Board::legal_moves() {
 
+	printf("%s to move (%d)\n", turn == WHITE ? "White" : "Black", turn);
+	printf("white king at: %c%c\n", 'a' + file(king_pos(WHITE)), '1' + rank(king_pos(WHITE)));
+	printf("black king at: %c%c\n", 'a' + file(king_pos(BLACK)), '1' + rank(king_pos(BLACK)));
+	printf("\n");
+
+	vector<Move> moves;
+
+	uint8_t king = king_pos(turn);
+
+	// looks for checks
+	// iterate over piece IDs - [N, B, R, Q]
+	vector<uint8_t> pinned_squares; // list of square_id of pinned pieces
+	vector<vector<uint8_t> > pinned_sets; // list of sets of squares which corresponding pinned pieces are limited to
+	bool check = false; // true if the king is in check
+	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
+	vector<uint8_t> check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to/ capture on to stop check
+
+	// check for knight checks
+	vector<vector<uint8_t> >* knight_attack_paths = &attack_paths(king, KNIGHT);
+	for(int p = 0; p < knight_attack_paths->size(); p++) {
+		uint8_t sq = (*knight_attack_paths)[p][0];
+		if(squares[sq] == (other_color(turn) | KNIGHT)) { // Knight check
+			check = true;
+			check_path.push_back(sq);
+		}
+	}
+
+	// check for Bishop / Rook checks
+		/* This uses a weird for loop to run the checking code for bishops/rooks/queens
+			in two passes looking at bishop moves and then rook moves - The alternatives
+			are method call (too much data to return/store - would be annoying),
+			copy pasting code (nope thanks), or gotos (meh) */
+
+	vector<vector<uint8_t> >* bishop_attack_paths = &attack_paths(king, BISHOP);
+	vector<vector<uint8_t> >* rook_attack_paths = &attack_paths(king, ROOK);
+	
+	// this points to the array currently being iterated
+	vector<vector<uint8_t> >* paths = bishop_attack_paths;
+	uint8_t checking_piece = BISHOP;
+
+	for(uint8_t c = 0; c < 2; c++, paths = rook_attack_paths, checking_piece = ROOK) { // it was this or gotos - I aint making a method
+		for(int p = 0; p < (*paths).size(); p++) {
+			uint8_t blocked = 255;
+			for(int s = 0; s < (*paths)[p].size(); s++) {
+				uint8_t sq = (*paths)[p][s];
+				if(squares[sq] != 0) {
+					if(squares[sq] == (other_color(turn) | checking_piece) || 
+							squares[sq] == (other_color(turn) | QUEEN)) { // Bishop/queen check or pin
+						printf("found attacker at %d - blocked = %d\n", sq, blocked);
+						if(blocked < 64) { // discovered a pin
+							pinned_squares.push_back(blocked);
+							vector<uint8_t> pinned_set;
+							for(int i = 0; i <= s; i++) {
+								pinned_set.push_back((*paths)[p][i]);
+							}
+							pinned_sets.push_back(pinned_set);
+						} else if(!check){ // discovered first check
+							check = true;
+							for(int i = 0; i <= s; i++) {
+								check_path.push_back((*paths)[p][i]);
+							}
+						} else { // discovered second check
+							double_check = true;
+						}
+						break;
+					} else if(color(squares[sq]) == turn) { // potential pin
+						printf("potential pin %d\n", sq);
+						if(blocked < 64) { // double block = no pin
+							break;
+						} else { // potential pin
+							blocked = sq;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// !!! // Still need to check for pawn checks
+	
+	printf("---\n");
+	printf("check : %s\n", check ? "true" : "false");
+	printf("double_check : %s\n", double_check ? "true" : "false");
+	printf("pinned_squares:\n");
+	print_vector(pinned_squares);
+	printf("pinned_sets:\n");
+	print_vector(pinned_sets);
+	printf("check_path:\n");
+	print_vector(check_path);
+
+	return moves;
 }
 
 // precondition: move must be a valid move - undefined behavior if not
@@ -346,6 +462,20 @@ Move Board::unmakeMove() {
 	delete trans;
 	transitions.pop_back();
 	return move;
+}
+
+uint64_t Board::countPositions(uint8_t depth) {
+	uint64_t count = 0;
+	vector<Move> moves = legal_moves();
+	if(depth == 1) {
+		return moves.size();
+	}
+	for(int i = 0; i < moves.size(); i++) {
+		makeMove(moves[i]);
+		count += countPositions(depth - 1);
+		unmakeMove();
+	}
+	return count;
 }
 
 // Technically uses x-fen specification (enpass squares are only recorded when enpass is valid move)

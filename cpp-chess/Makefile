@@ -1,4 +1,4 @@
-# MAKEFLAGS += --silent
+MAKEFLAGS += --silent
 
 cpp_files := $(wildcard *.cpp)
 h_files := $(wildcard *.h)
@@ -17,6 +17,9 @@ test : all
 
 test_seq : all
 	python test_seq.py
+
+count_positions : all
+	python count_positions.py
 
 .PHONY: all clean
 

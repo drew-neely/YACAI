@@ -34,6 +34,11 @@ unmake_move = chess.unmake_move
 unmake_move.res_type = None
 unmake_move.argtypes = [c_int]
 
+# countPositions(uint8_t depth) => uint64_t
+count_positions = chess.count_positions
+count_positions.restype = c_ulonglong
+count_positions.argtypes = [c_int, c_ubyte]
+
 # get_fen(int bd) => const char*
 get_fen = chess.get_fen
 get_fen.restype = c_void_p # really returns a c_char_p, but can only be freed if a raw pointer is returned
@@ -56,6 +61,9 @@ class Board() :
 	
 	def unmake_move(self) :
 		unmake_move(self.bd)
+
+	def count_positions(self, depth) :
+		return count_positions(self.bd, depth)
 
 	def get_fen(self) :
 		_fen = get_fen(self.bd)

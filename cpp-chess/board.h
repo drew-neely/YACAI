@@ -77,5 +77,7 @@ struct Board {
 	void makeMove(Move move);
 
 	Move unmakeMove();
+
+	uint64_t countPositions(uint8_t depth);
 	
 };

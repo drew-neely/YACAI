@@ -58,6 +58,12 @@ extern "C" void unmake_move(int bd) {
 	boardDescriptorTable[bd]->unmakeMove();
 }
 
+extern "C" uint64_t count_positions(int bd, uint8_t depth) {
+	assert_valid_bd(bd);
+	uint64_t res = boardDescriptorTable[bd]->countPositions(depth);
+	return res;
+}
+
 
 extern "C" const char* get_fen(int bd) {
 	assert_valid_bd(bd);
