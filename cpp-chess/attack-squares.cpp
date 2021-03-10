@@ -113,7 +113,7 @@ _AttackSquares::_AttackSquares() :
 		
 		// white_pawn attacks
 		for(int i = 0; i < pawn_attack_dirs; i++) {
-			path = travel_in_dir(sq, white_pawn_attack_dr[i], white_pawn_attack_dr[i], 1);
+			path = travel_in_dir(sq, white_pawn_attack_dr[i], white_pawn_attack_df[i], 1);
 			if(!path.empty()) {
 				_pawn_attack_squares[sq][WHITE_INDEX].push_back(path[0]);
 			}
@@ -121,7 +121,7 @@ _AttackSquares::_AttackSquares() :
 
 		// black_pawn attacks
 		for(int i = 0; i < pawn_attack_dirs; i++) {
-			path = travel_in_dir(sq, black_pawn_attack_dr[i], black_pawn_attack_dr[i], 1);
+			path = travel_in_dir(sq, black_pawn_attack_dr[i], black_pawn_attack_df[i], 1);
 			if(!path.empty()) {
 				_pawn_attack_squares[sq][BLACK_INDEX].push_back(path[0]);
 			}

@@ -210,24 +210,10 @@ static void print_vector(vector<vector<uint8_t> > v) {
 	}
 }
 
-vector<Move> Board::legal_moves() {
-
-	printf("%s to move (%d)\n", turn == WHITE ? "White" : "Black", turn);
-	printf("white king at: %c%c\n", 'a' + file(king_pos(WHITE)), '1' + rank(king_pos(WHITE)));
-	printf("black king at: %c%c\n", 'a' + file(king_pos(BLACK)), '1' + rank(king_pos(BLACK)));
-	printf("\n");
-
-	vector<Move> moves;
+void Board::checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double_check,
+			vector<uint8_t>& pinned_squares, vector<vector<uint8_t> >& pinned_sets) {
 
 	uint8_t king = king_pos(turn);
-
-	// looks for checks
-	// iterate over piece IDs - [N, B, R, Q]
-	vector<uint8_t> pinned_squares; // list of square_id of pinned pieces
-	vector<vector<uint8_t> > pinned_sets; // list of sets of squares which corresponding pinned pieces are limited to
-	bool check = false; // true if the king is in check
-	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
-	vector<uint8_t> check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to/ capture on to stop check
 
 	// check for knight checks
 	vector<vector<uint8_t> >* knight_attack_paths = &attack_paths(king, KNIGHT);
@@ -241,9 +227,7 @@ vector<Move> Board::legal_moves() {
 
 	// check for Bishop / Rook checks
 		/* This uses a weird for loop to run the checking code for bishops/rooks/queens
-			in two passes looking at bishop moves and then rook moves - The alternatives
-			are method call (too much data to return/store - would be annoying),
-			copy pasting code (nope thanks), or gotos (meh) */
+			in two passes looking at bishop moves and then rook moves */
 
 	vector<vector<uint8_t> >* bishop_attack_paths = &attack_paths(king, BISHOP);
 	vector<vector<uint8_t> >* rook_attack_paths = &attack_paths(king, ROOK);
@@ -284,14 +268,51 @@ vector<Move> Board::legal_moves() {
 						} else { // potential pin
 							blocked = sq;
 						}
+					} else { // enemy piece not delivering check
+						break;
 					}
 				}
 			}
 		}
 	}
 
-	// !!! // Still need to check for pawn checks
+	// check for pawn checks
+	vector<uint8_t>* pawn_attack_squares = &pawn_attack_squares(king, turn);
+	print_vector(*pawn_attack_squares);
+	for(uint8_t s = 0; s < pawn_attack_squares->size(); s++) {
+		uint8_t sq = (*pawn_attack_squares)[s];
+		if(squares[sq] == (other_color(turn) | PAWN)) { // discovered pawn check
+			printf("pawn check from %d\n", sq);
+			if(!check) { // first check discovered
+				check = true;
+				check_path.push_back(sq);
+			} else { // second check
+				double_check = true;
+			}
+		}
+	}
+}
+
+vector<Move> Board::legalMoves() {
+
+	printf("%s to move (%d)\n", turn == WHITE ? "White" : "Black", turn);
+	printf("white king at: %c%c\n", 'a' + file(king_pos(WHITE)), '1' + rank(king_pos(WHITE)));
+	printf("black king at: %c%c\n", 'a' + file(king_pos(BLACK)), '1' + rank(king_pos(BLACK)));
+	printf("\n");
+
+	vector<Move> moves;
+
+	vector<uint8_t> check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
+	bool check = false; // true if the king is in check
+	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
+	vector<uint8_t> pinned_squares; // list of square_id of pinned pieces
+	vector<vector<uint8_t> > pinned_sets; // list of sets of squares which corresponding pinned pieces are limited to
+
+	// call method to fill in all the check info
+	checksAndPins(check_path, check, double_check, pinned_squares, pinned_sets);
 	
+
+	// ------------------------ 
 	printf("---\n");
 	printf("check : %s\n", check ? "true" : "false");
 	printf("double_check : %s\n", double_check ? "true" : "false");
@@ -466,7 +487,7 @@ Move Board::unmakeMove() {
 
 uint64_t Board::countPositions(uint8_t depth) {
 	uint64_t count = 0;
-	vector<Move> moves = legal_moves();
+	vector<Move> moves = legalMoves();
 	if(depth == 1) {
 		return moves.size();
 	}

@@ -70,7 +70,9 @@ struct Board {
 
 	const char* get_fen();
 
-	vector<Move> legal_moves();
+	void checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double_check,
+			vector<uint8_t>& pinned_squares, vector<vector<uint8_t> >& pinned_sets);
+	vector<Move> legalMoves();
 
 	// move is not checked to be legal
 	// move not legal => undefined behavior

@@ -10,8 +10,11 @@ starting_fen = [
 	"4R3/2N5/4n3/KP2k3/5r2/8/1Q2RPPB/n7 b - - 0 1", # two check, two pin
 	"4R3/2N5/4n3/KP2k3/3r1r2/4p3/1Q2RPPB/n3R3 b - - 0 1", # 4 pin
 	"4R3/2N5/4n3/KP2k3/3rpr2/8/1Q2RPPB/n3R3 w - - 0 1", # nothing
-	"r3R3/2N5/2R1n3/KP2k3/3rpr2/8/1Q2RPPB/n3R3 w - - 0 1" # one check
-][7]
+	"r3R3/2N5/2R1n3/KP2k3/3rpr2/8/1Q2RPPB/n3R3 w - - 0 1", # one check
+	"N3R3/8/K1R1n3/1P2k3/3rpPr1/8/1Q2R1PB/n3R3 b - - 0 1", # one pawn check, 3 pins
+	"4R3/3N4/K3n3/4k3/3rpPr1/8/1Q2R1PB/n3R3 b - - 0 1", # one pawn, one knight check
+	"4R3/3Nnn2/K7/4k3/3rpr2/6P1/1Q2R1PB/n3R3 b - - 0 1" # one knight check
+][10]
 
 board = Board(starting_fen) if starting_fen else Board()
 py_board = PyBoard(starting_fen) if starting_fen else PyBoard()
