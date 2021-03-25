@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <vector>
+#include <set>
+#include <map>
 
 struct Board;
 #include "move.h"
@@ -42,6 +44,8 @@ const uint8_t NO_ENPASS = 255;
 #define rank(square_id) ((square_id) / 8)
 #define file(square_id) ((square_id) % 8)
 #define square_id(rank, file) ((rank) * 8 + (file))
+extern const char* square_names[64];
+#define square_name(square_id) (square_names[square_id])
 
 #define other_color(color) (24 - (color))
 
@@ -70,8 +74,9 @@ struct Board {
 
 	const char* get_fen();
 
-	void checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double_check,
-			vector<uint8_t>& pinned_squares, vector<vector<uint8_t> >& pinned_sets);
+	void attackSquares(set<uint8_t>& attack_squares, uint8_t color);
+	void checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_check,
+			map<uint8_t, set<uint8_t> >& pinned_squares);
 	vector<Move> legalMoves();
 
 	// move is not checked to be legal

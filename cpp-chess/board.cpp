@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <vector>
 #include <string>
+#include <set>
+#include <map>
+#define contains(setmap, key) ((setmap).find(key) != (setmap).end())
 
 #include "board.h"
 #include "move.h"
@@ -11,6 +14,17 @@
 using namespace std;
 
 #define TRANSITION_VECTOR_STARTING_SIZE 128
+
+const char* square_names[64] = {
+	"a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", 
+	"a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2", 
+	"a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3", 
+	"a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4", 
+	"a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5", 
+	"a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6", 
+	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", 
+	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
+};
 
 Board::Board(const char* fen) {
 	char* pos = (char*) fen;
@@ -189,7 +203,7 @@ Board::Board() {
 static void print_vector(vector<uint8_t> v) {
 	printf("<");
 	for(int i = 0; i < v.size(); i++) {
-		printf("%c%c", 'a' + file(v[i]), '1' + rank(v[i]));
+		printf("%s", square_name(v[i]));
 		if(i != v.size() - 1) {
 			printf(", ");
 		}
@@ -210,8 +224,20 @@ static void print_vector(vector<vector<uint8_t> > v) {
 	}
 }
 
-void Board::checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double_check,
-			vector<uint8_t>& pinned_squares, vector<vector<uint8_t> >& pinned_sets) {
+static void print_vector(vector<Move> v) {
+	printf("[");
+	for(int i = 0; i < v.size(); i++) {
+		Move m = v[i];
+		printf("\'%s%s\'", square_name(m.from_square), square_name(m.to_square));
+		if(i != v.size() - 1) {
+			printf(", ");
+		}
+	}
+	printf("]\n");
+}
+
+void Board::checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_check,
+			map<uint8_t, set<uint8_t> >& pinned_squares) {
 
 	uint8_t king = king_pos(turn);
 
@@ -221,7 +247,7 @@ void Board::checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double
 		uint8_t sq = (*knight_attack_paths)[p][0];
 		if(squares[sq] == (other_color(turn) | KNIGHT)) { // Knight check
 			check = true;
-			check_path.push_back(sq);
+			check_path.insert(sq);
 		}
 	}
 
@@ -244,25 +270,22 @@ void Board::checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double
 				if(squares[sq] != 0) {
 					if(squares[sq] == (other_color(turn) | checking_piece) || 
 							squares[sq] == (other_color(turn) | QUEEN)) { // Bishop/queen check or pin
-						printf("found attacker at %d - blocked = %d\n", sq, blocked);
 						if(blocked < 64) { // discovered a pin
-							pinned_squares.push_back(blocked);
-							vector<uint8_t> pinned_set;
+							set<uint8_t> pinned_set;
 							for(int i = 0; i <= s; i++) {
-								pinned_set.push_back((*paths)[p][i]);
+								pinned_set.insert((*paths)[p][i]);
 							}
-							pinned_sets.push_back(pinned_set);
+							pinned_squares.insert(pair<uint8_t, set<uint8_t> >(blocked, pinned_set));
 						} else if(!check){ // discovered first check
 							check = true;
 							for(int i = 0; i <= s; i++) {
-								check_path.push_back((*paths)[p][i]);
+								check_path.insert((*paths)[p][i]);
 							}
 						} else { // discovered second check
 							double_check = true;
 						}
 						break;
 					} else if(color(squares[sq]) == turn) { // potential pin
-						printf("potential pin %d\n", sq);
 						if(blocked < 64) { // double block = no pin
 							break;
 						} else { // potential pin
@@ -278,16 +301,55 @@ void Board::checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double
 
 	// check for pawn checks
 	vector<uint8_t>* pawn_attack_squares = &pawn_attack_squares(king, turn);
-	print_vector(*pawn_attack_squares);
 	for(uint8_t s = 0; s < pawn_attack_squares->size(); s++) {
 		uint8_t sq = (*pawn_attack_squares)[s];
 		if(squares[sq] == (other_color(turn) | PAWN)) { // discovered pawn check
-			printf("pawn check from %d\n", sq);
 			if(!check) { // first check discovered
 				check = true;
-				check_path.push_back(sq);
+				check_path.insert(sq);
 			} else { // second check
 				double_check = true;
+			}
+		}
+	}
+
+	// ------------------------ 
+	// printf("---\n");
+	// printf("check : %s\n", check ? "true" : "false");
+	// printf("double_check : %s\n", double_check ? "true" : "false");
+	// printf("pinned_squares:\n");
+	// print_vector(pinned_squares);
+	// printf("pinned_sets:\n");
+	// print_vector(pinned_sets);
+	// printf("check_path:\n");
+	// print_vector(check_path);
+}
+
+
+/*
+	fills in attack_squares with square ids that color can move to psuedolegally
+	Intended for use in determining valid king moves
+*/
+void Board::attackSquares(set<uint8_t>& attack_squares, uint8_t color) {
+	for(uint8_t sq = 0; sq < 64; sq++) {
+		if(color(squares[sq]) == color) {
+			if(piece(squares[sq]) == PAWN) {
+				for(int s = 0; s < pawn_attack_squares(sq, color).size(); s++) {
+					attack_squares.insert(pawn_attack_squares(sq, color)[s]);
+				}
+			} else {
+				vector<vector<uint8_t> >& paths = attack_paths(sq, piece(squares[sq]));
+				for(int p = 0; p < paths.size(); p++) {
+					vector<uint8_t>& path = paths[p];
+					for(int s = 0; s < path.size(); s++) {
+						if(squares[path[s]] == 0) { // attacking empty square
+							attack_squares.insert(path[s]);
+						} else { // attacking piece
+							attack_squares.insert(path[s]);
+							break;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -295,34 +357,160 @@ void Board::checksAndPins(vector<uint8_t>& check_path, bool& check, bool& double
 
 vector<Move> Board::legalMoves() {
 
-	printf("%s to move (%d)\n", turn == WHITE ? "White" : "Black", turn);
-	printf("white king at: %c%c\n", 'a' + file(king_pos(WHITE)), '1' + rank(king_pos(WHITE)));
-	printf("black king at: %c%c\n", 'a' + file(king_pos(BLACK)), '1' + rank(king_pos(BLACK)));
-	printf("\n");
-
 	vector<Move> moves;
 
-	vector<uint8_t> check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
+	set<uint8_t> check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
 	bool check = false; // true if the king is in check
 	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
-	vector<uint8_t> pinned_squares; // list of square_id of pinned pieces
-	vector<vector<uint8_t> > pinned_sets; // list of sets of squares which corresponding pinned pieces are limited to
+	map<uint8_t, set<uint8_t> > pinned_squares; // key = square of pinned piece, value = squares it is pinned to
+	set<uint8_t> attack_squares; // set of all squares the other color may psuedolegally move to
 
-	// call method to fill in all the check info
-	checksAndPins(check_path, check, double_check, pinned_squares, pinned_sets);
-	
+	// build all the check info
+	checksAndPins(check_path, check, double_check, pinned_squares);
+	// build attack_squares
+	attackSquares(attack_squares, other_color(turn));
 
-	// ------------------------ 
-	printf("---\n");
-	printf("check : %s\n", check ? "true" : "false");
-	printf("double_check : %s\n", double_check ? "true" : "false");
-	printf("pinned_squares:\n");
-	print_vector(pinned_squares);
-	printf("pinned_sets:\n");
-	print_vector(pinned_sets);
-	printf("check_path:\n");
-	print_vector(check_path);
 
+	// Calculate king moves first
+	uint8_t king = king_pos(turn);
+	for(int p = 0; p < attack_paths(king, KING).size(); p++) {
+		uint8_t sq = attack_paths(king, KING)[p][0];
+		if(color(squares[sq]) != turn && !contains(attack_squares, sq)) { // sq is safe
+			moves.push_back(Move(king, sq));
+		}
+	}
+
+	// printf("king is at %s\n", square_name(king));
+	// printf("finished king moves\n");
+	// print_vector(moves);
+
+	if(double_check) { // double_check -> king must move
+		return moves;
+	}
+
+	// Next do castles
+	if(castle_avail(turn, CASTLE_KING) && !check &&             // check if the king can castle kingside
+				squares[king+1] == 0 && squares[king+2] == 0 &&
+				!contains(attack_squares, king+1) &&
+				!contains(attack_squares, king+2)) {
+		moves.push_back(Move(king, king+2));
+	}
+	if(castle_avail(turn, CASTLE_QUEEN) && !check &&            // check if the king can castle queenside
+				squares[king-1] == 0 && squares[king-2] == 0 && squares[king-3] == 0 &&
+				!contains(attack_squares, king-1) &&
+				!contains(attack_squares, king-2)) {
+		moves.push_back(Move(king, king-2));
+	}
+
+	// printf("finished castle moves\n");
+	// print_vector(moves);
+
+	/*
+		All other moves must fulfil the following requirements
+		 - if from_square is in a pinned set, to_square must be in the pinned set
+		 - if check == true, move must be a king move or to_square must be in check_path
+	*/
+	for(int sq = 0; sq < 64; sq++) {
+		if(color(squares[sq]) == turn && sq != king) { // found piece to look for moves
+
+			bool pinned = contains(pinned_squares, sq);
+			set<uint8_t>* pinned_set = pinned ? &pinned_squares[sq] : NULL;
+
+			if(piece(squares[sq]) == PAWN) { // piece is a pawn
+				// look at attacks first (captures + en-passant)
+				vector<uint8_t>& attacks = pawn_attack_squares(sq, turn);
+				for(int s = 0; s < attacks.size(); s++) { // iterate over attack squares
+					uint8_t asq = attacks[s];
+
+					if(asq == enpass_square &&
+								(!pinned || contains(*pinned_set, asq)) &&
+								(!check || contains(check_path, enpass_capture_square(asq)))) { // potential enpassant
+						/* 
+							The if statement qualifies that the movement of the capturing pawn is legal, but
+							Need to check that removing the captured pawn doesnt put king in check
+							This is done by looking for rook/bishops/queens in line with the king and removed pawn
+							Technically, no legal position can have a revealed bishop check from enpassant, but i'll
+							still check anyways since this can come up in artificial positions
+							revealed rook checks can only possible arrise horizontally
+						*/
+						uint8_t csq = enpass_capture_square(asq);
+						int8_t df = file(csq) - file(king),
+							dr = rank(csq) - rank(king);
+						uint8_t pinning_piece;
+						if(dr == 0) { // look for horizontal pin
+							pinning_piece = ROOK;
+						} else if(df == dr || -df == dr) { // look for revealed diagonal pin
+							pinning_piece = BISHOP;
+						} else { // no possible pin
+							moves.push_back(Move(sq, asq));
+							continue;
+						}
+						df = (df > 0) - (df < 0); // get signs of dr and df (+1 or -1)
+						dr = (dr > 0) - (dr < 0);
+						bool valid = true;
+						for(uint8_t f = file(csq) + df, r = rank(csq) + dr; f >= 0 && f < 8 && r >= 0 && r < 8; f += df, r+= dr) {
+							uint8_t tsq = square_id(r, f);
+							if(tsq != sq) {
+								uint8_t pid = squares[tsq];
+								if(pid != 0) {
+									if(pid == (other_color(turn) | pinning_piece) || pid == (other_color(turn) | QUEEN)) {
+										valid = false;
+										break;
+									}
+									break;
+								}
+							}
+						}
+						if(valid) {
+							moves.push_back(Move(sq, asq));
+						}
+					} else if(color(squares[asq]) == other_color(turn) && 
+								(!pinned || contains(*pinned_set, asq)) &&
+								(!check || contains(check_path, asq))) {     // pawn capture
+						if(rank(asq) == 0 || rank(asq) == 7) {
+							moves.push_back(Move(sq, asq, KNIGHT));
+							moves.push_back(Move(sq, asq, BISHOP));
+							moves.push_back(Move(sq, asq, ROOK));
+							moves.push_back(Move(sq, asq, QUEEN));
+						} else {
+							moves.push_back(Move(sq, asq));
+						}
+					}
+				}
+				// Time to look at pawn pushes
+				vector<uint8_t>& path = pawn_move_path(sq, turn);
+				for(int s = 0; s < path.size(); s++) { // iterate over push squares
+					uint8_t tsq = path[s];
+					if(squares[tsq] != 0) { // There is a piece blocking the path
+						break;
+					}
+					if((!pinned || contains(*pinned_set, tsq)) && (!check || contains(check_path, tsq))) {
+						moves.push_back(Move(sq, tsq));
+					}
+				}
+			} 
+			else { // piece is Knight, Bishop, Rook or Queen
+				vector<vector<uint8_t> >& paths = attack_paths(sq, piece(squares[sq]));
+				for(int p = 0; p < paths.size(); p++) { // iterate over all paths the piece can take
+					vector<uint8_t>& path = paths[p];
+					for(int s = 0; s < path.size(); s++) { // iterate over the squares in a single path
+						uint8_t tsq = path[s];
+						if(color(squares[tsq]) == turn) { // path blocked by same color piece
+							break;
+						}
+						if((!pinned || contains(*pinned_set, tsq)) && (!check || contains(check_path, tsq))) { // check for pins and check
+							moves.push_back(Move(sq, tsq));
+						}
+						if(squares[tsq] != 0) { // move was capture (ie. blocked by other color piece)
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// print_vector(moves);
 	return moves;
 }
 

@@ -55,7 +55,7 @@ const int8_t black_pawn_attack_df[] = {-1,  1};
 #define BLACK_INDEX 1
 
 _AttackSquares::_AttackSquares() : 
-			_attack_squares(64), _pawn_attack_squares(64), _pawn_move_squares(64) {
+			_attack_squares(64), _pawn_attack_squares(64), _pawn_move_squares(64), _enpass_capture_square(64) {
 
 	vector<uint8_t> path;
 
@@ -132,6 +132,16 @@ _AttackSquares::_AttackSquares() :
 
 		_pawn_move_squares[sq][WHITE_INDEX] = travel_in_dir(sq,  1, 0, rank(sq) == 1 ? 2 : 1);
 		_pawn_move_squares[sq][BLACK_INDEX] = travel_in_dir(sq, -1, 0, rank(sq) == 6 ? 2 : 1);
+
+		
+		// handle enpassant capture squares
+		if(rank(sq) == 2) {
+			_enpass_capture_square[sq] = sq + 8;
+		} else if(rank(sq) == 5) {
+			_enpass_capture_square[sq] = sq - 8;
+		} else {
+			_enpass_capture_square[sq] = 255;
+		}
 
 	}
 }

@@ -1,0 +1,13 @@
+{
+	"files.associations": {
+		"*.y": "yacc",
+		"*.c++": "cpp",
+		"*.cu": "cpp",
+		"*.th": "cpp",
+		"*.tsv": "systemverilog",
+		"*.tv": "verilog",
+		"*.tcc": "cpp",
+		"vector": "cpp"
+	},
+	"python.pythonPath": "/usr/local/bin/python3"
+}

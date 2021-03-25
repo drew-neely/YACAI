@@ -13,6 +13,10 @@ struct Move {
 	uint8_t from_square;
 	uint8_t to_square;
 	uint8_t promotion_type; // Value not used if the move isn't a promotion
+	Move(uint8_t from, uint8_t to) : 
+		from_square(from), to_square(to) {}
+	Move(uint8_t from, uint8_t to, uint8_t prom) : 
+		from_square(from), to_square(to), promotion_type(prom) {}
 };
 
 
