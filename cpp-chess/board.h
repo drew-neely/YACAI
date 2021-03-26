@@ -74,9 +74,9 @@ struct Board {
 
 	const char* get_fen();
 
-	void attackSquares(set<uint8_t>& attack_squares, uint8_t color);
+	void attackSquares(set<uint8_t>& attack_squares, uint8_t color, set<uint8_t>& check_path_end);
 	void checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_check,
-			map<uint8_t, set<uint8_t> >& pinned_squares);
+				map<uint8_t, set<uint8_t> >& pinned_squares);
 	vector<Move> legalMoves();
 
 	// move is not checked to be legal

@@ -228,7 +228,14 @@ static void print_vector(vector<Move> v) {
 	printf("[");
 	for(int i = 0; i < v.size(); i++) {
 		Move m = v[i];
-		printf("\'%s%s\'", square_name(m.from_square), square_name(m.to_square));
+		printf("\'%s%s", square_name(m.from_square), square_name(m.to_square));
+		switch(m.promotion_type) {
+			case KNIGHT: printf("k"); break;
+			case BISHOP: printf("b"); break;
+			case ROOK: printf("r"); break;
+			case QUEEN: printf("q"); break;
+		}
+		printf("\'");
 		if(i != v.size() - 1) {
 			printf(", ");
 		}
@@ -330,7 +337,7 @@ void Board::checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_ch
 	fills in attack_squares with square ids that color can move to psuedolegally
 	Intended for use in determining valid king moves
 */
-void Board::attackSquares(set<uint8_t>& attack_squares, uint8_t color) {
+void Board::attackSquares(set<uint8_t>& attack_squares, uint8_t color, set<uint8_t>& check_path_end) {
 	for(uint8_t sq = 0; sq < 64; sq++) {
 		if(color(squares[sq]) == color) {
 			if(piece(squares[sq]) == PAWN) {
@@ -346,6 +353,9 @@ void Board::attackSquares(set<uint8_t>& attack_squares, uint8_t color) {
 							attack_squares.insert(path[s]);
 						} else { // attacking piece
 							attack_squares.insert(path[s]);
+							if(squares[path[s]] == (other_color(color) | KING) && s + 1 < path.size()) {
+								check_path_end.insert(path[s+1]);
+							}
 							break;
 						}
 					}
@@ -360,6 +370,7 @@ vector<Move> Board::legalMoves() {
 	vector<Move> moves;
 
 	set<uint8_t> check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
+	set<uint8_t> check_path_end; // square_ids of squares covered by check bechind king - 255 if NA
 	bool check = false; // true if the king is in check
 	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
 	map<uint8_t, set<uint8_t> > pinned_squares; // key = square of pinned piece, value = squares it is pinned to
@@ -368,14 +379,14 @@ vector<Move> Board::legalMoves() {
 	// build all the check info
 	checksAndPins(check_path, check, double_check, pinned_squares);
 	// build attack_squares
-	attackSquares(attack_squares, other_color(turn));
+	attackSquares(attack_squares, other_color(turn), check_path_end);
 
 
 	// Calculate king moves first
 	uint8_t king = king_pos(turn);
 	for(int p = 0; p < attack_paths(king, KING).size(); p++) {
 		uint8_t sq = attack_paths(king, KING)[p][0];
-		if(color(squares[sq]) != turn && !contains(attack_squares, sq)) { // sq is safe
+		if(color(squares[sq]) != turn && !contains(attack_squares, sq) && !contains(check_path_end, sq)) { // sq is safe
 			moves.push_back(Move(king, sq));
 		}
 	}
@@ -454,10 +465,20 @@ vector<Move> Board::legalMoves() {
 								uint8_t pid = squares[tsq];
 								if(pid != 0) {
 									if(pid == (other_color(turn) | pinning_piece) || pid == (other_color(turn) | QUEEN)) {
-										valid = false;
+										valid = false; // there is an attacker and pin
 										break;
 									}
 									break;
+								}
+							}
+						}
+						if(!valid) { // check to make sure the pin isnt blocked on the other side
+							for(uint8_t f = file(csq) - df, r = rank(csq) - dr; f >= 0 && f < 8 && r >= 0 && r < 8; f -= df, r-= dr) {
+								uint8_t tsq = square_id(r, f);
+								if(tsq == king) {
+									break;
+								} else if(squares[tsq] != 0) {
+									valid = true;
 								}
 							}
 						}
@@ -485,7 +506,14 @@ vector<Move> Board::legalMoves() {
 						break;
 					}
 					if((!pinned || contains(*pinned_set, tsq)) && (!check || contains(check_path, tsq))) {
-						moves.push_back(Move(sq, tsq));
+						if(rank(tsq) == 0 || rank(tsq) == 7) {
+							moves.push_back(Move(sq, tsq, KNIGHT));
+							moves.push_back(Move(sq, tsq, BISHOP));
+							moves.push_back(Move(sq, tsq, ROOK));
+							moves.push_back(Move(sq, tsq, QUEEN));
+						} else {
+							moves.push_back(Move(sq, tsq));
+						}
 					}
 				}
 			} 
