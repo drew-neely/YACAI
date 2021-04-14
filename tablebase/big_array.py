@@ -13,6 +13,7 @@ File structure
 
 """
 Current implementation uses a big'ol python array that is written to / read from memory
+Future implementation may require dynamic bz2 style file chunked writing with a cache
 """
 
 class BigArray :
@@ -29,7 +30,6 @@ class BigArray :
 				head = file.read(128)
 				self.len = int.from_bytes(head[0:8], 'little')
 				self.bytes_per_entry = head[8]
-				print(self.len, self.bytes_per_entry)
 				self.data = file.read()
 		else : # create database
 			if len == None :
