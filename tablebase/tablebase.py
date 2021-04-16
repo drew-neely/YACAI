@@ -9,6 +9,9 @@ class Tablebase :
 		self.name = name
 		self.table = BigArray(name, self.len, self.bytes_per_entry)
 
+	def checkmate_positions(self) :
+		raise NotImplementedError("Tablebase.checkmate_positions()")
+
 	def index(self, board) :
 		raise NotImplementedError("Tablebase.index(board)")
 

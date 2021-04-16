@@ -20,5 +20,12 @@ if __name__ == "__main__" :
 		if not tb.writable :
 			print(f"WARNING: tablebase for {target} already exists - Nothing will be done")
 			continue
+		mates = tb.checkmate_positions()
+		print(len(mates))
+		for (m, b) in mates.items() :
+			print(m)
+			print(b)
+			print()
+			pass
 		tb.flush()
 
