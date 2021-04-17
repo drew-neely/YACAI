@@ -11,6 +11,99 @@ class KQk(Tablebase) :
 	def __init__(self) :
 		super().__init__("KQk")
 
+	def get_dtm(self, index) :
+		value = self[index]
+		winner = (value & 0b11000000) >> 6
+		if winner == 1 :
+			winner = chess.WHITE
+		elif winner == 2 :
+			winner = chess.BLACK
+		else :
+			winner = None
+		dtm = value & 0b00111111
+		return (winner, dtm)
+
+
+	def set_dtm(self, index, winner, depth_to_mate) :
+		if winner == chess.WHITE :
+			winner = 1
+		elif winner == chess.BLACK :
+			winner = 2
+		else :
+			winner = 0
+		if depth_to_mate > 2 ** 6 :
+			raise ValueError("dtm must fit in 6 bits for KQk endgame")
+		value = (winner << 6) | depth_to_mate
+		self[index] = value
+
+
+
+	def build(self) :
+		if not self.writable :
+			raise Exception("Cannot build non-writable Tablebase")
+		mates = self.checkmate_positions()
+		print(f"found {len(mates)} checkmate positions")
+		for idx in mates :
+			self.set_dtm(idx, chess.WHITE, 0)
+
+		btmL_pos = mates
+		wtmW_pos = {}
+		depth = 1
+		print("Starting tb generation")
+		while btmL_pos :
+			print()
+			print(f"depth: {depth}, len(btmL_pos): {len(btmL_pos)}")
+			# start by looking at btmL positions
+			for _, board in btmL_pos.items() :
+				# all parents of btmL positions are wtmW positions with dtm 1 larger
+				for unmove in board.unmoves :
+					new_board = board.copy()
+					new_board.unpush(unmove)
+					widx = self.index(new_board)
+					cur_winner = self.get_dtm(widx)[0]					
+					assert cur_winner != chess.BLACK
+					if cur_winner is None : # no mates found yet
+						wtmW_pos[widx] = new_board
+						self.set_dtm(widx, chess.WHITE, depth)
+			btmL_pos.clear()
+			depth += 1
+			print(f"depth: {depth}, len(wtmW_pos): {len(wtmW_pos)}")
+			for _, board in wtmW_pos.items() :
+				for unmove in board.unmoves :
+					new_board = board.copy()
+					new_board.unpush(unmove)
+					is_loss = True
+					do_print = (lambda x: None) if self.index(new_board) == 32625 else (lambda x: None)
+					do_print(new_board)
+					for move in new_board.legal_moves :
+						do_print("")
+						do_print(move)
+						if new_board.is_capture(move) : # transition to diff tablebase
+							is_loss = False
+							do_print("Capture")
+							break
+						new_board.push(move)
+						do_print(new_board)
+						adj_idx = self.index(new_board)
+						res = self.get_dtm(adj_idx)[0]
+						do_print(f"idx = {adj_idx}")
+						do_print(f"winner = {res}")
+						if res != chess.WHITE :
+							is_loss = False
+							do_print("Not Win")
+							new_board.pop()
+							break
+						new_board.pop()
+					if is_loss :
+						bidx = self.index(new_board)
+						btmL_pos[bidx] = new_board
+						self.set_dtm(bidx, chess.WHITE, depth)
+					do_print("~~~~~~~~~~~~~~~~~~~~~~~~~")
+			wtmW_pos.clear()
+			depth += 1
+		print()
+		print(f"depth: {depth}, len(btmL_pos): {len(btmL_pos)}")
+
 	# Take advantage of the fact that all KQk checkmates have the black king
 	# 	on the edge of the board
 	def checkmate_positions(self) :

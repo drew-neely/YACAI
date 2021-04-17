@@ -86,7 +86,7 @@ square_index_rots_bk_skips_np = [
 	[5, 6, 7, 8, 10, 14],              # 6
 	[1, 2, 4, 5, 6, 7, 8, 9, 38],      # 7
 	[2, 5, 6, 7, 8, 9, 10, 14, 18],    # 8
-	[2, 3, 9, 18, 22, 26, 41, 44, 45], # 9
+	[2, 3, 7, 8, 9, 14, 18, 22, 41],   # 9
 ]
 
 
@@ -116,6 +116,7 @@ def get_kings_index_np(board) :
 	bk = square_index_mat[bk]
 	skip = bisect(square_index_rots_bk_skips_np[wk], bk)
 	if square_index_rots_bk_skips_np[wk][skip-1] == bk : # black king is on invalid square
+		print(board)
 		raise ValueError("Kings placed on invalid squares")
 	bk -= skip
 	index = base_from_wk_index[wk] + bk

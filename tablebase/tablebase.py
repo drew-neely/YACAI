@@ -9,11 +9,20 @@ class Tablebase :
 		self.name = name
 		self.table = BigArray(name, self.len, self.bytes_per_entry)
 
+	def build(self) :
+		raise NotImplementedError("Tablebase.build()")
+
 	def checkmate_positions(self) :
 		raise NotImplementedError("Tablebase.checkmate_positions()")
 
 	def index(self, board) :
 		raise NotImplementedError("Tablebase.index(board)")
+
+	def set_dtm(self, index, winner, depth_to_mate) :
+		raise NotImplementedError("Tablebase.set_dtm(board)")
+
+	def get_dtm(self, index) :
+		raise NotImplementedError("Tablebase.get_dtm(board)")
 
 	@property
 	def len(self) :
