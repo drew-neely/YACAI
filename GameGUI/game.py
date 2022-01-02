@@ -22,7 +22,7 @@ ROOKW = 10
 KINGW = 11
 QUEENW = 12
 
-IMAGE_PATH = 'Images'  # path to the chess pieces
+IMAGE_PATH = os.path.join(os.path.dirname(__file__), "Images")  # path to the chess pieces
 
 blank = os.path.join(IMAGE_PATH, 'blank.png')
 bishopB = os.path.join(IMAGE_PATH, 'bB.png')
@@ -74,6 +74,7 @@ def redraw_board(window, board):
 		elem = window.FindElement(key=chess.square_name(sq))
 		elem.Update(button_color=('white', color),
 					image_filename=piece_image, )
+	window.finalize()
 
 def get_board_layout(board, white_perspective=True) :
 	board_layout = [[None] * 8 for _ in range(8)]
@@ -138,7 +139,6 @@ class UserAgent() :
 		return piece.lower()
 
 	def get_move(self, board, color) :
-		# !!! # Needs to handle pawn promotion - crashes on pawn promotion
 		global square_colors
 		moves = list(board.legal_moves)
 		move_sqs = [(m.from_square, m.to_square) for m in moves]
