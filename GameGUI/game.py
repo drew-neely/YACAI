@@ -176,39 +176,30 @@ class UserAgent() :
 				continue
 
 
-
-
-
-if __name__ == "__main__" :
-	assert len(sys.argv) == 4, "Wrong number of arguments"
-	assert sys.argv[3].lower() in ["white", "black"], "Invalid color of perspective"
+def start_game(white_agent, black_agent, board=None, perspective=chess.WHITE) :
+	if board == None :
+		board = chess.Board()
 	
-	player_strings = sys.argv[1:3]
-	white_perspective = sys.argv[3].lower() == "white"
+	layout = get_board_layout(board, perspective==chess.WHITE)
+	window = sg.Window("Chess", layout)
 
-	board = chess.Board()
-	layout = get_board_layout(board, white_perspective)
-	window = sg.Window(player_strings[0] + "  VS.  " + player_strings[1], layout)
+	agents = [white_agent, black_agent]
+	for i in [0, 1] :
+		if isinstance(agents[i], str) :
+			if agents[i].lower() == "user" :
+				agents[i] = UserAgent(window)
+			else :
+				agents[i] = YACAI_Agent.from_file(ps)
 	
-	player_is_user = []
-	players = []
-	for ps in player_strings :
-		if ps.lower() == "user" :
-			players.append(UserAgent(window))
-			player_is_user.append(True)
-		else :
-			players.append(YACAI_Agent.from_file(ps))
-			player_is_user.append(False)
-
 	window.Finalize()
 
-	whites_turn = True
+	whites_turn = board.turn == chess.WHITE
 	while not board.is_game_over(claim_draw = True):
 		move = None
 		if whites_turn :
-			move = players[0].get_move(board, chess.WHITE)
+			move = agents[0].get_move(board, chess.WHITE)
 		else :
-			move = players[1].get_move(board, chess.BLACK)
+			move = agents[1].get_move(board, chess.BLACK)
 		board.push(move)
 		reset_square_colors()
 		for sq in [move.from_square, move.to_square] :
@@ -225,4 +216,11 @@ if __name__ == "__main__" :
 		print("DRAW!")
 
 	window.close()
+
+
+if __name__ == "__main__" :
+	assert len(sys.argv) == 4, "Wrong number of arguments"
+	assert sys.argv[3].lower() in ["white", "black"], "Invalid color of perspective"
+	
+	start_game(sys.argv[1], sys.argv[2], perspective = chess.WHITE if sys.argv[3].lower() == "white" else chess.BLACK)
 	
