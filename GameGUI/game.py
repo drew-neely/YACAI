@@ -5,7 +5,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import chess
 import time
 
-from agent import Agent, get_agent_from_pickle
+from yacai_agent import YACAI_Agent
 
 
 BLANK = 0  # piece names
@@ -197,13 +197,13 @@ if __name__ == "__main__" :
 			players.append(UserAgent(window))
 			player_is_user.append(True)
 		else :
-			players.append(get_agent_from_pickle(ps))
+			players.append(YACAI_Agent.from_file(ps))
 			player_is_user.append(False)
 
 	window.Finalize()
 
 	whites_turn = True
-	while not board.is_game_over():
+	while not board.is_game_over(claim_draw = True):
 		move = None
 		if whites_turn :
 			move = players[0].get_move(board, chess.WHITE)
@@ -216,5 +216,13 @@ if __name__ == "__main__" :
 		redraw_board(window, board)
 		whites_turn = not whites_turn
 		
-		
+	result = board.result()
+	if result == "1-0" :
+		print("WHITE WON!")
+	elif result == "0-1" :
+		print("BLACK WON!")
+	else :
+		print("DRAW!")
+
 	window.close()
+	
