@@ -7,7 +7,7 @@ from math import inf
 from random import shuffle
 
 from agent import Agent
-from minimax import Minimax
+from chess_minimax import ChessMinimax
 
 class Heuristic_Agent(Agent) :
 
@@ -16,7 +16,7 @@ class Heuristic_Agent(Agent) :
 		super().__init__()
 		
 	def get_move(self, board, color) :
-		minimax = Minimax(board, self.depth, color=color, pruning=True)
+		minimax = ChessMinimax(board, self.depth, color=color, pruning=True)
 		# minimax_np = Minimax(board, self.depth, color=color, pruning=False)
 		# print("---")
 		# print("pruning")
@@ -25,7 +25,7 @@ class Heuristic_Agent(Agent) :
 		# minimax_np.dump()
 		# if(minimax.best_quality != minimax_np.best_quality) :
 		# 	print("MINIMAX mismatch")
-		return minimax.best_moves[0]
+		return minimax.best_path[0]
 
 
 
@@ -86,7 +86,7 @@ if __name__ == "__main__" :
 	##################################################################
 	start_time = time.time()
 
-	minimax = Minimax(board, goto_depth)
+	minimax = ChessMinimax(board, goto_depth)
 
 	end_time = time.time()
 	##  ##  ##  ##  ##  ##  ##  ##  

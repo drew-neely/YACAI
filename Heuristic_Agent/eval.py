@@ -21,10 +21,10 @@ def points(board) :
 
 ######################################################
 
-def get_eval(board, depth) :
+def get_eval(board) :
 	outcome = board.outcome(claim_draw = True)
 	if outcome != None :
-		return outcome_values[outcome.winner] - copysign(depth, outcome_values[outcome.winner])
+		return outcome_values[outcome.winner]
 	w_mat, b_mat = points(board)
 	return w_mat-b_mat
 	
