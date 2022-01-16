@@ -12,13 +12,13 @@ from eval import get_eval
 # 		- self.unapply()
 class Minimax :
 
-	def __init__(self, node, depth, alpha=-inf, beta=inf, maxing=True, pruning=True):
-		self.node = node
+	def __init__(self, depth, alpha=-inf, beta=inf, maxing=True, pruning=True, verbose = False):
 		self.search_depth = depth
 		self.search_alpha = alpha
 		self.search_beta = beta
 		self.search_maxing = maxing
 		self.pruning = pruning
+		self.verbose = verbose
 		
 		# perf stats
 		self.num_evaled = 0
@@ -28,33 +28,71 @@ class Minimax :
 
 	# returns (<best achievable quality>, [<choices to get to best state>])
 	def search(self, depth, alpha, beta, maxing) :
+		if self.verbose : print(f"-- Starting search: maxing = {maxing}, (a,b) = {(alpha, beta)} -- {self}")
 		choices = self.children()
 		if depth == 0 or not choices :
 			self.num_evaled += 1
-			return (self.eval(), [], alpha, beta)
+			quality = self.eval()
+			if self.verbose : print(f"---- Evauluating {self} ===> {quality}")
+			return (quality, [], alpha, beta)
+		
+		if maxing : # Maximizing
 
-		best_quality = -inf if maxing else inf
-		best_path = None
-		best_choice = None
-		for choice in choices:
-			# print(''.join(["\t"]*(3-depth)) + move.uci(), best_quality)
-			self.apply(choice)
-			(quality, path, alpha, beta) = self.search(depth - 1, alpha, beta, not maxing)
-			if (maxing and quality >= best_quality) or (not maxing and quality <= best_quality) :
-				best_quality = quality
-				best_path = path
-				best_choice = choice
-			self.unapply()
-			if self.pruning :
-				if (maxing and best_quality >= beta) or (not maxing and best_quality <= alpha) :
-					break
-				if maxing and best_quality > alpha :
-					alpha = best_quality
-				elif not maxing and best_quality < beta :
-					beta = best_quality
-				# if beta <= alpha :
-				# 	break
-		# print(''.join(["\t"]*(3-depth)) + "BEST:", best_quality, best_choices)
+			best_quality = -inf
+			best_path = None
+			best_choice = None
+			
+			for choice in choices:
+				self.apply(choice)
+				(quality, path, _, _) = self.search(depth - 1, alpha, beta, not maxing)
+
+				if quality >= best_quality :
+					best_quality = quality
+					best_path = path
+					best_choice = choice
+
+				self.unapply()
+
+				if self.pruning :
+					if best_quality >= beta :
+						if self.verbose : 
+							print(f"*Pruning after {choice}")
+							print(f"\tmaxing = {maxing}, (a,b) = {(alpha, beta)}, best_quality = {best_quality}")
+						break
+					if best_quality > alpha :
+						if self.verbose : print(f"alpha = {best_quality} after choice {choice}")
+						alpha = best_quality
+		
+		else : # Minimizing player
+			best_quality = inf
+			best_path = None
+			best_choice = None
+			
+			for choice in choices:
+				self.apply(choice)
+				(quality, path, _, _) = self.search(depth - 1, alpha, beta, not maxing)
+
+				if quality <= best_quality :
+					best_quality = quality
+					best_path = path
+					best_choice = choice
+
+				self.unapply()
+
+				if self.pruning :
+					if best_quality <= alpha :
+						if self.verbose : 
+							print(f"*Pruning after {choice}")
+							print(f"\tmaxing = {maxing}, (a,b) = {(alpha, beta)}, best_quality = {best_quality}")
+						break
+					if maxing and best_quality > alpha :
+						if self.verbose : print(f"alpha = {best_quality} after choice {choice}")
+						alpha = best_quality
+					elif not maxing and best_quality < beta :
+						if self.verbose : print(f"beta = {best_quality} after choice {choice}")
+						beta = best_quality
+
+		if self.verbose : print(f"---- Ending search {self} ===> {best_quality}")
 		return (best_quality, [best_choice] + best_path, alpha, beta)
 
 	##########################################

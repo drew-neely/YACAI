@@ -5,16 +5,17 @@ from eval import get_eval
 
 class ChessMinimax(Minimax) :
 	def __init__(self, board, depth, color=chess.WHITE, pruning=True):
-		super().__init__(board, depth, maxing= color==chess.WHITE, pruning=pruning)
+		self.board = board
+		super().__init__(depth, maxing= color==chess.WHITE, pruning=pruning)
 
 	def children(self) :
-		return list(self.node.legal_moves)
+		return list(self.board.legal_moves)
 
 	def eval(self) :
-		return get_eval(self.node)
+		return get_eval(self.board)
 
 	def apply(self, choice) :
-		self.node.push(choice)
+		self.board.push(choice)
 
 	def unapply(self) :
-		self.node.pop()
+		self.board.pop()
