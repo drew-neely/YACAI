@@ -164,19 +164,19 @@ if __name__ == "__main__" :
 		assert (a == b) == res, f"Failed score test: {a} == {b} ==> {a==b}"
 
 	for (a, b), res in zip(score_perms, ne_res) :
-		assert (a != b) == res, f"Failed score test: {a} != {b} ==> {a==b}"
+		assert (a != b) == res, f"Failed score test: {a} != {b} ==> {a!=b}"
 
 	for (a, b), res in zip(score_perms, lt_res) :
-		assert (a < b) == res, f"Failed score test: {a} < {b} ==> {a==b}"
+		assert (a < b) == res, f"Failed score test: {a} < {b} ==> {a<b}"
 
 	for (a, b), res in zip(score_perms, le_res) :
-		assert (a <= b) == res, f"Failed score test: {a} <= {b} ==> {a==b}"
+		assert (a <= b) == res, f"Failed score test: {a} <= {b} ==> {a<=b}"
 
 	for (a, b), res in zip(score_perms, gt_res) :
-		assert (a > b) == res, f"Failed score test: {a} > {b} ==> {a==b}"
+		assert (a > b) == res, f"Failed score test: {a} > {b} ==> {a>b}"
 
 	for (a, b), res in zip(score_perms, ge_res) :
-		assert (a >= b) == res, f"Failed score test: {a} >= {b} ==> {a==b}"
+		assert (a >= b) == res, f"Failed score test: {a} >= {b} ==> {a>=b}"
 
 	print("passed all tests")
 
