@@ -2,10 +2,12 @@ from math import inf
 import random
 import chess
 import os, sys
+from matplotlib import use
 
 from matplotlib.pyplot import get
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from eval import get_eval
+from score import Score
 
 random.seed(1234)
 
@@ -60,20 +62,29 @@ class ArrTestCase(TestCase) :
 
 class TupleTestCase(TestCase) :
 
-	def __init__(self, tup, res, maxing, depth = inf):
+	def __init__(self, tup, res, maxing, depth = inf, use_score = False, fen = None):
 		super().__init__(res, maxing)
-		self.tup = tup
+		if tup == None :
+			assert fen != None , "TupleTestCase may be specified with tup=None to delay generation till usage, but fen must be specified"
+		self._tup = tup
 		self.depth = depth
+		self.use_score = use_score
+		self.fen = fen
+
+	@property
+	def tup(self) :
+		if self._tup is None :
+			self._tup = TupleTestCase._from_board(chess.Board(self.fen), self.depth)
+		return self._tup
 
 	@staticmethod
 	def from_fen(fen, res, depth) :
 		board = chess.Board(fen)
-		return TupleTestCase.from_board(board, res, depth)
+		return TupleTestCase(None, res, board.turn == chess.WHITE, depth=depth, use_score=True, fen=fen)
 
 	@staticmethod
 	def from_board(board, res, depth) :
-		tup = TupleTestCase._from_board(board, depth)
-		return TupleTestCase(tup, res, board.turn == chess.WHITE, depth)
+		return TupleTestCase(None, res, board.turn == chess.WHITE, depth = depth, use_score=True, fen=board.fen())
 
 	@staticmethod
 	def _from_board(board, depth) :
@@ -126,6 +137,10 @@ ArrTestCase([[9, -9], [-10, 10]], 9, maxing=False)
 ArrTestCase([[-10, 10], [-15, 15, 3, 4, -7], [9, -9], [1, -1, -6, 6], [-100, 10000]], -6, maxing=True)
 ArrTestCase([[-10, 10], [-15, 15, 3, 4, -7], [9, -9], [1, -1, -6, 6], [-100, 10000]], 6, maxing=False)
 
+ArrTestCase([[0,0,0], [0,0,0], [0,0,1]], 0, maxing=False)
+ArrTestCase([[0,0,0], [0,0,0], [0,0,1]], 0, maxing=True)
+
+
 #######################################
 ###### 3 dimensional test cases
 #######################################
@@ -169,7 +184,7 @@ ArrTestCase([
 # . . . . . . . .
 # . . . . . . . .
 # . . . . . . . .
-ctc1 = TupleTestCase.from_fen("5k2/2P5/5K2/8/8/8/8/8 w - - 0 1", None, 2)
+ctc1 = TupleTestCase.from_fen("5k2/2P5/5K2/8/8/8/8/8 w - - 0 1", Score.mate_in(1, chess.WHITE), 2)
 
 # . . . . . k . .
 # . . Q . . . . .
@@ -179,7 +194,7 @@ ctc1 = TupleTestCase.from_fen("5k2/2P5/5K2/8/8/8/8/8 w - - 0 1", None, 2)
 # . . . . . . . .
 # . . . . . . . .
 # . . . . . . . .
-ctc2 = TupleTestCase.from_fen("5k2/2Q5/4K3/8/8/8/8/8 b - - 0 1", None, 5)
+ctc2 = TupleTestCase.from_fen("5k2/2Q5/4K3/8/8/8/8/8 b - - 0 1", Score.mate_in(4, chess.WHITE), 5)
 
 
 # . . . . k . . .
@@ -192,4 +207,45 @@ ctc2 = TupleTestCase.from_fen("5k2/2Q5/4K3/8/8/8/8/8 b - - 0 1", None, 5)
 # . . . . . . . .
 ctc3 = TupleTestCase.from_fen("4k3/2P3p1/5pPp/4pP1P/4P2K/8/8/8 b - - 0 1", None, 4)
 
-print("generated all tests")
+# . . . . k . . .
+# . . p p p p p p
+# . . . . . . . .
+# p p . . . . . .
+# . . . P . . . .
+# . . K . . . . .
+# . . . . P . . .
+# . . . . . . . .
+ctc4 = TupleTestCase.from_fen("4k3/2pppppp/8/pp6/3P4/2K5/4P3/8 b - - 1 3", None, 2)
+
+# . . . . k . . .
+# . . . p p p p p
+# . . . . . . . .
+# p p p . . . . .
+# . . . P . . . .
+# . . K . . . . .
+# . . . . P . . .
+# . . . . . . . .
+ctc5 = TupleTestCase.from_fen("4k3/3ppppp/8/ppp5/3P4/2K5/4P3/8 w - c6 0 4", None, 2)
+
+
+# . . . . k . . .
+# . . p . . . . .
+# . . . . . . . .
+# . . . . . . . .
+# . . . P . . . .
+# . . K . . . . .
+# . . . . . . . .
+# . . . . . . . .
+ctc6 = TupleTestCase.from_fen("4k3/2p5/8/8/3P4/2K5/8/8 b - - 1 3", None, 2)
+
+# . . . . k . . .
+# . . . . . . . .
+# . . . . . . . .
+# . . p . . . . .
+# . . . P . . . .
+# . . K . . . . .
+# . . . . . . . .
+# . . . . . . . .
+ctc6 = TupleTestCase.from_fen("4k3/8/8/2p5/3P4/2K5/8/8 w - - 0 4", None, 1)
+
+print("Created all test cases (Some may use delayed generation)\n")
