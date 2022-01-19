@@ -37,34 +37,56 @@ class Minimax :
 		self.num_evaled = 0
 
 		# perform the search
-		(self.best_quality, self.best_path, _, _) = self.search(depth, self.search_alpha, self.search_beta, maxing)
+		(self.best_quality, self.best_choice) = self.search(depth, self.search_alpha, self.search_beta, maxing)
 
-	# returns (<best achievable quality>, [<choices to get to best state>])
+	# returns (<best achivable quality>, <best choice>)
 	def search(self, depth, alpha, beta, maxing) :
+		if self.verbose : print(f"-- Starting base-level search: maxing = {maxing}, (a,b) = {(alpha, beta)} -- {self}")
+		if depth == 0 :
+			quality = self.eval()
+			if self.verbose : print(f"---- Leaf Node {self} ===> {quality}")
+			return (quality, None)
+		choices = self.children()
+		best_quality = self.min_eval if maxing else self.max_eval
+		best_choice = None
+		for choice in choices:
+			self.apply(choice)
+			quality = self.inc_eval(self._search(depth - 1, alpha, beta, not maxing))
+			self.unapply()
+			if (maxing and quality >= best_quality) or (not maxing and quality <= best_quality) :
+				best_quality = quality
+				best_choice = choice
+			if self.pruning :
+				if maxing and best_quality > alpha :
+					if self.verbose : print(f"alpha = {best_quality} after choice {choice}")
+					alpha = best_quality
+				if not maxing and best_quality < beta :
+					if self.verbose : print(f"beta = {best_quality} after choice {choice}")
+					beta = best_quality
+		if self.verbose : print(f"---- Ending base-level search: {self} ===> {(best_quality, best_choice)}")
+		return (best_quality, best_choice)
+
+
+	
+	# returns best achievable quality - returning best choices is incompatible with alpha beta pruning
+	def _search(self, depth, alpha, beta, maxing) :
 		choices = self.children()
 		if depth == 0 or not choices :
 			self.num_evaled += 1
 			quality = self.eval()
 			if self.verbose : print(f"---- Leaf Node {self} ===> {quality}")
-			return (quality, [], alpha, beta)
+			return quality
 		
 		if self.verbose : print(f"-- Starting search: maxing = {maxing}, (a,b) = {(alpha, beta)} -- {self}")
 
 		if maxing : # Maximizing
 
 			best_quality = self.min_eval
-			best_path = None
-			best_choice = None
 			
 			for choice in choices:
+
 				self.apply(choice)
-				(quality, path, _, _) = self.search(depth - 1, alpha, beta, not maxing)
-
-				if quality >= best_quality :
-					best_quality = quality
-					best_path = path
-					best_choice = choice
-
+				best_quality = max(best_quality, self._search(depth - 1, alpha, beta, not maxing))
 				self.unapply()
 
 				if self.pruning :
@@ -79,18 +101,11 @@ class Minimax :
 		
 		else : # Minimizing player
 			best_quality = self.max_eval
-			best_path = None
-			best_choice = None
 			
 			for choice in choices:
+
 				self.apply(choice)
-				(quality, path, _, _) = self.search(depth - 1, alpha, beta, not maxing)
-
-				if quality <= best_quality :
-					best_quality = quality
-					best_path = path
-					best_choice = choice
-
+				best_quality = min(best_quality, self._search(depth - 1, alpha, beta, not maxing))
 				self.unapply()
 
 				if self.pruning :
@@ -104,7 +119,7 @@ class Minimax :
 						beta = best_quality
 
 		if self.verbose : print(f"---- Ending search {self} ===> {best_quality}")
-		return (self.inc_eval(best_quality), [best_choice] + best_path, alpha, beta)
+		return self.inc_eval(best_quality)
 
 	##########################################
 	####### Abstract method declarations

@@ -43,7 +43,7 @@ if __name__ == "__main__" :
 			if chess_minimax :
 				print(f"\tchess_actual = {chess_minimax.best_quality}")
 				print()
-				print(f"\tbest moves = {[str(m) for m in chess_minimax.best_path]}")
+				print(f"\tbest move = {chess_minimax.best_choice}")
 				
 			print(f"\tnum_evaled = {minimax.num_evaled}")
 			print()
@@ -75,7 +75,7 @@ if __name__ == "__main__" :
 			print(f"\tchess_actual={chess_minimax.best_quality}")
 			print(f"\texpected = {test.res}")
 			print()
-			print(f"\tbest moves = {[str(m) for m in chess_minimax.best_path]}")
+			print(f"\tbest move = {chess_minimax.best_choice}")
 			if args.tests_verbose : print(f"\tnum_evaled = {minimax.num_evaled}")
 			if args.tests_verbose : print("FAIL\n--------------------------")
 			else : print()

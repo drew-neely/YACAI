@@ -25,7 +25,7 @@ class Heuristic_Agent(Agent) :
 		# minimax_np.dump()
 		# if(minimax.best_quality != minimax_np.best_quality) :
 		# 	print("MINIMAX mismatch")
-		return minimax.best_path[0]
+		return minimax.best_choice
 
 
 
