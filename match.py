@@ -1,7 +1,7 @@
 import chess
 from featureExtraction import PointDifference
 import random
-from agent import extractors
+# from agent import extractors
 
 class Result :
 	# arguments:
@@ -13,7 +13,7 @@ class Result :
 		self.black_id = black.id
 		self.winner_id = winner.id if winner != None else None
 		self.moves = ' '.join([move.uci() for move in board.move_stack])
-		self.perf_data = [e.time_running for e in extractors]
+		# self.perf_data = [e.time_running for e in extractors]
 
 class Match :
 
@@ -36,11 +36,14 @@ class Match :
 
 		return board.is_game_over() or w == 1 or b == 1
 
-	def run(self) :
+	def run(self, board=None) :
 		# !!! Add logic to determine cause of game end - especially for draws
 
 		# init board
-		self.board = chess.Board()
+		if not board :
+			self.board = chess.Board()
+		else :
+			self.board = board
 		
 		# conduct game
 		moves = 0 
@@ -56,19 +59,19 @@ class Match :
 
 		# return result
 		if result == "1-0" :
-			print("\tWin: White - moves: ", moves)
+			# print("\tWin: White - moves: ", moves)
 			winner = self.players[chess.WHITE]
 		elif result == "0-1" :
-			print("\tWin: Black - moves: ", moves)
+			# print("\tWin: Black - moves: ", moves)
 			winner = self.players[chess.BLACK]
 		else :
 			pd = PointDifference()
 			diff = pd.extract(self.board, chess.WHITE)[0]
 			if diff > 0 :
-				print("\tUnfinished game: White gets the win - moves: ", moves, ", pd: ", abs(diff))
+				# print("\tUnfinished game: White gets the win - moves: ", moves, ", pd: ", abs(diff))
 				winner = self.players[chess.WHITE]
 			else :
-				print("\tUnfinished game: Black gets the win - moves: ", moves, ", pd: ", abs(diff))
+				# print("\tUnfinished game: Black gets the win - moves: ", moves, ", pd: ", abs(diff))
 				winner = self.players[chess.BLACK]
 		res = Result(self.players[chess.WHITE], self.players[chess.BLACK], winner, self.board)
 		return res
