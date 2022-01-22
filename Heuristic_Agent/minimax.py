@@ -53,7 +53,7 @@ class Minimax :
 			self.apply(choice)
 			quality = self.inc_eval(self._search(depth - 1, alpha, beta, not maxing))
 			self.unapply()
-			if (maxing and quality >= best_quality) or (not maxing and quality <= best_quality) :
+			if (maxing and quality > best_quality) or (not maxing and quality < best_quality) :
 				best_quality = quality
 				best_choice = choice
 			if self.pruning :

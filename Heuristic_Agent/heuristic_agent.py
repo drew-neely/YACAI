@@ -20,7 +20,7 @@ class Heuristic_Agent(Agent) :
 		# minimax_np = Minimax(board, self.depth, color=color, pruning=False)
 		# print("---")
 		# print("pruning")
-		minimax.dump()
+		# minimax.dump()
 		# print("no pruning")
 		# minimax_np.dump()
 		# if(minimax.best_quality != minimax_np.best_quality) :
