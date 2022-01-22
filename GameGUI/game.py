@@ -189,7 +189,7 @@ def start_game(white_agent, black_agent, board=None, perspective=chess.WHITE) :
 			if agents[i].lower() == "user" :
 				agents[i] = UserAgent(window)
 			else :
-				agents[i] = YACAI_Agent.from_file(ps)
+				agents[i] = YACAI_Agent.from_file(agents[i])
 	
 	window.Finalize()
 
