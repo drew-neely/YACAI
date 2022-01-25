@@ -78,9 +78,13 @@ class Score :
 			return Score(val)
 		
 	def __eq__(self, other) :
+		if None == other :
+			return False
 		return self.val == other.val and self.is_mate == other.is_mate
 
 	def __ne__(self, other) :
+		if None == other :
+			return True
 		return self.val != other.val or self.is_mate != other.is_mate
 
 	def __lt__(self, other) :
