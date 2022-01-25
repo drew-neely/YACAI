@@ -6,31 +6,93 @@ from score import Score
 from transposition_table import TranspositionTable
 
 class ChessMinimax(Minimax) :
-	def __init__(self, board, depth, color=chess.WHITE, pruning=True, t_table=True, verbose=False):
+	def __init__(self, board, depth, color=chess.WHITE, pruning=True, t_table=True, node_ordering=True, verbose=False):
 		self.board = board
-		if t_table :
+		if t_table == True:
 			self.t_table = TranspositionTable()
-			self.t_table_hits = 0
+		elif isinstance(t_table, TranspositionTable) :
+			self.t_table = t_table
 		else :
 			self.t_table = None
+		self.node_ordering = node_ordering
+
+		# stats to track
+		if t_table :
+			self.t_table_hits = 0
+			self.t_table_miss = 0
+			self.records = 0
+			self.lookup_hits = 0
+			self.lookup_miss = 0
+		
+		if t_table and node_ordering :
+			self.internal_node_hits = 0
+			self.internal_node_miss = 0
+		elif node_ordering :
+			self.internal_node_evals = 0
+
 		Minimax.__init__(self, depth, maxing= color==chess.WHITE, pruning=pruning, verbose=verbose)
 		
 	def children(self) :
-		return list(self.board.legal_moves)
+		
+		if self.node_ordering :
+			move_score_pairs = []
+			for move in self.board.legal_moves :
+				self.board.push(move)
+				###### get score
+				if self.t_table != None :
+					fen = self.board.fen()
+					if (fen, 0) in self.t_table :
+						self.internal_node_hits += 1
+						score = self.t_table[(fen, 0)]
+					else :
+						self.internal_node_miss += 1
+						score = get_eval(self.board)
+						self.t_table[(fen, 0)] = score
+				else :
+					self.internal_node_evals += 1
+					score = get_eval(self.board)
+				###### 
+				move_score_pairs.append((move, score))
+				self.board.pop()
+			move_score_pairs.sort(key = lambda x : x[1], reverse=True)
+			return [ move for move, _ in move_score_pairs ]
+		else :
+			return list(self.board.legal_moves)
 
 	def eval(self) :
 		if self.t_table != None :
 			fen = self.board.fen()
-			if fen in self.t_table :
+			if (fen, 0) in self.t_table :
 				self.t_table_hits += 1
-				return self.t_table[fen]
+				return self.t_table[(fen, 0)]
 			else :
+				self.t_table_miss += 1
 				score = get_eval(self.board)
-				self.t_table[fen] = score
+				self.t_table[(fen, 0)] = score
 				return score
 		else :
 			return get_eval(self.board)
-		
+
+	def record(self, quality, depth, maxing) :
+		if self.t_table != None :
+			fen = self.board.fen()
+			self.t_table[(fen, depth)] = quality
+			self.records += 1
+		else :
+			pass
+
+	def lookup(self, depth, maxing) :
+		if self.t_table != None :
+			fen = self.board.fen()
+			if (fen, depth) in self.t_table :
+				self.lookup_hits += 1
+				return self.t_table[(fen, depth)]
+			else :
+				self.lookup_miss += 1
+				return None
+		else :
+			return None
+
 
 	def apply(self, choice) :
 		self.board.push(choice)
@@ -57,7 +119,13 @@ class ChessMinimax(Minimax) :
 		print(f"fen = {self.board.fen()}")
 		print(f"num_evaled = {self.num_evaled}")
 		if self.t_table != None :
-			print(f"num_t_table_hits = {self.t_table_hits} ({round(self.t_table_hits/self.num_evaled*10000)/100}%)")
+			print(f"num_t_table_hits = {self.t_table_hits} ({round(self.t_table_hits/(self.t_table_hits+self.t_table_miss)*10000)/100 if self.t_table_hits+self.t_table_miss != 0 else 0}%)")
+			print(f"num_records = {self.records}")
+			print(f"num_lookup_hits = {self.lookup_hits} ({round(self.lookup_hits/(self.lookup_hits+self.lookup_miss)*10000)/100}%)")
+		if self.t_table != None and self.node_ordering :
+			print(f"num_internal_node_hits = {self.internal_node_hits} ({round(self.internal_node_hits/(self.internal_node_hits+self.internal_node_miss)*10000)/100}%)")
+		elif self.node_ordering :
+			print(f"Internal node evals = {self.internal_node_evals}")
 		print(f"depth = {self.search_depth}, maxing = {self.search_maxing}, best choice = {self.best_choice}")
 		print(f"depth 0 eval = {self.eval()}")
 		print(f"depth {self.search_depth} eval = {self.best_quality}")

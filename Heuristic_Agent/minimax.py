@@ -8,12 +8,15 @@ from eval import get_eval
 # 	that the test bench can be attached.
 # 		- self.children()
 # 		- self.eval()
-# 		- self.apply()
+# 		- self.apply(choice)
 # 		- self.unapply()
 #       - self.min_eval() (@property) # the minimum evaluation possible
 #       - self.max_eval() (@property) # the maximum evaluation possible
 #       - inc_eval() # returns resultant eval from passing eval back one branch in minimax tree
-#   Optionally, some debug methods may be implemented
+#   Optional
+#       - record(quality, depth, maxing) # not required - may be used to record a result into a transposition table
+#       - lookup(depth, maxing) # not required - may be used to check in transposition table - returns quality or None
+#   Debug methods - optional
 #       - dump()
 class Minimax :
 
@@ -70,6 +73,11 @@ class Minimax :
 	
 	# returns best achievable quality - returning best choices is incompatible with alpha beta pruning
 	def _search(self, depth, alpha, beta, maxing) :
+		lookup_res = self.lookup(depth, maxing)
+		if lookup_res is not None :
+			if depth == 0 :
+				self.num_evaled += 1
+			return lookup_res
 		choices = self.children()
 		if depth == 0 or not choices :
 			self.num_evaled += 1
@@ -119,6 +127,7 @@ class Minimax :
 						beta = best_quality
 
 		if self.verbose : print(f"---- Ending search {self} ===> {best_quality}")
+		self.record(best_quality, depth, maxing)
 		return self.inc_eval(best_quality)
 
 	##########################################
@@ -148,6 +157,18 @@ class Minimax :
 	def inc_eval(self, score) :
 		raise NotImplementedError()
 
+	# May be implemented by subclass - by default does nothing
+	def record(self, quality, depth, maxing) :
+		pass
+
+	# May be implemented by subclass - by default does nothing
+	def lookup(self, depth, maxing) :
+		return None
+
 	##########################################
 	####### Debug methods
 	##########################################
+
+	# May be implemented by subclass - by default does nothing
+	def dump(self) :
+		pass
