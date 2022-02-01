@@ -84,12 +84,12 @@ class ChessMinimax(Minimax) :
 	def lookup(self, depth, maxing) :
 		if self.t_table != None :
 			fen = self.board.fen()
-			if (fen, depth) in self.t_table :
+			res = self.t_table[(fen, depth)]
+			if res is not None :
 				self.lookup_hits += 1
-				return self.t_table[(fen, depth)]
 			else :
 				self.lookup_miss += 1
-				return None
+			return res
 		else :
 			return None
 
@@ -118,15 +118,19 @@ class ChessMinimax(Minimax) :
 		print("ChessMinimax search dump:")
 		print(f"fen = {self.board.fen()}")
 		print(f"num_evaled = {self.num_evaled}")
-		if self.t_table != None :
+
+		if self.t_table is not None and not self.node_ordering :
 			print(f"num_t_table_hits = {self.t_table_hits} ({round(self.t_table_hits/(self.t_table_hits+self.t_table_miss)*10000)/100 if self.t_table_hits+self.t_table_miss != 0 else 0}%)")
+
+		if self.t_table != None :
 			print(f"num_records = {self.records}")
-			print(f"num_lookup_hits = {self.lookup_hits} ({round(self.lookup_hits/(self.lookup_hits+self.lookup_miss)*10000)/100}%)")
+			print(f"num_lookup_hits = {self.lookup_hits}/{self.lookup_hits+self.lookup_miss} ({round(self.lookup_hits/(self.lookup_hits+self.lookup_miss)*10000)/100}%)")
 		if self.t_table != None and self.node_ordering :
-			print(f"num_internal_node_hits = {self.internal_node_hits} ({round(self.internal_node_hits/(self.internal_node_hits+self.internal_node_miss)*10000)/100}%)")
+			print(f"num_internal_node_hits = {self.internal_node_hits}/{self.internal_node_hits+self.internal_node_miss} ({round(self.internal_node_hits/(self.internal_node_hits+self.internal_node_miss)*10000)/100}%)")
 		elif self.node_ordering :
 			print(f"Internal node evals = {self.internal_node_evals}")
 		print(f"depth = {self.search_depth}, maxing = {self.search_maxing}, best choice = {self.best_choice}")
 		print(f"depth 0 eval = {self.eval()}")
 		print(f"depth {self.search_depth} eval = {self.best_quality}")
+		print(f"search time = {round(self.search_time*10)/10}s")
 		print()

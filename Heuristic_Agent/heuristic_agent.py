@@ -11,16 +11,20 @@ from chess_minimax import ChessMinimax
 
 class Heuristic_Agent(Agent) :
 
-	def __init__(self, depth) :
+	def __init__(self, depth, pruning=True, t_table=True, node_ordering=True, verbose=False) :
 		self.depth = depth
+		self.pruning = pruning
+		self.t_table = t_table
+		self.node_ordering = node_ordering
+		self.verbose = verbose
 		super().__init__()
 		
 	def get_move(self, board, color) :
-		minimax = ChessMinimax(board, self.depth, color=color, pruning=True)
+		minimax = ChessMinimax(board, self.depth, color=color, pruning=self.pruning, t_table=self.t_table, node_ordering=self.node_ordering, verbose=self.verbose)
 		# minimax_np = Minimax(board, self.depth, color=color, pruning=False)
 		# print("---")
 		# print("pruning")
-		# minimax.dump()
+		minimax.dump()
 		# print("no pruning")
 		# minimax_np.dump()
 		# if(minimax.best_quality != minimax_np.best_quality) :

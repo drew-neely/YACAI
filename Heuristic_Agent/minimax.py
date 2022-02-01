@@ -1,4 +1,5 @@
 from math import inf
+from time import time
 
 from eval import get_eval
 
@@ -38,16 +39,19 @@ class Minimax :
 		
 		# perf stats
 		self.num_evaled = 0
+		self.search_time = 0 # in seconds
 
 		# perform the search
 		(self.best_quality, self.best_choice) = self.search(depth, self.search_alpha, self.search_beta, maxing)
 
 	# returns (<best achivable quality>, <best choice>)
 	def search(self, depth, alpha, beta, maxing) :
+		start_time = time()
 		if self.verbose : print(f"-- Starting base-level search: maxing = {maxing}, (a,b) = {(alpha, beta)} -- {self}")
 		if depth == 0 :
 			quality = self.eval()
 			if self.verbose : print(f"---- Leaf Node {self} ===> {quality}")
+			self.search_time += time() - start_time
 			return (quality, None)
 		choices = self.children()
 		best_quality = self.min_eval if maxing else self.max_eval
@@ -67,6 +71,7 @@ class Minimax :
 					if self.verbose : print(f"beta = {best_quality} after choice {choice}")
 					beta = best_quality
 		if self.verbose : print(f"---- Ending base-level search: {self} ===> {(best_quality, best_choice)}")
+		self.search_time += time() - start_time
 		return (best_quality, best_choice)
 
 
