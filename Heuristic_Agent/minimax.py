@@ -1,5 +1,6 @@
-from math import inf
+from math import inf, exp
 from time import time
+import numpy as np
 
 from eval import get_eval
 
@@ -21,7 +22,7 @@ from eval import get_eval
 #       - dump()
 class Minimax :
 
-	def __init__(self, depth, alpha=None, beta=None, maxing=True, pruning=True, verbose = False):
+	def __init__(self, depth, timeout=None, alpha=None, beta=None, maxing=True, pruning=True, it_deepening = True, verbose = False):
 		if alpha == None :
 			self.search_alpha = self.min_eval
 		else :
@@ -32,9 +33,12 @@ class Minimax :
 		else :
 			self.search_beta = beta
 
+		assert timeout is not None or it_deepening, "Timeout cannot be specified without iterative deepening" 
+		self.timeout = timeout # number of seconds to search for
 		self.search_depth = depth
 		self.search_maxing = maxing
 		self.pruning = pruning
+		self.it_deepening = it_deepening
 		self.verbose = verbose
 		
 		# perf stats
@@ -42,7 +46,40 @@ class Minimax :
 		self.search_time = 0 # in seconds
 
 		# perform the search
-		(self.best_quality, self.best_choice) = self.search(depth, self.search_alpha, self.search_beta, maxing)
+		if self.it_deepening :
+			(self.best_quality, self.best_choice) = self.it_deepening_search(depth, self.search_alpha, self.search_beta, maxing)
+		else :
+			(self.best_quality, self.best_choice) = self.search(depth, self.search_alpha, self.search_beta, maxing)
+
+	def it_deepening_search(self, depth, alpha, beta, maxing) :
+		if depth == 0 :
+			return self.search(0, alpha, beta, maxing)
+		# will go to at least depth depth, but keep going until self.timout time has passed
+		res = None
+		d = 1
+		times = []
+		while d <= depth :
+			res = self.search(d, alpha, beta, maxing)
+			times.append(self.search_time)
+			print(f"d={d}, time={self.search_time}")
+			d += 1
+		if self.timeout is not None :
+
+			# x, y = np.arange(1,d), np.array(times)
+			# print(x)
+			# print(y)
+			# b, a = np.polyfit(x, np.log(y), 1, w=np.sqrt(y))
+			# prediction = exp(a) * exp(b * d)
+			# print(prediction)
+
+			while self.search_time < self.timeout :
+				res = self.search(d, alpha, beta, maxing)
+				print(f"d={d}, time={self.search_time}")
+				times.append(self.search_time)
+				self.search_depth = d
+				d += 1
+		return res
+		
 
 	# returns (<best achivable quality>, <best choice>)
 	def search(self, depth, alpha, beta, maxing) :

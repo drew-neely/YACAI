@@ -6,7 +6,7 @@ from score import Score
 from transposition_table import TranspositionTable
 
 class ChessMinimax(Minimax) :
-	def __init__(self, board, depth, color=chess.WHITE, pruning=True, t_table=True, node_ordering=True, verbose=False):
+	def __init__(self, board, depth, timeout = None, color=chess.WHITE, pruning=True, it_deepening=True, t_table=True, node_ordering=True, verbose=False):
 		self.board = board
 		if t_table == True:
 			self.t_table = TranspositionTable()
@@ -30,7 +30,7 @@ class ChessMinimax(Minimax) :
 		elif node_ordering :
 			self.internal_node_evals = 0
 
-		Minimax.__init__(self, depth, maxing= color==chess.WHITE, pruning=pruning, verbose=verbose)
+		Minimax.__init__(self, depth, timeout=timeout, maxing= color==chess.WHITE, pruning=pruning, it_deepening=it_deepening, verbose=verbose)
 		
 	def children(self) :
 		

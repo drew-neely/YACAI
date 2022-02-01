@@ -82,6 +82,9 @@ if __name__ == "__main__" :
 		else : # test passed
 			pass_tests += 1
 			if args.tests_verbose : print(f"\tnum_evaled = {minimax.num_evaled}")
+			if chess_minimax :
+				print(f"\tchess_actual = {chess_minimax.best_quality}")
+				print(f"\tbest move = {chess_minimax.best_choice}")
 			if args.tests_verbose : print("PASS\n--------------------------")
 
 		

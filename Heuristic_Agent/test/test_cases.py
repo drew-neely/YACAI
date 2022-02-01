@@ -259,7 +259,15 @@ ctc6 = TupleTestCase.from_fen("4k3/8/8/2p5/3P4/2K5/8/8 w - - 0 4", None, 1)
 # q . . . . . . .
 ctc7 = TupleTestCase.from_fen("8/8/3k4/1Q5K/8/8/4P3/q7 b - - 0 15", None, 2)
 
-
+# . . . . . . . .
+# . . K . . . . .
+# . . . . . . . .
+# . . . . . . . .
+# P . k . . . . .
+# . . . . . . . .
+# . . . . . . . .
+# . . . . . . . .
+ctc8 = TupleTestCase.from_fen("8/2K5/8/8/P1k5/8/8/8 b - - 6 47", Score.draw(), 5)
 # 3k4/8/1p2pK2/2p1Pp2/p1P5/8/1P4P1/8 b - - 3 13
 
 print("Created all test cases (Some may use delayed generation)\n")

@@ -11,7 +11,7 @@ class ArrMinimax(Minimax) :
 	def __init__(self, test_case, pruning=True, verbose=False):
 		self.test_case = test_case
 		self.stack = [test_case.arr]
-		super().__init__(test_case.depth, maxing = test_case.maxing, pruning=pruning, verbose=verbose)
+		super().__init__(test_case.depth, maxing = test_case.maxing, pruning=pruning, it_deepening=False, verbose=verbose)
 
 	def children(self) :
 		return self.stack[-1]
