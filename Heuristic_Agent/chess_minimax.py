@@ -108,6 +108,9 @@ class ChessMinimax(Minimax) :
 	def max_eval(self) :
 		return Score.checkmate(chess.WHITE)
 
+	def is_solved_eval(self, score) :
+		return score.is_mate()
+
 	def inc_eval(self, e) :
 		return e.inc()
 
@@ -132,5 +135,7 @@ class ChessMinimax(Minimax) :
 		print(f"depth = {self.search_depth}, maxing = {self.search_maxing}, best choice = {self.best_choice}")
 		print(f"depth 0 eval = {self.eval()}")
 		print(f"depth {self.search_depth} eval = {self.best_quality}")
+		if self.it_deepening :
+			print(f"it_deepening_termination_reason = {self.termination_reason}")
 		print(f"search time = {round(self.search_time*10)/10}s")
 		print()

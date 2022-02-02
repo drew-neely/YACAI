@@ -29,16 +29,16 @@ class Score :
 	def __init__(self, val, mate = False) :
 		assert not mate or (val != -inf and val != 0 and val != inf), f"Score initialized with an illegal state: <{self.val}, {self.mate}>"
 		self.val = val
-		self.is_mate = mate
+		self._is_mate = mate
 
-		if not self.is_mate and self.val != -inf and self.val != inf :
+		if not self._is_mate and self.val != -inf and self.val != inf :
 			self.type = Score.T_NORMAL
-		elif not self.is_mate and (self.val == -inf or self.val == inf) :
+		elif not self._is_mate and (self.val == -inf or self.val == inf) :
 			self.type = Score.T_CHECKMATE
-		elif self.is_mate and self.val != -inf and self.val != inf and self.val != 0 :
+		elif self._is_mate and self.val != -inf and self.val != inf and self.val != 0 :
 			self.type = Score.T_MATE_IN
 		else :
-			assert False, f"Internal Error - score initialized with invalid state: <{self.val}, {self.is_mate}>"
+			assert False, f"Internal Error - score initialized with invalid state: <{self.val}, {self._is_mate}>"
 
 	# if self represents a mate in or checkmate, increases absolute value of half moves by 1
 	# otherwise returns self unchanged
@@ -52,6 +52,10 @@ class Score :
 			return Score.WHITE_MATE_IN[1] if self.val == inf else Score.BLACK_MATE_IN[1]
 		else :
 			assert False , f"Internal Error - bad type: {self.type}"
+
+	# returns true if score represents any kind of checkmate
+	def is_mate(self) :
+		return self.type == Score.T_CHECKMATE or self.type == Score.T_MATE_IN
 
 	@staticmethod
 	def checkmate(color) :
@@ -80,61 +84,61 @@ class Score :
 	def __eq__(self, other) :
 		if None == other :
 			return False
-		return self.val == other.val and self.is_mate == other.is_mate
+		return self.val == other.val and self._is_mate == other._is_mate
 
 	def __ne__(self, other) :
 		if None == other :
 			return True
-		return self.val != other.val or self.is_mate != other.is_mate
+		return self.val != other.val or self._is_mate != other._is_mate
 
 	def __lt__(self, other) :
-		if not self.is_mate and not other.is_mate :
+		if not self._is_mate and not other._is_mate :
 			return self.val < other.val
-		if self.is_mate and other.is_mate :
+		if self._is_mate and other._is_mate :
 			if (self.val < 0 and other.val < 0) or (self.val > 0 and other.val > 0) :
 				return self.val > other.val
 			else :
 				return self.val < other.val
-		elif self.is_mate :
+		elif self._is_mate :
 			return (self.val < 0 or other.val == inf) and other.val != -inf
 		else :
 			return (other.val > 0 or self.val == -inf) and self.val != inf
 
 	def __le__(self, other) :
-		if not self.is_mate and not other.is_mate :
+		if not self._is_mate and not other._is_mate :
 			return self.val <= other.val
-		if self.is_mate and other.is_mate :
+		if self._is_mate and other._is_mate :
 			if (self.val < 0 and other.val < 0) or (self.val > 0 and other.val > 0) :
 				return self.val >= other.val
 			else :
 				return self.val <= other.val
-		elif self.is_mate :
+		elif self._is_mate :
 			return (self.val < 0 or other.val == inf) and other.val != -inf
 		else :
 			return (other.val > 0 or self.val == -inf) and self.val != inf
 
 	def __gt__(self, other) :
-		if not self.is_mate and not other.is_mate :
+		if not self._is_mate and not other._is_mate :
 			return self.val > other.val
-		if self.is_mate and other.is_mate :
+		if self._is_mate and other._is_mate :
 			if (self.val < 0 and other.val < 0) or (self.val > 0 and other.val > 0) :
 				return self.val < other.val
 			else :
 				return self.val > other.val
-		elif self.is_mate :
+		elif self._is_mate :
 			return (self.val > 0 or other.val == -inf) and other.val != inf
 		else :
 			return (other.val < 0 or self.val == inf) and self.val != -inf
 
 	def __ge__(self, other) :
-		if not self.is_mate and not other.is_mate :
+		if not self._is_mate and not other._is_mate :
 			return self.val >= other.val
-		if self.is_mate and other.is_mate :
+		if self._is_mate and other._is_mate :
 			if (self.val < 0 and other.val < 0) or (self.val > 0 and other.val > 0) :
 				return self.val <= other.val
 			else :
 				return self.val >= other.val
-		elif self.is_mate :
+		elif self._is_mate :
 			return (self.val > 0 or other.val == -inf) and other.val != inf
 		else :
 			return (other.val < 0 or self.val == inf) and self.val != -inf
@@ -145,7 +149,7 @@ class Score :
 			sign = '+'
 		elif self.val < 0 :
 			sign = '-'
-		mate = 'M' if self.is_mate or self.val == -inf or self.val == inf else ''
+		mate = 'M' if self._is_mate or self.val == -inf or self.val == inf else ''
 		val_str = '0' if self.val == -inf or self.val == inf else str(abs(self.val))
 		return f"{sign}{mate}{val_str}"
 

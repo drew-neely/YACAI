@@ -1,6 +1,6 @@
 from math import inf, exp
 from time import time
-import numpy as np
+from util import exponential_regression_eval
 
 from eval import get_eval
 
@@ -18,6 +18,7 @@ from eval import get_eval
 #   Optional
 #       - record(quality, depth, maxing) # not required - may be used to record a result into a transposition table
 #       - lookup(depth, maxing) # not required - may be used to check in transposition table - returns quality or None
+#       - is_solved_eval(quality) # not required - may be used to terminate it_deepening early if quality represents a solved search that doesn't require more investigation
 #   Debug methods - optional
 #       - dump()
 class Minimax :
@@ -33,7 +34,7 @@ class Minimax :
 		else :
 			self.search_beta = beta
 
-		assert timeout is not None or it_deepening, "Timeout cannot be specified without iterative deepening" 
+		assert timeout is None or it_deepening, "Timeout cannot be specified without iterative deepening" 
 		self.timeout = timeout # number of seconds to search for
 		self.search_depth = depth
 		self.search_maxing = maxing
@@ -44,6 +45,7 @@ class Minimax :
 		# perf stats
 		self.num_evaled = 0
 		self.search_time = 0 # in seconds
+		self.termination_reason = None
 
 		# perform the search
 		if self.it_deepening :
@@ -52,32 +54,42 @@ class Minimax :
 			(self.best_quality, self.best_choice) = self.search(depth, self.search_alpha, self.search_beta, maxing)
 
 	def it_deepening_search(self, depth, alpha, beta, maxing) :
-		if depth == 0 :
-			return self.search(0, alpha, beta, maxing)
 		# will go to at least depth depth, but keep going until self.timout time has passed
+
 		res = None
-		d = 1
+		cutoff_at_depth = depth != 0
+		assert cutoff_at_depth or self.timeout is not None, "it_deepening cannot be executed without stopping condition"
 		times = []
-		while d <= depth :
-			res = self.search(d, alpha, beta, maxing)
-			times.append(self.search_time)
-			print(f"d={d}, time={self.search_time}")
+		d = 0 # last depth searched
+		while True :
+			if self.timeout is None and d >= depth : # No timeout exists and depth reached
+				self.termination_reason = "Reached specified depth"
+				break
+			if self.timeout is not None and (not cutoff_at_depth or d >= depth) : # There is time limit and (depth has been reached or there is no depth limit)
+				if self.search_time >= self.timeout : # test if time already exceeded
+					self.termination_reason = "Search time exceeded"
+					break
+				if len(times) >= 2 : # predict the time the next search will end at if there's enough data points
+					prediction = exponential_regression_eval(range(1,d+1), times, d+1)
+					if prediction > self.timeout :
+						self.termination_reason = f"Predicting to exceed search time ({round(prediction*100)/100}s > {self.timeout}s)"
+						break
+			
+			# search depth d+1
+			res = self.search(d+1, alpha, beta, maxing)
 			d += 1
-		if self.timeout is not None :
 
-			# x, y = np.arange(1,d), np.array(times)
-			# print(x)
-			# print(y)
-			# b, a = np.polyfit(x, np.log(y), 1, w=np.sqrt(y))
-			# prediction = exp(a) * exp(b * d)
-			# print(prediction)
+			# record time and update search depth
+			self.search_depth = max(self.search_depth, d)
+			times.append(self.search_time)
+			print(f"time after depth {d} = {self.search_time}")
 
-			while self.search_time < self.timeout :
-				res = self.search(d, alpha, beta, maxing)
-				print(f"d={d}, time={self.search_time}")
-				times.append(self.search_time)
-				self.search_depth = d
-				d += 1
+			# check if search has stalled
+			if self.is_solved_eval(res[0]) :
+				self.termination_reason = "Search has stalled"
+				break
+			
+		assert res is not None
 		return res
 		
 
@@ -206,6 +218,9 @@ class Minimax :
 	# May be implemented by subclass - by default does nothing
 	def lookup(self, depth, maxing) :
 		return None
+
+	def is_solved_eval(self, quality) :
+		return False
 
 	##########################################
 	####### Debug methods

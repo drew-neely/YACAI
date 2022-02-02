@@ -1,11 +1,8 @@
 from math import inf
 import random
-from typing import Tuple
 import chess
 import os, sys
-from matplotlib import use
 
-from matplotlib.pyplot import get
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from eval import get_eval
 from score import Score
