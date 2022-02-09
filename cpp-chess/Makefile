@@ -7,7 +7,7 @@ all : bin/cpp-chess
 
 bin/cpp-chess : $(cpp_files) $(h_files)
 	mkdir -p bin
-	g++ $(cpp_files) -O3 -o bin/cpp-chess
+	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++11 -stdlib=libc++
 
 clean : 
 	rm -rf bin/*

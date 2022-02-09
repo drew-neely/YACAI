@@ -7,6 +7,9 @@
 #include <map>
 
 struct Board;
+extern const char* square_names[64];
+#define square_name(square_id) (square_names[square_id])
+
 #include "move.h"
 
 using namespace std;
@@ -44,21 +47,18 @@ const uint8_t NO_ENPASS = 255;
 #define rank(square_id) ((square_id) / 8)
 #define file(square_id) ((square_id) % 8)
 #define square_id(rank, file) ((rank) * 8 + (file))
-extern const char* square_names[64];
-#define square_name(square_id) (square_names[square_id])
 
 #define other_color(color) (24 - (color))
 
 // Gives the square_id of the king of specified color
-#define king_pos(color) king_pos[((color) >> 3) - 1] 
+#define king_pos(color) (state->king_pos[((color) >> 3) - 1])
 
 // Gives boolean representing the ability of the king of given color to castle
 // 	on the given side - True does not imply that the castle is valid, simply that
 // 	is possible for it to become valid.
-#define castle_avail(color, side) castling_avail[((color) >> 2) - (side)]
+#define castle_avail(color, side) (state->castling_avail[((color) >> 2) - (side)])
 
-
-struct Board {
+struct BoardState {
 	uint8_t squares[64]; // array of p_ids or NULL for empty - indecies correstend to squares { 0: A1, 1: B1, ... 7: H1, 8: A2, ... }
 	uint8_t king_pos[2]; // [<White>, <Black>]
 	uint8_t turn; // WHITE or BLACK
@@ -67,12 +67,16 @@ struct Board {
 	uint8_t clock; // set to zero on a capture or pawn move, incremented otherwise - draw if clock == 100
 	uint16_t halfmoves; // number of halfmoves since the start of the game
 	uint64_t zobrist;
-	vector<Transition*> transitions;
+};
+
+struct Board {
+
+	BoardState* state;
+	vector<BoardState> stateStack;
 	
 	Board();
 	Board(const char* fen);
 
-	const char* get_fen();
 
 	void attackSquares(set<uint8_t>& attack_squares, uint8_t color, set<uint8_t>& check_path_end);
 	void checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_check,
@@ -83,8 +87,10 @@ struct Board {
 	// move not legal => undefined behavior
 	void makeMove(Move move);
 
-	Move unmakeMove();
+	void unmakeMove();
 
+	const char* get_fen();
 	uint64_t countPositions(uint8_t depth);
-	
+	uint64_t genZobrist();
+
 };

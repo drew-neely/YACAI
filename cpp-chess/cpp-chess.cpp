@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <assert.h>
 
 #include "board.h"
 #include "move.h"
@@ -48,9 +49,10 @@ extern "C" void free_board(int bd) {
 }
 
 extern "C" void make_move(int bd, uint8_t from_square, uint8_t to_square, uint8_t promotion_type) {
-	assert_valid_bd(bd);
-	Move move = Move(from_square, to_square, promotion_type);
-	boardDescriptorTable[bd]->makeMove(move);
+	assert(false);
+	// assert_valid_bd(bd);
+	// Move move = Move(from_square, to_square, promotion_type);
+	// boardDescriptorTable[bd]->makeMove(move);
 }
 
 extern "C" void unmake_move(int bd) {
