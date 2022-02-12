@@ -724,11 +724,14 @@ void Board::unmakeMove() {
 }
 
 uint64_t Board::countPositions(uint8_t depth) {
-	uint64_t count = 0;
-	vector<Move> moves = legalMoves();
-	if(depth == 1) {
+	if(depth == 0) {
+		return 1;
+	} else if(depth == 1) {
+		vector<Move> moves = legalMoves();
 		return moves.size();
 	}
+	uint64_t count = 0;
+	vector<Move> moves = legalMoves();
 	for(int i = 0; i < moves.size(); i++) {
 		makeMove(moves[i]);
 		count += countPositions(depth - 1);
