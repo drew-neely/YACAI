@@ -11,6 +11,7 @@ extern const char* square_names[64];
 #define square_name(square_id) (square_names[square_id])
 
 #include "move.h"
+#include "square-set.h"
 
 using namespace std;
 
@@ -78,9 +79,9 @@ struct Board {
 	Board(const char* fen);
 
 
-	void attackSquares(set<uint8_t>& attack_squares, uint8_t color, set<uint8_t>& check_path_end);
-	void checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_check,
-				map<uint8_t, set<uint8_t> >& pinned_squares);
+	void attackSquares(SquareSet& attack_squares, uint8_t color, SquareSet& check_path_end);
+	void checksAndPins(SquareSet& check_path, bool& check, bool& double_check,
+				map<uint8_t, SquareSet >& pinned_squares);
 	vector<Move> legalMoves();
 
 	// move is not checked to be legal

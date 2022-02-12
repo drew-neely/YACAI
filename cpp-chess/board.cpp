@@ -3,14 +3,14 @@
 #include <assert.h>
 #include <vector>
 #include <string>
-#include <set>
 #include <map>
-#define contains(setmap, key) ((setmap).find(key) != (setmap).end())
+#define _contains(setmap, key) ((setmap).find(key) != (setmap).end())
 
 #include "board.h"
 #include "move.h"
 #include "attack-squares.h"
 #include "zobrist.h"
+#include "square-set.h"
 
 using namespace std;
 
@@ -238,8 +238,8 @@ static void print_vector(vector<Move> v) {
 	printf("]\n");
 }
 
-void Board::checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_check,
-			map<uint8_t, set<uint8_t> >& pinned_squares) {
+void Board::checksAndPins(SquareSet& check_path, bool& check, bool& double_check,
+			map<uint8_t, SquareSet >& pinned_squares) {
 
 	uint8_t king = king_pos(state->turn);
 
@@ -273,11 +273,11 @@ void Board::checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_ch
 					if(state->squares[sq] == (other_color(state->turn) | checking_piece) || 
 							state->squares[sq] == (other_color(state->turn) | QUEEN)) { // Bishop/queen check or pin
 						if(blocked < 64) { // discovered a pin
-							set<uint8_t> pinned_set;
+							SquareSet pinned_set;
 							for(int i = 0; i <= s; i++) {
 								pinned_set.insert((*paths)[p][i]);
 							}
-							pinned_squares.insert(pair<uint8_t, set<uint8_t> >(blocked, pinned_set));
+							pinned_squares.insert(pair<uint8_t, SquareSet >(blocked, pinned_set));
 						} else if(!check){ // discovered first check
 							check = true;
 							for(int i = 0; i <= s; i++) {
@@ -332,7 +332,7 @@ void Board::checksAndPins(set<uint8_t>& check_path, bool& check, bool& double_ch
 	fills in attack_squares with square ids that color can move to psuedolegally
 	Intended for use in determining valid king moves
 */
-void Board::attackSquares(set<uint8_t>& attack_squares, uint8_t color, set<uint8_t>& check_path_end) {
+void Board::attackSquares(SquareSet& attack_squares, uint8_t color, SquareSet& check_path_end) {
 	for(uint8_t sq = 0; sq < 64; sq++) {
 		if(color(state->squares[sq]) == color) {
 			if(piece(state->squares[sq]) == PAWN) {
@@ -365,12 +365,12 @@ vector<Move> Board::legalMoves() {
 	vector<Move> moves;
 	moves.reserve(40);
 
-	set<uint8_t> check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
-	set<uint8_t> check_path_end; // square_ids of squares covered by check bechind king - 255 if NA
+	SquareSet check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
+	SquareSet check_path_end; // square_ids of squares covered by check bechind king - 255 if NA
 	bool check = false; // true if the king is in check
 	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
-	map<uint8_t, set<uint8_t> > pinned_squares; // key = square of pinned piece, value = squares it is pinned to
-	set<uint8_t> attack_squares; // set of all squares the other color may psuedolegally move to
+	map<uint8_t, SquareSet > pinned_squares; // key = square of pinned piece, value = squares it is pinned to
+	SquareSet attack_squares; // set of all squares the other color may psuedolegally move to
 
 	// build all the check info
 	checksAndPins(check_path, check, double_check, pinned_squares);
@@ -382,7 +382,7 @@ vector<Move> Board::legalMoves() {
 	uint8_t king = king_pos(state->turn);
 	for(int p = 0; p < attack_paths(king, KING).size(); p++) {
 		uint8_t sq = attack_paths(king, KING)[p][0];
-		if(color(state->squares[sq]) != state->turn && !contains(attack_squares, sq) && !contains(check_path_end, sq)) { // sq is safe
+		if(color(state->squares[sq]) != state->turn && !attack_squares.contains(sq) && !check_path_end.contains(sq)) { // sq is safe
 			moves.emplace_back(king, sq);
 		}
 	}
@@ -398,14 +398,14 @@ vector<Move> Board::legalMoves() {
 	// Next do castles
 	if(castle_avail(state->turn, CASTLE_KING) && !check &&             // check if the king can castle kingside
 				state->squares[king+1] == 0 && state->squares[king+2] == 0 &&
-				!contains(attack_squares, king+1) &&
-				!contains(attack_squares, king+2)) {
+				!attack_squares.contains(king+1) &&
+				!attack_squares.contains(king+2)) {
 		moves.emplace_back(king, king+2, MOVE_CASTLE, CASTLE_KING);
 	}
 	if(castle_avail(state->turn, CASTLE_QUEEN) && !check &&            // check if the king can castle queenside
 				state->squares[king-1] == 0 && state->squares[king-2] == 0 && state->squares[king-3] == 0 &&
-				!contains(attack_squares, king-1) &&
-				!contains(attack_squares, king-2)) {
+				!attack_squares.contains(king-1) &&
+				!attack_squares.contains(king-2)) {
 		moves.emplace_back(king, king-2, MOVE_CASTLE, CASTLE_QUEEN);
 	}
 
@@ -420,8 +420,8 @@ vector<Move> Board::legalMoves() {
 	for(int sq = 0; sq < 64; sq++) {
 		if(color(state->squares[sq]) == state->turn && sq != king) { // found piece to look for moves
 
-			bool pinned = contains(pinned_squares, sq);
-			set<uint8_t>* pinned_set = pinned ? &pinned_squares[sq] : NULL;
+			bool pinned = _contains(pinned_squares, sq);
+			SquareSet* pinned_set = pinned ? &pinned_squares[sq] : NULL;
 
 			if(piece(state->squares[sq]) == PAWN) { // piece is a pawn
 				// look at attacks first (captures + en-passant)
@@ -431,8 +431,8 @@ vector<Move> Board::legalMoves() {
 					uint8_t csq = enpass_capture_square(asq);
 					if(asq == state->enpass_square &&
 								(state->squares[csq] == (other_color(state->turn) | PAWN)) &&
-								(!pinned || contains(*pinned_set, asq)) &&
-								(!check || contains(check_path, csq))) { // potential enpassant
+								(!pinned || pinned_set->contains(asq)) &&
+								(!check || check_path.contains(csq))) { // potential enpassant
 						/* 
 							The if statement qualifies that the movement of the capturing pawn is legal, but
 							Need to check that removing the captured pawn doesnt put king in check
@@ -482,8 +482,8 @@ vector<Move> Board::legalMoves() {
 							moves.emplace_back(sq, asq, MOVE_ENPASS, csq);
 						}
 					} else if(color(state->squares[asq]) == other_color(state->turn) && 
-								(!pinned || contains(*pinned_set, asq)) &&
-								(!check || contains(check_path, asq))) {     // pawn capture
+								(!pinned || pinned_set->contains(asq)) &&
+								(!check || check_path.contains(asq))) {     // pawn capture
 						if(rank(asq) == 0 || rank(asq) == 7) {
 							moves.emplace_back(sq, asq, MOVE_PROMOTE, KNIGHT);
 							moves.emplace_back(sq, asq, MOVE_PROMOTE, BISHOP);
@@ -501,7 +501,7 @@ vector<Move> Board::legalMoves() {
 					if(state->squares[tsq] != 0) { // There is a piece blocking the path
 						break;
 					}
-					if((!pinned || contains(*pinned_set, tsq)) && (!check || contains(check_path, tsq))) {
+					if((!pinned || pinned_set->contains(tsq)) && (!check || check_path.contains(tsq))) {
 						if(rank(tsq) == 0 || rank(tsq) == 7) {
 							moves.emplace_back(sq, tsq, MOVE_PROMOTE, KNIGHT);
 							moves.emplace_back(sq, tsq, MOVE_PROMOTE, BISHOP);
@@ -522,7 +522,7 @@ vector<Move> Board::legalMoves() {
 						if(color(state->squares[tsq]) == state->turn) { // path blocked by same color piece
 							break;
 						}
-						if((!pinned || contains(*pinned_set, tsq)) && (!check || contains(check_path, tsq))) { // check for pins and check
+						if((!pinned || pinned_set->contains(tsq)) && (!check || check_path.contains(tsq))) { // check for pins and check
 							moves.emplace_back(sq, tsq);
 						}
 						if(state->squares[tsq] != 0) { // move was capture (ie. blocked by other color piece)
@@ -642,80 +642,9 @@ void Board::makeMove(Move move) {
 	state->enpass_square = new_enpass_square;
 	state->clock = new_clock;
 	state->halfmoves++;
-	// TODO: update zobrist
-
-
-	/*
-	if(move.move_type == MOVE_ENPASS) { // enpassant
-		state->clock = 0;
-		state->squares[move.enpass_capture_square] = 0;
-		goto endUpdate;
-	} else if(move.move_type == MOVE_PROMOTE) { // promotion
-		state->clock = 0;
-		new_to_square_pid = state->turn | piece(move.promotion_type);
-	} else if(move.move_type == MOVE_CASTLE) { // castle
-		castle_avail(state->turn, CASTLE_KING) = false;
-		castle_avail(state->turn, CASTLE_QUEEN) = false;
-		if(move.castle_direction == CASTLE_KING) {
-			state->squares[move.to_square + 1] = 0;
-			state->squares[move.to_square - 1] = state->turn | ROOK;
-		} else { // CASTLE_QUEEN
-			state->squares[move.to_square - 2] = 0;
-			state->squares[move.to_square + 1] = state->turn | ROOK;
-		}
-		king_pos(state->turn) = move.to_square;
-		goto endUpdate;
-	} else if(piece(from_pid) == PAWN) { // pawn move (double push, single push, or normal capture)
-		new_clock = 0; // pawn move resets 50 move counter
-		uint8_t opposite_pawn = ((state->turn == WHITE)? BLACK : WHITE) | PAWN;
-		bool neighbor_enemy_pawn = (file(move.to_square) != 0 && state->squares[move.to_square - 1] == opposite_pawn) || // Not on the left of board && enemy pawn to the left
-				(file(move.to_square) != 7 && state->squares[move.to_square + 1] == opposite_pawn); // Not on the right of board && enemy pawn to the right
-		if(neighbor_enemy_pawn && rank(move.from_square) == 1 && rank(move.to_square) == 3) { // White double pawn move creating available enpass
-			new_enpass_square = move.from_square + 8;
-		} else if(neighbor_enemy_pawn && rank(move.from_square) == 6 && rank(move.to_square) == 4) { // Black double pawn move creating available enpass
-			new_enpass_square = move.from_square - 8;
-		}
-		goto endUpdate;
-	} else if(piece(from_pid) == KING) { // normal king move
-		castle_avail(state->turn, CASTLE_KING) = false;
-		castle_avail(state->turn, CASTLE_QUEEN) = false;
-		king_pos(state->turn) = move.to_square;
-	}
 	
-	// Check castling rights by rook moves and captures
-	if(move.from_square == 0 || move.to_square == 0) { // white queen rook invalid
-		castle_avail(WHITE, CASTLE_QUEEN) = false;
-	}
-	if(move.from_square == 7 || move.to_square == 7) { // white king rook invalid
-		castle_avail(WHITE, CASTLE_KING) = false;
-	}
-	if(move.from_square == 56 || move.to_square == 56) { // black queen rook invalid
-		castle_avail(BLACK, CASTLE_QUEEN) = false;
-	}
-	if(move.from_square == 63 || move.to_square == 63) { // black king rook invalid
-		castle_avail(BLACK, CASTLE_KING) = false;
-	}
+	// !!! // TODO: update zobrist
 
-	endUpdate:
-
-	state->enpass_square = new_enpass_square;
-	state->squares[move.to_square] = new_to_square_pid;
-	state->squares[move.from_square] = 0;
-	if(trans->capture_p_id != 0) {
-		new_clock = 0;
-	}
-	state->clock = new_clock;
-	state->halfmoves++;
-	
-	// change turn
-	state->turn = other_color(state->turn);
-
-	// add transition to transition vector
-	transitions.push_back(trans);
-	*/
-
-	// !!!
-	// Update zobrist hash
 }
 
 void Board::unmakeMove() {
