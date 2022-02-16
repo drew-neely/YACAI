@@ -59,6 +59,36 @@ const uint8_t NO_ENPASS = 255;
 // 	is possible for it to become valid.
 #define castle_avail(color, side) (state->castling_avail[((color) >> 2) - (side)])
 
+// Sets the castling availability to false while updating the zobrist hash
+#define disable_castle(color, side) {                        \
+	if(castle_avail(color, side)) {                          \
+		castle_avail(color, side) = false;                   \
+		state->zobrist ^= zobrist_castle_avail(color, side); \
+	}}
+
+// performs move while updating the zobrist hash
+// Used when move.move_type == MOVE_NORMAL
+#define move_piece_check_capture(move) {                                                        \
+		if(state->squares[move.to_square] != 0) {                                               \
+			state->zobrist ^= zobrist_piece_at(move.to_square, state->squares[move.to_square]); \
+		}                                                                                       \
+		state->zobrist ^= zobrist_piece_at(move.from_square, state->squares[move.from_square])  \
+					   ^  zobrist_piece_at(move.to_square, state->squares[move.from_square]);   \
+		state->squares[move.to_square] = state->squares[move.from_square];                      \
+		state->squares[move.from_square] = 0;                                                   \
+	}
+
+// performs move while updating the zobrist hash
+// Should only be used when a capture is impossible or handled seperately
+#define move_piece_no_capture(move) {                                                          \
+		state->zobrist ^= zobrist_piece_at(move.from_square, state->squares[move.from_square]) \
+					   ^  zobrist_piece_at(move.to_square, state->squares[move.from_square]);  \
+		state->squares[move.to_square] = state->squares[move.from_square];                     \
+		state->squares[move.from_square] = 0;                                                  \
+	}
+
+
+
 struct BoardState {
 	uint8_t squares[64]; // array of p_ids or NULL for empty - indecies correstend to squares { 0: A1, 1: B1, ... 7: H1, 8: A2, ... }
 	uint8_t king_pos[2]; // [<White>, <Black>]

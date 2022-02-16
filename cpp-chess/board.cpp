@@ -561,8 +561,8 @@ void Board::makeMove(Move move) {
 
 		if(piece(from_pid) == KING) { // king move
 			king_pos(state->turn) = move.to_square;
-			castle_avail(state->turn, CASTLE_KING) = false;
-			castle_avail(state->turn, CASTLE_QUEEN) = false;
+			disable_castle(state->turn, CASTLE_KING);
+			disable_castle(state->turn, CASTLE_QUEEN);
 		} else if(piece(from_pid) == PAWN) { // pawn move
 			if((move.from_square - move.to_square == 16) || (move.to_square - move.from_square == 16)) { // double pawn push
 				new_enpass_square = (move.from_square + move.to_square) >> 1; // Average to and from square to get enpass square (1 behind to_square)
@@ -577,59 +577,65 @@ void Board::makeMove(Move move) {
 
 		// Check for invalidations of castling abilities
 		//     TODO: This can probably be skipped in most instances in exchange for more complex code
-		if(move.from_square == 0 || move.to_square == 0) // white queen rook invalid
-			castle_avail(WHITE, CASTLE_QUEEN) = false;
-		if(move.from_square == 7 || move.to_square == 7) // white king rook invalid
-			castle_avail(WHITE, CASTLE_KING) = false;
-		if(move.from_square == 56 || move.to_square == 56) // black queen rook invalid
-			castle_avail(BLACK, CASTLE_QUEEN) = false;
-		if(move.from_square == 63 || move.to_square == 63) // black king rook invalid
-			castle_avail(BLACK, CASTLE_KING) = false;
-
+		if(move.from_square == 0 || move.to_square == 0)   disable_castle(WHITE, CASTLE_QUEEN); // white queen rook invalid
+		if(move.from_square == 7 || move.to_square == 7)   disable_castle(WHITE, CASTLE_KING);  // white king rook invalid
+		if(move.from_square == 56 || move.to_square == 56) disable_castle(BLACK, CASTLE_QUEEN); // black queen rook invalid
+		if(move.from_square == 63 || move.to_square == 63) disable_castle(BLACK, CASTLE_KING);  // black king rook invalid
+			
 		// Move pieces
-		state->squares[move.to_square] = state->squares[move.from_square];
-		state->squares[move.from_square] = 0;
+		move_piece_check_capture(move);
 		
 	} else if(move.move_type == MOVE_ENPASS) {
 		
 		// move/capture pieces
-		state->squares[move.to_square] = state->squares[move.from_square];
-		state->squares[move.from_square] = 0;
+		move_piece_no_capture(move);
+		state->zobrist ^= zobrist_piece_at(move.enpass_capture_square, state->squares[move.enpass_capture_square]);
 		state->squares[move.enpass_capture_square] = 0;
+
 		new_clock = 0;
 
 	} else if(move.move_type == MOVE_CASTLE) {
 
 		// Turn off castling
-		castle_avail(state->turn, CASTLE_KING) = false;
-		castle_avail(state->turn, CASTLE_QUEEN) = false;
+		disable_castle(state->turn, CASTLE_KING);
+		disable_castle(state->turn, CASTLE_QUEEN);
 
 		// move king
-		state->squares[move.to_square] = state->squares[move.from_square];
-		state->squares[move.from_square] = 0;
+		move_piece_no_capture(move);
 		king_pos(state->turn) = move.to_square;
 
 		// Move rook
+		uint8_t rook_pid = state->turn | ROOK;
 		if(move.castle_direction == CASTLE_KING) { // kingside
 			state->squares[move.to_square + 1] = 0;
-			state->squares[move.to_square - 1] = state->turn | ROOK;
+			state->squares[move.to_square - 1] = rook_pid;
+			state->zobrist ^= zobrist_piece_at(move.to_square + 1, rook_pid) ^ zobrist_piece_at(move.to_square - 1, rook_pid);
 		} else if(move.castle_direction == CASTLE_QUEEN) { // queenside
 			state->squares[move.to_square - 2] = 0;
-			state->squares[move.to_square + 1] = state->turn | ROOK;
+			state->squares[move.to_square + 1] = rook_pid;
+			state->zobrist ^= zobrist_piece_at(move.to_square - 2, rook_pid) ^ zobrist_piece_at(move.to_square + 1, rook_pid);
 		} else {
 			assert(false);
 		}
 
 	} else if(move.move_type == MOVE_PROMOTE) {
 		// Check for invalidations of castling abilities
-		if(move.to_square == 0)  castle_avail(WHITE, CASTLE_QUEEN) = false; // white queen rook invalid
-		if(move.to_square == 7)  castle_avail(WHITE, CASTLE_KING)  = false; // white king rook invalid
-		if(move.to_square == 56) castle_avail(BLACK, CASTLE_QUEEN) = false; // black queen rook invalid
-		if(move.to_square == 63) castle_avail(BLACK, CASTLE_KING)  = false; // black king rook invalid
+		if(move.to_square == 0)  disable_castle(WHITE, CASTLE_QUEEN); // white queen rook invalid
+		if(move.to_square == 7)  disable_castle(WHITE, CASTLE_KING);  // white king rook invalid
+		if(move.to_square == 56) disable_castle(BLACK, CASTLE_QUEEN); // black queen rook invalid
+		if(move.to_square == 63) disable_castle(BLACK, CASTLE_KING);  // black king rook invalid
 		
 		// move pawn and tranform to new piece
-		state->squares[move.to_square] = state->turn | move.promotion_type;
+		uint8_t new_pid = state->turn | move.promotion_type;
+		if(state->squares[move.to_square] != 0) {
+			state->zobrist ^= zobrist_piece_at(move.to_square, state->squares[move.to_square]);
+		}
+		state->zobrist ^= zobrist_piece_at(move.from_square, state->squares[move.from_square])
+					   ^  zobrist_piece_at(move.to_square, new_pid);
+		state->squares[move.to_square] = new_pid;
 		state->squares[move.from_square] = 0;
+
+		// reset clock
 		new_clock = 0;
 
 
@@ -639,11 +645,16 @@ void Board::makeMove(Move move) {
 
 	// Update common values
 	state->turn = other_color(state->turn);
+	state->zobrist ^= zobrist_blacks_move;
+	if(state->enpass_square != NO_ENPASS) {
+		state->zobrist ^= zobrist_enpass_file(file(state->enpass_square));
+	}
+	if(new_enpass_square != NO_ENPASS) {
+		state->zobrist ^= zobrist_enpass_file(file(new_enpass_square));
+	}
 	state->enpass_square = new_enpass_square;
 	state->clock = new_clock;
 	state->halfmoves++;
-	
-	// !!! // TODO: update zobrist
 
 }
 
@@ -652,7 +663,18 @@ void Board::unmakeMove() {
 	state = &stateStack.back();
 }
 
+#define CHECK_ZOBRIST false
+
 uint64_t Board::countPositions(uint8_t depth) {
+	if(CHECK_ZOBRIST && state->zobrist != genZobrist()) {
+		uint64_t current = state->zobrist;
+		printf("ERROR: Mismatch in zobrist\n");
+		printf("Current position:  %s\n", get_fen());
+		unmakeMove();
+		printf("Previous position: %s\n", get_fen());
+		printf("diff = %llx\n", current ^ state->zobrist ^ zobrist_blacks_move);
+		assert(false);
+	}
 	if(depth == 0) {
 		return 1;
 	} else if(depth == 1) {
@@ -764,7 +786,7 @@ const char* Board::get_fen() {
 }
 
 uint64_t Board::genZobrist() {
-	
+
 	uint64_t zob = 0;
 	for(uint8_t i = 0; i < 64; i++) {
 		if(state->squares[i] != 0) {
