@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include "board.h"
+
 
 /*
 	This is a very simple implementation of a set that can store values from 0-63.
@@ -24,5 +26,6 @@ struct SquareSet {
 	}
 
 };
+
 
 
