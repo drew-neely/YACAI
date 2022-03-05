@@ -7,11 +7,11 @@ all : bin/cpp-chess bin/cpp-chess-wprof
 
 bin/cpp-chess : $(cpp_files) $(h_files)
 	mkdir -p bin
-	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++11 -stdlib=libc++
+	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++14 -stdlib=libc++ -Werror
 
 bin/cpp-chess-wprof : $(cpp_files) $(h_files)
 	mkdir -p bin
-	g++ $(cpp_files) -O3 -g -o bin/cpp-chess-wprof -fno-pie -std=c++11 -stdlib=libc++ -lprofiler
+	g++ $(cpp_files) -O3 -g -o bin/cpp-chess-wprof -fno-pie -std=c++14 -stdlib=libc++ -lprofiler
 
 run : bin/cpp-chess
 	./bin/cpp-chess

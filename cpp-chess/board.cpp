@@ -10,7 +10,7 @@
 #include "move.h"
 #include "attack-squares.h"
 #include "zobrist.h"
-#include "square-set.h"
+#include "chess_containers.h"
 
 using namespace std;
 
@@ -26,6 +26,36 @@ const char* square_names[64] = {
 	"a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7", 
 	"a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8"
 };
+
+//////////////////////////////////////////////////
+///////////// Board state Methods
+//////////////////////////////////////////////////
+
+	/*
+		test if current and other qualify as repeated positions as per the 3 move repitition rule
+		From Fide rule 9.2b
+			"""
+			Positions as in (a) and (b) are considered the same, if the same player has the move,
+			pieces of the same kind and color occupy the same squares, and the possible moves of all
+			the pieces of both players are the same. Positions are not the same if a pawn that could
+			have been captured en passant can no longer in this manner be captured or if the right
+			to castle has been changed temporarily or permanently.
+			"""
+	*/
+	bool BoardState::operator==(BoardState& other) const {
+		if(this->turn != other.turn || this->enpass_square != other.enpass_square || *(uint32_t*)this->castling_avail != *(uint32_t*)other.castling_avail ) 
+			return false;
+		for(uint8_t idx = 0; idx < 64; idx++) 
+			if(this->squares[idx] != other.squares[idx]) 
+				return false;
+		return true;
+	}
+
+//////////////////////////////////////////////////
+
+//////////////////////////////////////////////////
+///////////// Board Methods
+//////////////////////////////////////////////////
 
 Board::Board(const char* fen) {
 
@@ -141,6 +171,9 @@ Board::Board(const char* fen) {
 
 	// Generate Zobstist hash and store it - this should be the only place this needs to be sone from scratch (for non-debug purposes anyways)
 	state->zobrist = genZobrist();
+
+	// Generate the initial composition
+	state->composition = Composition(*state);
 	
 }
 
@@ -193,6 +226,13 @@ Board::Board() {
 
 	// initialize zobrist hash
 	state->zobrist = starting_hash;
+
+	// initialize the composition
+	state->composition = Composition();
+
+	// initialize game end reason
+	state->game_end_reason = NO_GAME_END;
+
 }
 
 static void print_vector(vector<uint8_t> v) {
@@ -363,6 +403,19 @@ void Board::attackSquares(SquareSet& attack_squares, uint8_t color, SquareSet& c
 vector<Move> Board::legalMoves() {
 
 	vector<Move> moves;
+	
+	// Check for insufficient material, three move repetition, and 50 move rule
+	if(isDrawRepitition()) {
+		state->game_end_reason = REPITION;
+		return moves;
+	} else if(isDrawInsuficientMaterial()) {
+		state->game_end_reason = INSUFICIENT_MATERIAL;
+		return moves;
+	} else if(isDrawFiftyMove()) {
+		state->game_end_reason = FIFTY_MOVE;
+		return moves;
+	}
+
 	moves.reserve(40);
 
 	SquareSet check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
@@ -534,8 +587,89 @@ vector<Move> Board::legalMoves() {
 		}
 	}
 
+	/*
+		Check for game end scenarios
+		(Draw by repitition, 50 move rule and insufficient material were already checked)
+		Here I check for checkmate and stalemate
+	*/
+	if(moves.empty()) { // no moves = game over
+		if(check) {
+			state->game_end_reason = CHECKMATE;
+		} else {
+			state->game_end_reason = STALEMATE;
+		}
+	}
+
 	// print_vector(moves);
 	return moves;
+}
+
+
+bool Board::isDrawRepitition() {
+
+	uint64_t top_zobrist = stateStack[stateStack.size() - 1].zobrist;
+	int zobrist_repeat_num = 0;
+	int zobrist_repeat_idxs[2] = {-1, -1};
+
+	int prev_clock = state->clock;
+	int idx = stateStack.size() - 3;
+
+	for(; idx >= 0; idx -= 2) { // go backwards on positions with the same player to move
+		if(stateStack[idx].clock != prev_clock - 2) {
+			// encountered irreversable move
+			return false;
+		}
+		if(top_zobrist == stateStack[idx].zobrist) {
+			// found a potentially repeated position
+			zobrist_repeat_idxs[zobrist_repeat_num] = idx;
+			zobrist_repeat_num++;
+			if(zobrist_repeat_num >= 2) {
+				break;
+			}
+		}
+		prev_clock -= 2;
+	}
+	if(zobrist_repeat_num < 2) {
+		// There's no chance for repeated positions
+		return false;
+	}
+	// check if positions with same zobrist hash are actually the same and not just a hash conflict
+	if(*state == stateStack[zobrist_repeat_idxs[0]] && *state == stateStack[zobrist_repeat_idxs[1]]) {
+		// Found three repeated positions in stateStack
+		return true;
+	} else {
+		// The repeated zobrist hashes in stateStack are due to a hash conflict rather than actual repeated positions
+		// This should be a very rare case, so slow code is okay here - just needs to be correct
+		printf("WARNING: Found zobrist hash conflict predicting false positive for 3 move repetition draw\n"); // print so if this shows up it can be made into a test case
+		int repeat_num = 0;
+		prev_clock = state->clock;
+
+		for(idx = stateStack.size() - 3; idx >= 0; idx -= 2) { // go backwards on positions with the same player to move
+			if(stateStack[idx].clock != prev_clock - 2) {
+				// encountered irreversable move
+				return false;
+			}
+			if(*state == stateStack[idx]) {
+				// found a repeated position
+				repeat_num++;
+				if(repeat_num >= 2) {
+					return true;
+				}
+			}
+			prev_clock -= 2;
+		}
+		return false;
+	}
+
+}
+
+// if the state is a checkmate state, the checkmate takes precedence over the fifty move rule - should be handled elsewhere
+bool Board::isDrawFiftyMove() {
+	return state->clock >= 100;
+}
+
+bool Board::isDrawInsuficientMaterial() {
+	return state->composition.isInsufficientMaterial();
 }
 
 // precondition: move must be a valid move - undefined behavior if not
@@ -573,6 +707,7 @@ void Board::makeMove(Move move) {
 		if(to_pid != 0) { // capture
 			// This excludes enpass captures, but that is okay - it is handled seperately
 			new_clock = 0;
+			state->composition.remove(to_pid, square_color(move.to_square)); // Remove piece from composition set
 		}
 
 		// Check for invalidations of castling abilities
@@ -590,6 +725,7 @@ void Board::makeMove(Move move) {
 		// move/capture pieces
 		move_piece_no_capture(move);
 		state->zobrist ^= zobrist_piece_at(move.enpass_capture_square, state->squares[move.enpass_capture_square]);
+		state->composition.remove(state->squares[move.enpass_capture_square], NULL_SQUARE);
 		state->squares[move.enpass_capture_square] = 0;
 
 		new_clock = 0;
@@ -627,11 +763,14 @@ void Board::makeMove(Move move) {
 		
 		// move pawn and tranform to new piece
 		uint8_t new_pid = state->turn | move.promotion_type;
-		if(state->squares[move.to_square] != 0) {
+		if(state->squares[move.to_square] != 0) { // update zobrist and composition if promotion is a capture
 			state->zobrist ^= zobrist_piece_at(move.to_square, state->squares[move.to_square]);
+			state->composition.remove(to_pid, square_color(move.to_square));
 		}
 		state->zobrist ^= zobrist_piece_at(move.from_square, state->squares[move.from_square])
 					   ^  zobrist_piece_at(move.to_square, new_pid);
+		state->composition.remove(from_pid, NULL_SQUARE); // Remove pawn from composition
+		state->composition.add(new_pid, square_color(move.to_square)); // Add promoted piece to composition
 		state->squares[move.to_square] = new_pid;
 		state->squares[move.from_square] = 0;
 
@@ -663,7 +802,8 @@ void Board::unmakeMove() {
 	state = &stateStack.back();
 }
 
-#define CHECK_ZOBRIST false
+#define CHECK_ZOBRIST true
+#define CHECK_COMPOSITION true
 
 uint64_t Board::countPositions(uint8_t depth) {
 	if(CHECK_ZOBRIST && state->zobrist != genZobrist()) {
@@ -673,6 +813,14 @@ uint64_t Board::countPositions(uint8_t depth) {
 		unmakeMove();
 		printf("Previous position: %s\n", get_fen());
 		printf("diff = %llx\n", current ^ state->zobrist ^ zobrist_blacks_move);
+		assert(false);
+	}
+	if(CHECK_COMPOSITION && Composition(*state) != state->composition) {
+		printf("ERROR: Mismatch in composition\n");
+		printf("Expected : %llx\n", Composition(*state).compositionId);
+		printf("Current  : %llx  %s\n", state->composition.compositionId, get_fen());
+		unmakeMove();
+		printf("Previous : %llx  %s\n", state->composition.compositionId, get_fen());
 		assert(false);
 	}
 	if(depth == 0) {
