@@ -2,19 +2,38 @@
 
 cpp_files := $(wildcard *.cpp)
 h_files := $(wildcard *.h)
+test_cpp_files := $(wildcard tests/*.cpp)
+test_h_files := $(wildcard tests/*.h)
 
-all : bin/cpp-chess bin/cpp-chess-wprof
+all : bin/cpp-chess bin/cpp-chess-wprof bin/cpp-chess-test 
 
+###############################
+###### compile chess engine
+###############################
 bin/cpp-chess : $(cpp_files) $(h_files)
 	mkdir -p bin
 	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++14 -stdlib=libc++ -Werror
 
+###############################
+###### testing
+###############################
+
+bin/cpp-chess-test : $(cpp_files) $(h_files) $(test_cpp_files) $(test_h_files)
+	mkdir -p bin
+	g++ $(cpp_files) $(test_cpp_files) -O3 -o bin/cpp-chess-test -DTESTING -std=c++14 -stdlib=libc++ -Werror
+
+test : bin/cpp-chess-test 
+	./bin/cpp-chess-test 
+
+###############################
+###### Profiling with testing
+###############################
+
 bin/cpp-chess-wprof : $(cpp_files) $(h_files)
 	mkdir -p bin
-	g++ $(cpp_files) -O3 -g -o bin/cpp-chess-wprof -fno-pie -std=c++14 -stdlib=libc++ -lprofiler
+	g++ $(cpp_files) $(test_cpp_files) -O3 -g -o bin/cpp-chess-wprof -DTESTING -fno-pie -std=c++14 -stdlib=libc++ -lprofiler
 
-run : bin/cpp-chess
-	./bin/cpp-chess
+# create various perf files
 
 bin/profile.prof : bin/cpp-chess-wprof
 	LD_PRELOAD=/usr/local/lib/libprofiler.dylib CPUPROFILE=bin/profile.prof bin/cpp-chess-wprof
@@ -25,6 +44,8 @@ bin/profile.callgrind : bin/cpp-chess-wprof bin/profile.prof
 bin/profile.pdf : bin/profile.prof
 	pprof --pdf bin/cpp-chess-wprof bin/profile.prof > bin/profile.pdf
 
+# short cut commands to make files
+
 callgrind : bin/profile.callgrind
 	qcachegrind bin/profile.callgrind
 
@@ -32,11 +53,13 @@ pdf : bin/profile.pdf
 
 profile: pdf callgrind
 
+
+###############################
+###### MISC
+###############################
+
 clean : 
 	rm -rf bin/*
-
-test : all
-	python test.py
 
 test_seq : all
 	python test_seq.py

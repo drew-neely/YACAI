@@ -802,71 +802,34 @@ void Board::unmakeMove() {
 	state = &stateStack.back();
 }
 
-#define CHECK_ZOBRIST true
-#define CHECK_COMPOSITION true
 
-uint64_t Board::countPositions(uint8_t depth) {
-	if(CHECK_ZOBRIST && state->zobrist != genZobrist()) {
-		uint64_t current = state->zobrist;
-		printf("ERROR: Mismatch in zobrist\n");
-		printf("Current position:  %s\n", get_fen());
-		unmakeMove();
-		printf("Previous position: %s\n", get_fen());
-		printf("diff = %llx\n", current ^ state->zobrist ^ zobrist_blacks_move);
-		assert(false);
-	}
-	if(CHECK_COMPOSITION && Composition(*state) != state->composition) {
-		printf("ERROR: Mismatch in composition\n");
-		printf("Expected : %llx\n", Composition(*state).compositionId);
-		printf("Current  : %llx  %s\n", state->composition.compositionId, get_fen());
-		unmakeMove();
-		printf("Previous : %llx  %s\n", state->composition.compositionId, get_fen());
-		assert(false);
-	}
-	if(depth == 0) {
-		return 1;
-	} else if(depth == 1) {
-		vector<Move> moves = legalMoves();
-		return moves.size();
-	}
-	uint64_t count = 0;
-	vector<Move> moves = legalMoves();
-	for(int i = 0; i < moves.size(); i++) {
-		makeMove(moves[i]);
-		count += countPositions(depth - 1);
-		unmakeMove();
-	}
-	return count;
-}
+string Board::get_fen() {
+	string fen = ""; // longest fen string possible should be 92 bytes
 
-const char* Board::get_fen() {
-	char* fen = (char*) malloc(100); // longest fen string possible should be 92 bytes
-	uint8_t pos = 0;
-	uint8_t len;
 	// gen position info
 	for(int8_t rank = 7; rank >= 0; rank--) {
-		uint8_t gap_size = '0';
+		char gap_size = '0';
 		for(int8_t file = 0; file < 8; file++) {
 			uint8_t square_id = rank*8+file;
 			char piece_char;
 			if(state->squares[square_id] != 0) { // piece is present
 				if(gap_size > '0') {
-					fen[pos++] = gap_size;
+					fen += gap_size;
 					gap_size = '0';
 				}
 				switch(state->squares[square_id]) {
-					case WHITE | PAWN   : fen[pos++] = 'P'; break;
-					case WHITE | KNIGHT : fen[pos++] = 'N'; break;
-					case WHITE | BISHOP : fen[pos++] = 'B'; break;
-					case WHITE | ROOK   : fen[pos++] = 'R'; break;
-					case WHITE | QUEEN  : fen[pos++] = 'Q'; break;
-					case WHITE | KING   : fen[pos++] = 'K'; break;
-					case BLACK | PAWN   : fen[pos++] = 'p'; break;
-					case BLACK | KNIGHT : fen[pos++] = 'n'; break;
-					case BLACK | BISHOP : fen[pos++] = 'b'; break;
-					case BLACK | ROOK   : fen[pos++] = 'r'; break;
-					case BLACK | QUEEN  : fen[pos++] = 'q'; break;
-					case BLACK | KING   : fen[pos++] = 'k'; break;
+					case WHITE | PAWN   : fen += 'P'; break;
+					case WHITE | KNIGHT : fen += 'N'; break;
+					case WHITE | BISHOP : fen += 'B'; break;
+					case WHITE | ROOK   : fen += 'R'; break;
+					case WHITE | QUEEN  : fen += 'Q'; break;
+					case WHITE | KING   : fen += 'K'; break;
+					case BLACK | PAWN   : fen += 'p'; break;
+					case BLACK | KNIGHT : fen += 'n'; break;
+					case BLACK | BISHOP : fen += 'b'; break;
+					case BLACK | ROOK   : fen += 'r'; break;
+					case BLACK | QUEEN  : fen += 'q'; break;
+					case BLACK | KING   : fen += 'k'; break;
 					default : assert(false);
 				}
 			} else { // no piece here
@@ -874,62 +837,56 @@ const char* Board::get_fen() {
 			}
 		}
 		if(gap_size > '0') {
-			fen[pos++] = gap_size;
+			fen += gap_size;
 		}
 		if(rank != 0) { 
-			fen[pos++] = '/';
+			fen += '/';
 		}
 	}
-	fen[pos++] = ' ';
+	fen += ' ';
 	
 	// gen turn
 	switch(state->turn) {
-		case WHITE : fen[pos++] = 'w'; break;
-		case BLACK : fen[pos++] = 'b'; break;
+		case WHITE : fen += 'w'; break;
+		case BLACK : fen += 'b'; break;
 		default : assert(false);
 	}
-	fen[pos++] = ' ';
+	fen += ' ';
 
 	// gen castling info
 	if(*((uint32_t*) state->castling_avail) == 0) { // no castling
-		fen[pos++] = '-';
+		fen += '-';
 	} else { // some castling
 		if(castle_avail(WHITE, CASTLE_KING)) {
-			fen[pos++] = 'K';
+			fen += 'K';
 		}
 		if(castle_avail(WHITE, CASTLE_QUEEN)) {
-			fen[pos++] = 'Q';
+			fen += 'Q';
 		}
 		if(castle_avail(BLACK, CASTLE_KING)) {
-			fen[pos++] = 'k';
+			fen += 'k';
 		}
 		if(castle_avail(BLACK, CASTLE_QUEEN)) {
-			fen[pos++] = 'q';
+			fen += 'q';
 		}
 	}
-	fen[pos++] = ' ';
+	fen += ' ';
 
 	// gen enpassant square
 	if(state->enpass_square == NO_ENPASS) { // no enpassant
-		fen[pos++] = '-';		
+		fen += '-';		
 	} else {
-		fen[pos++] = 'a' + file(state->enpass_square);
-		fen[pos++] = '1' + rank(state->enpass_square);
+		fen += square_names[state->enpass_square];
 	}
-	fen[pos++] = ' ';
+	fen += ' ';
 	
 	// gen halfmove clock
-	len = sprintf(&fen[pos], "%d", state->clock);
-	assert(len > 0);
-	pos += len;
-	fen[pos++] = ' ';
+	fen += to_string(state->clock);
+	fen += ' ';
 
 	// gen fullmove counter
-	len = sprintf(&fen[pos], "%d", state->halfmoves / 2 + 1);
-	assert(len > 0);
-	pos += len;
+	fen += to_string(state->halfmoves / 2 + 1);
 
-	fen[pos] = '\0';
 	return fen;
 }
 

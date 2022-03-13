@@ -175,8 +175,7 @@ struct Board {
 
 	void unmakeMove();
 
-	const char* get_fen();
-	uint64_t countPositions(uint8_t depth);
+	string get_fen();
 	uint64_t genZobrist();
 
 };
