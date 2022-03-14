@@ -144,9 +144,7 @@ struct BoardState {
 	Composition composition; // current set and counts of pices on the board
 	uint8_t game_end_reason;
 
-	// Methods
-
-	bool operator==(BoardState& other) const; // determine equality in terms of three-fold repitition rule
+	bool operator==(const BoardState& other) const; // determine equality in terms of three-fold repitition rule
 };
 
 struct Board {
@@ -158,6 +156,8 @@ struct Board {
 
 	Board();
 	Board(const char* fen);
+	Board(string fen) : Board(fen.c_str()) {};
+	Board(BoardState state);
 
 
 	void attackSquares(SquareSet& attack_squares, uint8_t color, SquareSet& check_path_end);

@@ -42,7 +42,7 @@ const char* square_names[64] = {
 			to castle has been changed temporarily or permanently.
 			"""
 	*/
-	bool BoardState::operator==(BoardState& other) const {
+	bool BoardState::operator==(const BoardState& other) const {
 		if(this->turn != other.turn || this->enpass_square != other.enpass_square || *(uint32_t*)this->castling_avail != *(uint32_t*)other.castling_avail ) 
 			return false;
 		for(uint8_t idx = 0; idx < 64; idx++) 
@@ -232,6 +232,15 @@ Board::Board() {
 
 	// initialize game end reason
 	state->game_end_reason = NO_GAME_END;
+
+}
+
+// Initializes board from state
+Board::Board(BoardState s) {
+	
+	stateStack.reserve(STATE_STACK_STARTING_SIZE);
+	stateStack.push_back(s);
+	state = stateStack.data();
 
 }
 
