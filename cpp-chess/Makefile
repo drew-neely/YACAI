@@ -20,7 +20,7 @@ bin/cpp-chess : $(cpp_files) $(h_files)
 
 bin/cpp-chess-test : $(cpp_files) $(h_files) $(test_cpp_files) $(test_h_files)
 	mkdir -p bin
-	g++ $(cpp_files) $(test_cpp_files) -O3 -o bin/cpp-chess-test -DTESTING -std=c++17 -stdlib=libc++ -Werror
+	g++ $(cpp_files) $(test_cpp_files) -O3 -g -o bin/cpp-chess-test -DTESTING -std=c++17 -stdlib=libc++ -Werror
 
 test : bin/cpp-chess-test 
 	./bin/cpp-chess-test 

@@ -19,8 +19,8 @@ int main() {
 
 	/////////
 
-	// run_pert_tests();
-	test_zobrist_conflict();
+	run_pert_tests();
+	// test_zobrist_conflict();
 
 	/////////
 	double elapsedTime = ((double)clock() - startTime) / CLOCKS_PER_SEC;

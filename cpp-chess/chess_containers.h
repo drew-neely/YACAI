@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
+#include <cmath>
 
 #include "board.h"
 
@@ -83,4 +84,43 @@ struct Composition {
 
 };
 
+template<class Value>
+struct TransTable {
+	
+	struct Entry {
+		uint64_t key;
+		Value value;
+	};
+
+	size_t capacity;
+	Entry* data;
+
+	const size_t hash_mask;
+
+	TransTable(size_t capacity) : capacity(capacity), hash_mask(capacity - 1) {
+		assert((capacity & (capacity - 1)) == 0); // Check that capacity is a power of 2
+		assert(sizeof(Entry) % 8 == 0); // This should always be true, this is just here to make sure I understand C++
+		
+		data = (Entry*) malloc(sizeof(Entry) * capacity);
+		// printf("cons data = %p\n", data);
+		memset(data, 0, sizeof(Entry) * capacity); // zero the memory out
+	}
+
+	bool contains(uint64_t key) {
+		return data[key & hash_mask].key == key;
+	}
+
+	Value get(uint64_t key) { // Undefined behavior if contains(key) == false
+		return data[key & hash_mask].value;
+	}
+
+	void set(uint64_t key, Value value) {
+		data[key & hash_mask] = { key, value };
+	}
+
+	// TODO : Appropriately delete data
+	
+	// ~TransTable() { printf("dest data = %p\n", data); free(data); } // release memory on deletion
+
+};
 
