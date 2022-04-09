@@ -31,7 +31,9 @@ const uint8_t CASTLE_QUEEN = 1;
 const uint8_t CASTLE_KING = 2;
 
 // other enums
-const uint8_t NO_ENPASS = 255;
+
+const uint8_t NO_ENPASS = 0x80; // set bit 7 only to designate no empass
+const uint8_t ENPASS_AVAIL_MASK = 0x40; // set bit 6 to designate an enpass is possible in the given position - bits [5:0] designate the enpass square
 
 // game end reasons
 const uint8_t DRAW = 0; // DRAW is not to be used as a game end reason, but as a winner enum in addition to WHITE and BLACK
@@ -64,18 +66,20 @@ const uint8_t AGREEMENT            = 7;
 #define file(square_id) ((square_id) % 8)
 #define square_id(rank, file) ((rank) * 8 + (file))
 #define square_color(square_id) ((((square_id) >> 3) ^ (square_id)) & 1)
+#define enpass_avail(enpass_info) (((enpass_info) & ENPASS_AVAIL_MASK) != 0)
+#define enpass_square(enpass_info) ((enpass_info) & 0b00111111)
 
 #define other_color(color) (24 - (color))
 
 #define square_name(square_id) (square_names[square_id])
 
 // Gives the square_id of the king of specified color
-#define king_pos(color) (state->king_pos[((color) >> 3) - 1])
+#define king_pos(color) state->king_pos[((color) >> 3) - 1]
 
 // Gives boolean representing the ability of the king of given color to castle
 // 	on the given side - True does not imply that the castle is valid, simply that
 // 	is possible for it to become valid.
-#define castle_avail(color, side) (state->castling_avail[((color) >> 2) - (side)])
+#define castle_avail(color, side) state->castling_avail[((color) >> 2) - (side)]
 
 // Sets the castling availability to false while updating the zobrist hash
 #define disable_castle(color, side) {                        \
@@ -137,7 +141,7 @@ struct BoardState {
 	uint8_t king_pos[2]; // [<White>, <Black>]
 	uint8_t turn; // WHITE or BLACK
 	uint8_t castling_avail[4]; // [<White Kingside>, <White Queenside>, <Black Kingside>, <Black Queenside>]
-	uint8_t enpass_square; // square_id of the square to be moved by enpaasant capture (refer to fen encoding) - NO_ENPASS if no enpassant
+	uint8_t enpass_info; // bit [7] == 1 -> no_enpass ; bit[6] == 1 -> an enpass move is available ; bit[5:0] = the square id of the enpass square ; if bit [7] is set all other bits must be 0
 	uint8_t clock; // set to zero on a capture or pawn move, incremented otherwise - draw if clock == 100
 	uint16_t halfmoves; // number of halfmoves since the start of the game
 	uint64_t zobrist; // current zobrist hash

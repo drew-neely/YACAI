@@ -31,25 +31,36 @@ const char* square_names[64] = {
 ///////////// Board state Methods
 //////////////////////////////////////////////////
 
-	/*
-		test if current and other qualify as repeated positions as per the 3 move repitition rule
-		From Fide rule 9.2b
-			"""
-			Positions as in (a) and (b) are considered the same, if the same player has the move,
-			pieces of the same kind and color occupy the same squares, and the possible moves of all
-			the pieces of both players are the same. Positions are not the same if a pawn that could
-			have been captured en passant can no longer in this manner be captured or if the right
-			to castle has been changed temporarily or permanently.
-			"""
-	*/
-	bool BoardState::operator==(const BoardState& other) const {
-		if(this->turn != other.turn || this->enpass_square != other.enpass_square || *(uint32_t*)this->castling_avail != *(uint32_t*)other.castling_avail ) 
-			return false;
-		for(uint8_t idx = 0; idx < 64; idx++) 
-			if(this->squares[idx] != other.squares[idx]) 
-				return false;
-		return true;
+/*
+	test if current and other qualify as repeated positions as per the 3 move repitition rule
+	From Fide rule 9.2b
+		"""
+		Positions as in (a) and (b) are considered the same, if the same player has the move,
+		pieces of the same kind and color occupy the same squares, and the possible moves of all
+		the pieces of both players are the same. Positions are not the same if a pawn that could
+		have been captured en passant can no longer in this manner be captured or if the right
+		to castle has been changed temporarily or permanently.
+		"""
+	enpass_avail(enpass_info) must be used to determine the equality of enpass states.
+	A BoardState with different enpass_sqaure(enpass_info) is only different with regards to the
+	3 move repetition rule iff an enpassant is actually possible. If an enpass is actually possible
+	this makes such that the set of available moves is different.
+*/
+bool BoardState::operator==(const BoardState& other) const {
+	if(!(this->turn == other.turn && *(uint32_t*)this->castling_avail == *(uint32_t*)other.castling_avail )) {
+		return false;
 	}
+	if(this->enpass_info != other.enpass_info) {
+		if(enpass_avail(this->enpass_info) != enpass_avail(other.enpass_info))
+			return false;
+		if(enpass_avail(this->enpass_info) && enpass_square(this->enpass_info) != enpass_square(other.enpass_info))
+			return false;
+	}
+	for(uint8_t idx = 0; idx < 64; idx++) // TODO: determine if this loop can be spead up by vectorizing with 32 or 64 bit ints
+		if(this->squares[idx] != other.squares[idx]) 
+			return false;
+	return true;
+}
 
 //////////////////////////////////////////////////
 
@@ -143,15 +154,27 @@ Board::Board(const char* fen) {
 	
 	//parse en passant square
 	if(*pos == '-') {
-		state->enpass_square = NO_ENPASS;
+		state->enpass_info = NO_ENPASS;
 		pos ++; // consume '-'
 	} else {
+		uint8_t enpass_square = 0;
 		assert(*pos >= 'a' && *pos <= 'h'); // expect a file letter
-		state->enpass_square = *pos - 'a'; // add file to enpass square
+		enpass_square = *pos - 'a'; // add file to enpass square
 		pos++; // consume file
 		assert(*pos == '3' || *pos == '6'); // expect a 3 or 6 for rank
-		state->enpass_square += (*pos - '1') * 8; // add rank * 8 to complete square_id calculation
+		enpass_square += (*pos - '1') * 8; // add rank * 8 to complete square_id calculation
 		pos ++; // consume rank
+		// determine if enpass is actually possible and set possible bit
+		uint64_t enpass_capture_color = rank(enpass_square) == 2 ? WHITE : BLACK; // color of the pawn possibly threatened to be captured by enpassant
+		assert(state->turn == other_color(enpass_capture_color)); // The piece being threatend by enpassant should always be the color whose turn it is not
+		vector<uint8_t> capture_squares = pawn_attack_squares(enpass_square, enpass_capture_color); // get possible squares pawns can capture from
+		for(uint8_t sq : capture_squares) {
+			if(state->squares[sq] == (other_color(enpass_capture_color) | PAWN) ) { // there is an enpass move available
+				enpass_square |= ENPASS_AVAIL_MASK;
+				break;
+			}
+		}
+		state->enpass_info = enpass_square;
 	}
 	assert(*pos == ' '); // expect a space
 	pos++; // consume the space
@@ -174,6 +197,14 @@ Board::Board(const char* fen) {
 
 	// Generate the initial composition
 	state->composition = Composition(*state);
+
+	// Generate initial game end reason
+	// TODO : Need to check for 50 move rule, checkmate, and stalemate here
+	if(state->composition.isInsufficientMaterial()) {
+		state->game_end_reason = INSUFICIENT_MATERIAL;
+	} else {
+		state->game_end_reason = NO_GAME_END;
+	}
 	
 }
 
@@ -220,7 +251,7 @@ Board::Board() {
 		state->castling_avail[i] = true;
 	}
 
-	state->enpass_square = NO_ENPASS;
+	state->enpass_info = NO_ENPASS;
 	state->clock = 0;
 	state->halfmoves = 0;
 
@@ -454,6 +485,9 @@ vector<Move> Board::legalMoves() {
 	// print_vector(moves);
 
 	if(double_check) { // double_check -> king must move
+		if(moves.size() == 0) { // no moves + double check = checkmate
+			state->game_end_reason = other_color(state->turn) | CHECKMATE;
+		}
 		return moves;
 	}
 
@@ -491,7 +525,8 @@ vector<Move> Board::legalMoves() {
 				for(int s = 0; s < attacks.size(); s++) { // iterate over attack squares
 					uint8_t asq = attacks[s];
 					uint8_t csq = enpass_capture_square(asq);
-					if(asq == state->enpass_square &&
+					if(state->enpass_info != NO_ENPASS &&
+								(asq == enpass_square(state->enpass_info)) &&
 								(state->squares[csq] == (other_color(state->turn) | PAWN)) &&
 								(!pinned || pinned_set->contains(asq)) &&
 								(!check || check_path.contains(csq))) { // potential enpassant
@@ -603,7 +638,7 @@ vector<Move> Board::legalMoves() {
 	*/
 	if(moves.empty()) { // no moves = game over
 		if(check) {
-			state->game_end_reason = CHECKMATE;
+			state->game_end_reason = other_color(state->turn) | CHECKMATE;
 		} else {
 			state->game_end_reason = STALEMATE;
 		}
@@ -692,8 +727,14 @@ void Board::makeMove(Move move) {
 	uint8_t from_pid = state->squares[move.from_square];
 	uint8_t to_pid = state->squares[move.to_square];
 	
-	uint8_t new_enpass_square = NO_ENPASS;
+	uint8_t new_enpass_info = NO_ENPASS;
 	uint8_t new_clock = state->clock + 1;
+
+	// If move was passed in externally or built from uci, do the extra work of determining the type of move
+	// TODO : This is can possibly be removed by doing this check before passing into makeMove, but for probably extremely little performance benefit
+	if(move.move_type == MOVE_NO_CONTEXT) {
+		move.build_context(*this);
+	}
 
 	if(move.move_type == MOVE_NORMAL) {
 		// if king - update king position
@@ -708,7 +749,12 @@ void Board::makeMove(Move move) {
 			disable_castle(state->turn, CASTLE_QUEEN);
 		} else if(piece(from_pid) == PAWN) { // pawn move
 			if((move.from_square - move.to_square == 16) || (move.to_square - move.from_square == 16)) { // double pawn push
-				new_enpass_square = (move.from_square + move.to_square) >> 1; // Average to and from square to get enpass square (1 behind to_square)
+				new_enpass_info = (move.from_square + move.to_square) >> 1; // Average to and from square to get enpass square (1 behind to_square)
+				if(file(move.to_square) > 0 && state->squares[move.to_square - 1] == (other_color(state->turn) | PAWN)) { // pawn is not on left edge of board and there is an other color pawn on its left
+					new_enpass_info |= ENPASS_AVAIL_MASK;
+				} else if (file(move.to_square) < 7 && state->squares[move.to_square + 1] == (other_color(state->turn) | PAWN)) { // pawn is not on right edge of board and there is an other color pawn on its right
+					new_enpass_info |= ENPASS_AVAIL_MASK;
+				}
 			}
 			new_clock = 0;
 		}
@@ -794,13 +840,13 @@ void Board::makeMove(Move move) {
 	// Update common values
 	state->turn = other_color(state->turn);
 	state->zobrist ^= zobrist_blacks_move;
-	if(state->enpass_square != NO_ENPASS) {
-		state->zobrist ^= zobrist_enpass_file(file(state->enpass_square));
+	if(state->enpass_info != NO_ENPASS && enpass_avail(state->enpass_info)) {
+		state->zobrist ^= zobrist_enpass_file(file(enpass_square(state->enpass_info)));
 	}
-	if(new_enpass_square != NO_ENPASS) {
-		state->zobrist ^= zobrist_enpass_file(file(new_enpass_square));
+	if(new_enpass_info != NO_ENPASS && enpass_avail(new_enpass_info)) {
+		state->zobrist ^= zobrist_enpass_file(file(enpass_square(new_enpass_info)));
 	}
-	state->enpass_square = new_enpass_square;
+	state->enpass_info = new_enpass_info;
 	state->clock = new_clock;
 	state->halfmoves++;
 
@@ -882,10 +928,10 @@ string Board::get_fen() {
 	fen += ' ';
 
 	// gen enpassant square
-	if(state->enpass_square == NO_ENPASS) { // no enpassant
+	if(state->enpass_info == NO_ENPASS) { // no enpassant
 		fen += '-';		
 	} else {
-		fen += square_names[state->enpass_square];
+		fen += square_names[enpass_square(state->enpass_info)];
 	}
 	fen += ' ';
 	
@@ -914,8 +960,8 @@ uint64_t Board::genZobrist() {
 	zob ^= (castle_avail(WHITE, CASTLE_QUEEN)) ? zobrist_castle_avail(WHITE, CASTLE_QUEEN) : 0;
 	zob ^= (castle_avail(BLACK, CASTLE_KING))  ? zobrist_castle_avail(BLACK, CASTLE_KING)  : 0;
 	zob ^= (castle_avail(BLACK, CASTLE_QUEEN)) ? zobrist_castle_avail(BLACK, CASTLE_QUEEN) : 0;
-	if(state->enpass_square != NO_ENPASS) {
-		zob ^= zobrist_enpass_file(file(state->enpass_square));
+	if(state->enpass_info != NO_ENPASS && enpass_avail(state->enpass_info)) {
+		zob ^= zobrist_enpass_file(file(enpass_square(state->enpass_info)));
 	}
 	return zob;
 }

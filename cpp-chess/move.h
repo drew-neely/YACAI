@@ -14,6 +14,7 @@ using namespace std;
 #define MOVE_CASTLE 1
 #define MOVE_ENPASS 2
 #define MOVE_PROMOTE 3
+#define MOVE_NO_CONTEXT 4
 
 struct Move {
 	uint8_t from_square;
@@ -34,8 +35,22 @@ struct Move {
 	Move(uint8_t from, uint8_t to, uint8_t type, uint8_t special) : 
 		from_square(from), to_square(to), move_type(type), _special_val(special) {}
 
+	Move(string uci, Board& board) : Move(uci) { build_context(board); }
+	
+	Move(string uci);
+
+	void build_context(Board& board);
+
+	bool operator==(const Move& other) {
+		if(from_square != other.from_square || to_square != other.to_square || move_type != other.move_type)
+			return false;
+		if(move_type == MOVE_CASTLE || move_type == MOVE_ENPASS || move_type == MOVE_PROMOTE) 
+			return _special_val == other._special_val;
+		return true;
+	}
+
 	void print() {
-		const char* type_str[4] = {"NORMAL", "CASTLE", "ENPASS", "PROMOTE"} ;
+		const char* type_str[5] = {"NORMAL", "CASTLE", "ENPASS", "PROMOTE", "NO_CONTEXT"} ;
 		if(move_type  == MOVE_NORMAL) printf("<Move %s-%s>\n", square_names[from_square], square_names[to_square]);
 		else printf("<Move %s-%s (%s, %d)>\n", square_names[from_square], square_names[to_square], type_str[move_type], _special_val);
 	}

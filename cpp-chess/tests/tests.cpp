@@ -9,6 +9,7 @@
 
 #include "perft-tests.h"
 #include "zobrist-tests.h"
+#include "game-end-tests.h"
 
 using namespace std;
 
@@ -19,6 +20,8 @@ int main() {
 
 	/////////
 
+	run_game_end_tests("./tests/test_database/lichess_db_standard_rated_2013-03.pgn.list");
+	run_game_end_tests("./tests/test_database/lichess_db_standard_rated_2014-01.pgn.list");
 	run_pert_tests();
 	// test_zobrist_conflict();
 
