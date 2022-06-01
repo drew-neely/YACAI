@@ -12,7 +12,7 @@ all : bin/cpp-chess bin/cpp-chess-wprof bin/cpp-chess-test
 ###############################
 bin/cpp-chess : $(cpp_files) $(h_files)
 	mkdir -p bin
-	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++17 -stdlib=libc++ -Werror
+	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++2a -stdlib=libc++ -Werror
 
 ###############################
 ###### testing
@@ -20,7 +20,7 @@ bin/cpp-chess : $(cpp_files) $(h_files)
 
 bin/cpp-chess-test : $(cpp_files) $(h_files) $(test_cpp_files) $(test_h_files)
 	mkdir -p bin
-	g++ $(cpp_files) $(test_cpp_files) -O3 -g -o bin/cpp-chess-test -DTESTING -std=c++17 -stdlib=libc++ -Werror
+	g++ $(cpp_files) $(test_cpp_files) -O3 -g -o bin/cpp-chess-test -DTESTING -std=c++2a -stdlib=libc++ -Werror
 
 test : bin/cpp-chess-test 
 	./bin/cpp-chess-test 
@@ -31,7 +31,7 @@ test : bin/cpp-chess-test
 
 bin/cpp-chess-wprof : $(cpp_files) $(h_files)
 	mkdir -p bin
-	g++ $(cpp_files) $(test_cpp_files) -O3 -g -o bin/cpp-chess-wprof -DTESTING -fno-pie -std=c++17 -stdlib=libc++ -lprofiler
+	g++ $(cpp_files) $(test_cpp_files) -O3 -g -o bin/cpp-chess-wprof -DTESTING -fno-pie -std=c++2a -stdlib=libc++ -lprofiler
 
 # create various perf files
 

@@ -69,8 +69,9 @@ extern "C" uint64_t count_positions(int bd, uint8_t depth) {
 
 
 extern "C" const char* get_fen(int bd) {
-	assert_valid_bd(bd);
-	return boardDescriptorTable[bd]->get_fen().c_str();
+	assert(false);
+	// assert_valid_bd(bd);
+	// return boardDescriptorTable[bd]->get_fen().c_str();
 }
 
 
