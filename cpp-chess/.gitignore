@@ -1,1 +1,5 @@
 bin/*
+
+# Only include compressed pgn list files - not other test database files
+tests/test_database/*.pgn*
+!tests/test_database/*.pgn.list.bz2
