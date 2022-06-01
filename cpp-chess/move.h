@@ -39,6 +39,10 @@ struct Move {
 	
 	Move(string uci);
 
+	// Default constructor so vector<move>.resize will work
+	// This should never actually be used
+	Move() { assert(false); };
+
 	void build_context(Board& board);
 
 	bool operator==(const Move& other) {

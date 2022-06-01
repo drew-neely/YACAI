@@ -99,15 +99,15 @@ uint64_t _countPositions(Board& board, uint64_t depth) {
 	if(depth == 0) {
 		return 1;
 	} else if(depth == 1) {
-		vector<Move> moves = board.legalMoves();
+		MoveList moves = board.legalMoves();
 		num_gen_moves += 1;
 		count = moves.size();
 		return count;
 	}
-	vector<Move> moves = board.legalMoves();
+	MoveList moves = board.legalMoves();
 	num_gen_moves += 1;
-	for(int i = 0; i < moves.size(); i++) {
-		board.makeMove(moves[i]);
+	for(Move move : moves) {
+		board.makeMove(move);
 		count += _countPositions(board, depth - 1);
 		board.unmakeMove();
 	}
@@ -156,16 +156,16 @@ uint64_t countPositionsZobristTransTable(Board& board, uint64_t depth, vector<Tr
 	if(depth == 0) {
 		return 1;
 	} else if(depth == 1) {
-		vector<Move> moves = board.legalMoves();
+		MoveList moves = board.legalMoves();
 		num_gen_moves += 1;
 		count = moves.size();
 		tables[depth-1].set(board.state->zobrist, count);
 		return count;
 	}
-	vector<Move> moves = board.legalMoves();
+	MoveList moves = board.legalMoves();
 	num_gen_moves += 1;
-	for(int i = 0; i < moves.size(); i++) {
-		board.makeMove(moves[i]);
+	for(Move move : moves) {
+		board.makeMove(move);
 		count += countPositionsZobristTransTable(board, depth - 1, tables);
 		board.unmakeMove();
 	}
@@ -230,16 +230,16 @@ uint64_t countPositionsFenLru(Board& board, uint64_t depth, lru_cache<string, ui
 	if(depth == 0) {
 		return 1;
 	} else if(depth == 1) {
-		vector<Move> moves = board.legalMoves();
+		MoveList moves = board.legalMoves();
 		num_gen_moves += 1;
 		count = moves.size();
 		lru.insert(fen, count);
 		return count;
 	}
-	vector<Move> moves = board.legalMoves();
+	MoveList moves = board.legalMoves();
 	num_gen_moves += 1;
-	for(int i = 0; i < moves.size(); i++) {
-		board.makeMove(moves[i]);
+	for(Move move : moves) {
+		board.makeMove(move);
 		count += countPositionsFenLru(board, depth - 1, lru);
 		board.unmakeMove();
 	}

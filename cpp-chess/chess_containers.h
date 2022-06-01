@@ -3,10 +3,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <cmath>
+#include <vector>
 #include <assert.h>
 #include <string.h>
 
 #include "board.h"
+#include "move.h"
 
 
 /*
@@ -27,6 +29,50 @@ struct SquareSet {
 	bool contains(uint8_t sq) {
 		return (bitmap & ((uint64_t) 1 << sq)) != 0;
 	}
+
+};
+
+struct MoveList {
+	vector<Move> moves;
+	size_t start;
+	vector<size_t> startStack;
+
+	MoveList(size_t cap) : start(0) {
+		moves.reserve(cap);
+		startStack.reserve(100);
+	}
+
+	MoveList() : MoveList(2000) {} // By default allocate space for 2000 moves (approx 100 states deep at 20 moves per state)
+
+	void emplace_back(uint8_t from, uint8_t to) { moves.emplace_back(from, to); }
+	void emplace_back(uint8_t from, uint8_t to, uint8_t type, uint8_t special) { moves.emplace_back(from, to, type, special); }
+	void emplace_back(string uci, Board& board) { moves.emplace_back(uci, board); }
+	void emplace_back(string uci) { moves.emplace_back(uci); }
+
+	void push_list() {
+		startStack.push_back(start);
+		start = moves.size();
+	}
+
+	void pop_list() {
+		moves.resize(start);
+		start = startStack.back();
+		startStack.pop_back();
+	}
+
+	size_t size() {
+		return moves.size() - start;
+	}
+
+	bool empty() {
+		return moves.size() == start;
+	}
+
+	/*
+		Implement begin and end functions so enhance for loop works on current array
+	*/
+	vector<Move>::iterator begin() { return moves.begin() + start; }
+	vector<Move>::iterator end()   { return moves.end();           }
 
 };
 

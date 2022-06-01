@@ -155,7 +155,8 @@ struct Board {
 
 	BoardState* state;
 	vector<BoardState> stateStack;
-	
+	MoveList moves;
+
 	// Methods
 
 	Board();
@@ -167,7 +168,8 @@ struct Board {
 	void attackSquares(SquareSet& attack_squares, uint8_t color, SquareSet& check_path_end);
 	void checksAndPins(SquareSet& check_path, bool& check, bool& double_check,
 				map<uint8_t, SquareSet >& pinned_squares);
-	vector<Move> legalMoves();
+	MoveList legalMoves();
+	void setGameEndReason();
 
 	bool isDrawRepitition();
 	bool isDrawFiftyMove();

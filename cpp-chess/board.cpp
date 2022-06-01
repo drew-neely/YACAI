@@ -440,9 +440,7 @@ void Board::attackSquares(SquareSet& attack_squares, uint8_t color, SquareSet& c
 	}
 }
 
-vector<Move> Board::legalMoves() {
-
-	vector<Move> moves;
+MoveList Board::legalMoves() {
 	
 	// Check for insufficient material, three move repetition, and 50 move rule
 	if(isDrawRepitition()) {
@@ -455,8 +453,6 @@ vector<Move> Board::legalMoves() {
 		state->game_end_reason = FIFTY_MOVE;
 		return moves;
 	}
-
-	moves.reserve(40);
 
 	SquareSet check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
 	SquareSet check_path_end; // square_ids of squares covered by check bechind king - 255 if NA
@@ -648,6 +644,184 @@ vector<Move> Board::legalMoves() {
 	return moves;
 }
 
+
+/*
+	legal_moves will do all the same work as this function in addition to returning the legal moves.
+	This function is meant for the instances where it needs to be known if the game has ended, but 
+	the possible moves do not matter if the game has not ended.
+
+	Calling both legal_moves and setGameEndReason is inneficient
+*/
+void Board::setGameEndReason() {
+
+	// Check for draws first - must faster to check than checkmate
+	if(isDrawRepitition()) {
+		state->game_end_reason = REPITION;
+		return;
+	} else if(isDrawInsuficientMaterial()) {
+		state->game_end_reason = INSUFICIENT_MATERIAL;
+		return;
+	} else if(isDrawFiftyMove()) {
+		state->game_end_reason = FIFTY_MOVE;
+		return;
+	}
+	
+	// Game is not a draw - check for checkmate and stalemate
+	SquareSet check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
+	SquareSet check_path_end; // square_ids of squares covered by check bechind king - 255 if NA
+	bool check = false; // true if the king is in check
+	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
+	map<uint8_t, SquareSet > pinned_squares; // key = square of pinned piece, value = squares it is pinned to
+	SquareSet attack_squares; // set of all squares the other color may psuedolegally move to
+
+	// build all the check info
+	checksAndPins(check_path, check, double_check, pinned_squares);
+
+	// build attack_squares
+	attackSquares(attack_squares, other_color(state->turn), check_path_end);
+
+	// Test if King can move first
+	uint8_t king = king_pos(state->turn);
+	for(int p = 0; p < attack_paths(king, KING).size(); p++) {
+		uint8_t sq = attack_paths(king, KING)[p][0];
+		if(color(state->squares[sq]) != state->turn && !attack_squares.contains(sq) && !check_path_end.contains(sq)) { // sq is safe
+			state->game_end_reason = NO_GAME_END;
+			return;
+		}
+	}
+
+	// Castling can never be the only move, so don't check for it
+
+	// King must move on double check + No King moves are available => checkmate
+	if(double_check) {
+		state->game_end_reason = other_color(state->turn) | CHECKMATE;
+		return;
+	}
+
+	// Look for regular pieces which can move
+	// TODO - This is a lot of copied logic with little modification - better way to do it with copying less?
+	// TODO - Replace legal_moves with coroutines !!!?
+
+	for(int sq = 0; sq < 64; sq++) {
+		if(color(state->squares[sq]) == state->turn && sq != king) { // found piece to look for moves
+
+			bool pinned = _contains(pinned_squares, sq);
+			SquareSet* pinned_set = pinned ? &pinned_squares[sq] : NULL;
+
+			if(piece(state->squares[sq]) == PAWN) { // piece is a pawn
+				// look at attacks first (captures + en-passant)
+				vector<uint8_t>& attacks = pawn_attack_squares(sq, state->turn);
+				for(int s = 0; s < attacks.size(); s++) { // iterate over attack squares
+					uint8_t asq = attacks[s];
+					uint8_t csq = enpass_capture_square(asq);
+					if(state->enpass_info != NO_ENPASS &&
+								(asq == enpass_square(state->enpass_info)) &&
+								(state->squares[csq] == (other_color(state->turn) | PAWN)) &&
+								(!pinned || pinned_set->contains(asq)) &&
+								(!check || check_path.contains(csq))) { // potential enpassant
+						/* 
+							The if statement qualifies that the movement of the capturing pawn is legal, but
+							Need to check that removing the captured pawn doesnt put king in check
+							This is done by looking for rook/bishops/queens in line with the king and removed pawn
+							Technically, no legal position can have a revealed bishop check from enpassant, but i'll
+							still check anyways since this can come up in artificial positions
+							revealed rook checks can only possible arrise horizontally
+						*/
+						int8_t df = file(csq) - file(king),
+							dr = rank(csq) - rank(king);
+						uint8_t pinning_piece;
+						if(dr == 0) { // look for horizontal pin
+							pinning_piece = ROOK;
+						} else if(df == dr || -df == dr) { // look for revealed diagonal pin
+							pinning_piece = BISHOP;
+						} else { // no possible pin
+							state->game_end_reason = NO_GAME_END;
+							return;
+						}
+						df = (df > 0) - (df < 0); // get signs of dr and df (+1 or -1)
+						dr = (dr > 0) - (dr < 0);
+						bool valid = true;
+						for(uint8_t f = file(csq) + df, r = rank(csq) + dr; f >= 0 && f < 8 && r >= 0 && r < 8; f += df, r+= dr) {
+							uint8_t tsq = square_id(r, f);
+							if(tsq != sq) {
+								uint8_t pid = state->squares[tsq];
+								if(pid != 0) {
+									if(pid == (other_color(state->turn) | pinning_piece) || pid == (other_color(state->turn) | QUEEN)) {
+										valid = false; // there is an attacker and pin
+										break;
+									}
+									break;
+								}
+							}
+						}
+						if(!valid) { // check to make sure the pin isnt blocked on the other side
+							for(uint8_t f = file(csq) - df, r = rank(csq) - dr; f >= 0 && f < 8 && r >= 0 && r < 8; f -= df, r-= dr) {
+								uint8_t tsq = square_id(r, f);
+								if(tsq == king) {
+									break;
+								} else if(tsq != sq && state->squares[tsq] != 0) {
+									valid = true;
+								}
+							}
+						}
+						if(valid) {
+							state->game_end_reason = NO_GAME_END;
+							return;
+						}
+					} else if(color(state->squares[asq]) == other_color(state->turn) && 
+								(!pinned || pinned_set->contains(asq)) &&
+								(!check || check_path.contains(asq))) {     // pawn capture
+						state->game_end_reason = NO_GAME_END;
+						return;
+					}
+				}
+				// Time to look at pawn pushes
+				vector<uint8_t>& path = pawn_move_path(sq, state->turn);
+				for(int s = 0; s < path.size(); s++) { // iterate over push squares
+					uint8_t tsq = path[s];
+					if(state->squares[tsq] != 0) { // There is a piece blocking the path
+						break;
+					}
+					if((!pinned || pinned_set->contains(tsq)) && (!check || check_path.contains(tsq))) {
+						state->game_end_reason = NO_GAME_END;
+						return;
+					}
+				}
+			} 
+			else { // piece is Knight, Bishop, Rook or Queen
+				vector<vector<uint8_t> >& paths = attack_paths(sq, piece(state->squares[sq]));
+				for(int p = 0; p < paths.size(); p++) { // iterate over all paths the piece can take
+					vector<uint8_t>& path = paths[p];
+					for(int s = 0; s < path.size(); s++) { // iterate over the squares in a single path
+						uint8_t tsq = path[s];
+						if(color(state->squares[tsq]) == state->turn) { // path blocked by same color piece
+							break;
+						}
+						if((!pinned || pinned_set->contains(tsq)) && (!check || check_path.contains(tsq))) { // check for pins and check
+							state->game_end_reason = NO_GAME_END;
+							return;
+						}
+						if(state->squares[tsq] != 0) { // move was capture (ie. blocked by other color piece)
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	// There are no moves available
+	// If in check it is checkmate, otherwise stalemate
+
+	if(check) {
+		state->game_end_reason = other_color(state->turn) | CHECKMATE;
+		return;
+	} else {
+		state->game_end_reason = STALEMATE;
+		return;
+	}
+
+}
 
 bool Board::isDrawRepitition() {
 
@@ -849,12 +1023,14 @@ void Board::makeMove(Move move) {
 	state->enpass_info = new_enpass_info;
 	state->clock = new_clock;
 	state->halfmoves++;
+	moves.push_list();
 
 }
 
 void Board::unmakeMove() {
 	stateStack.pop_back();
 	state = &stateStack.back();
+	moves.pop_list();
 }
 
 
