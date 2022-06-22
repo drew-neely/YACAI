@@ -51,8 +51,12 @@ def game_status(board) :
 		return outcome
 	return None
 
+num_games = 0
 while True :
 	game = chess.pgn.read_game(pgn)
+	if num_games % 25000 == 0 :
+		print(f"Processing game {num_games}")
+	num_games += 1
 	if game is None : # check to see if we reached the end of the list
 		break
 	if game.headers["Termination"] == "Time forfeit" :
@@ -69,8 +73,9 @@ while True :
 		winner = {True: "white", False: "black", None: "draw"}[outcome.winner]
 		moves = ' '.join([m.uci() for m in board.move_stack])
 		if len(moves) == 0 :
-			print("game with 0 moves")
-			print(game)
+			# print("game with 0 moves")
+			# print(game)
+			pass
 		else :
 			out.write(termination_reason + '\n')
 			out.write(winner + '\n')
