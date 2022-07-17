@@ -34,7 +34,7 @@ void find_zobrist_conflict(Board& board, uint64_t depth, map<uint64_t, vector<Bo
 
 	// recurse
 	if(depth != 0) {
-		MoveList moves = board.legalMoves();
+		MoveGenerator moves = board.legalMoves();
 		for (Move m : moves) {
 			board.makeMove(m);
 			find_zobrist_conflict(board, depth - 1, hashPairs, collisionKeys);

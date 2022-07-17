@@ -89,8 +89,8 @@ void run_game_end_tests(string filename) {
 		// check moves and get to end position
 		for(Move move : test.moves) {
 			move.build_context(board);
-			MoveList legal_moves = board.legalMoves();
-			if(find(legal_moves.begin(), legal_moves.end(), move) == legal_moves.end()) {
+			vector<Move> legal_moves = board.legalMoves().to_vector();
+			if(find(legal_moves.begin(), legal_moves.end(), move) == legal_moves.end()) { // Expected move is not found
 				// check if this is because of disagreement on lone king vs 2 knights case
 				if (is_edge_case_draw(board)) {
 					num_pass++;
@@ -128,7 +128,7 @@ void run_game_end_tests(string filename) {
 			board.setGameEndReason();
 			board.makeMove(move);
 		}
-		board.legalMoves();
+		for(Move m : board.legalMoves()) {} // iteratre through the entire routine so end reason actually gets set
 		legalMovesEndReason = board.state->game_end_reason;
 		board.setGameEndReason();
 		setGameEndReasonEndReason = board.state->game_end_reason;

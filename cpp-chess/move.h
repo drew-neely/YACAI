@@ -7,7 +7,14 @@
 
 struct Move;
 #include "board.h"
+#include "generator.h"
 
+// Type used by functions generating lists of moves to implement coroutines
+typedef Generator<Move> MoveGenerator;
+
+
+#include <execinfo.h>
+#include <stdio.h>
 using namespace std;
 
 #define MOVE_NORMAL 0
@@ -40,8 +47,9 @@ struct Move {
 	Move(string uci);
 
 	// Default constructor so vector<move>.resize will work
-	// This should never actually be used
-	Move() { assert(false); };
+	// Also used by classes which should maybe use optional 
+	// values like Generator::Promise
+	Move() {};
 
 	void build_context(Board& board);
 
