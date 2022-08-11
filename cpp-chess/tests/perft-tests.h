@@ -13,7 +13,7 @@ using namespace std;
 
 struct PerftTest {
 
-	PerftTest(const char* fen, uint64_t depth, uint64_t* results) : fen(fen), result(results[depth]), depth(depth) {}
+	PerftTest(const char* fen, uint64_t depth, const uint64_t* results) : fen(fen), result(results[depth]), depth(depth) {}
 
 	const char* fen;
 	uint64_t depth; 

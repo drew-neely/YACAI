@@ -68,14 +68,14 @@ void test_zobrist_conflict() {
 	};
 
 	for(ZobristTest test : fens) {
-		printf("searching depth = %llu, fen = %s\n", test.depth, test.fen.c_str());
+		printf("searching depth = %lu, fen = %s\n", test.depth, test.fen.c_str());
 		Board board(test.fen);
 		map<uint64_t, vector<BoardState>> collisionPairs = find_zobrist_conflict(*&board, test.depth);
 		if(collisionPairs.empty()) {
 			printf("\t0 collisions found\n");
 		} else {
 			for(auto const& [zobrist, collisions] : collisionPairs) {
-				printf("\tcollisions on %llx:\n", zobrist);
+				printf("\tcollisions on %lx:\n", zobrist);
 				for(BoardState state : collisions) {
 					printf("\t\t%s\n", Board(state).get_fen().c_str());
 				}

@@ -1,13 +1,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <assert.h>
-#include <experimental/coroutine>
+#include <coroutine>
 #include <exception>
 #include <iostream>
 #include <vector>
 
 using namespace std;
-using namespace experimental;
 
 /*
 	This file contains a Generator class implementing coroutines in a 
