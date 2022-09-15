@@ -1,0 +1,13 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "1rb2b1r/1pN2kp1/n2p4/1N1P1p1p/p1P4q/P3PQ1P/1P3PP1/2RR2K1 w - - 1 24"]
+[FirstMove "24w"]
+[Puzzle_Length "3"]
+
+24. Nxd6+ Bxd6 25. Nxa6 bxa6 26. c5 Be5 *

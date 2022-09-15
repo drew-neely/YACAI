@@ -1,0 +1,16 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "1-0"]
+[SetUp "1"]
+[FEN "6k1/p5pp/8/3R4/3P1K2/1P2RP2/1r5r/8 b - - 1 33"]
+[Puzzle_Length "2"]
+[Tactic_line "Rf5+ Kg6 Re6#"]
+
+33... Kf7 34. Rf5+ ({+0.83} 34. Ra5 h5 35. Rxa7+ Kg6 36. d5 Rhd2 37. Re6+ Kh7
+38. Ree7 Rxd5 $14) 34... Kg6 35. Re6# ({+0.85} 35. Rg5+ Kh6 36. Rc5 Rhe2 37. Rxe2
+Rxe2 38. Ra5 Rb2 39. Ra6+ g6 $14) ({+0.62} 35. d5 h6 36. Ke5 Rhd2 37. Rf8 h5 38.
+d6 Rd1 39. f4 Rbd2 $12) 1-0

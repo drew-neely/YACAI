@@ -1,0 +1,25 @@
+The puzzle tests included here are used to test the functionality of the search
+algorithm.
+
+Chess puzzles are characterized by positions in which the side to move has one
+move which is definitively better than all the other moves. The reason this is
+good to use to test the search algorithm, is that a basic evaluation function,
+and a high enough depth should be all that is required to solve a puzzle. This
+should help to reveal bugs in minimax, alpha-beta pruning, the transposition
+table, and more.
+
+puzzle_pgns includes a bunch of puzzle_XXXX.pgn files which are downloaded from
+chess.com (just some of the most recent puzzles I have completed). The script
+parse_pgn.py reads all of the puzzle_XXXX.pgn files and extracts the starting
+fen string for the puzzle and all of the moves constituting the solution. It 
+writes these values to puzzles.list.
+
+Each test case in puzzles.list is two lines - the first is the fen string of
+the starting position, the second is the list of moves constituting the
+solution. Each puzzle has an active and inactive color. The active color is the
+color which the search agent will play as, while the inactive color will play
+exactly the moves outline in the test case. The very first move in the list is 
+played by the inactive color. Then the second move should match the move
+determined by the active color's search agent. Essentially, only the moves 
+played by the active color are guranteed to be the standout best move, and so
+these are the only moves which should be checked against the search agent.

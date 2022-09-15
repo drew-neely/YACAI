@@ -1,0 +1,38 @@
+[Event "Live Chess"]
+[Site "Chess.com"]
+[Date "2010.10.22"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "1-0"]
+[SetUp "1"]
+[FEN "r2r2k1/1b3ppp/p2Rp3/q3p3/1p2P3/1PN2Q2/4BPPP/3R2K1 b - - 0 1"]
+[FirstMove "22b"]
+[FULL "22. ... bxc3 23. Qxc3 Qxc3 24. Rxd8+ Rxd8 25. Rxd8#"]
+[MOVES "3"]
+[PlyCount "6"]
+[PUZZLE_TYPE "material"]
+[START_SCORE "3.98"]
+[START_SCORE_DIFFERENCE "7.19"]
+
+1... bxc3 ({24:5.16} 1... bxc3 2. Qxc3 Rxd6 3. Qxa5 Rxd1+ 4. Bxd1 Bxe4 5. Qxe5
+$18) ({24:-3.8} 1... Rxd6 2. Rxd6 bxc3 3. Rd1 c2 4. Rc1 Qd2 5. Qe3 $19) ({24:1.55}
+1... Qc7 2. Rxd8+ Rxd8 3. Rxd8+ Qxd8 4. Na4 Qd4 5. Qd3 $18) ({24:2.83} 1... Rac8
+2. Rd7 Rf8 3. Nd5 exd5 4. Rxb7 d4 5. Bc4 $18) ({24:3.06} 1... Rab8 2. Rd7 Rf8 3.
+Na4 Bc6 4. R7d6 Qc7 5. Nc5 $18) 2. Qxc3 ({24:5.16} 2. Qxc3 Rxd6 3. Qxa5 Rxd1+ 4.
+Bxd1 Bxe4 5. Qxe5 Bd5 $18) ({24:0.07} 2. b4 Qc7 3. Qxc3 Qe7 4. Qxe5 Rxd6 5. Qxd6
+Qxd6 $12) ({24:-0.88} 2. Rxd8+ Rxd8 3. Rxd8+ Qxd8 4. Qxc3 Qd6 5. b4 Kf8 $17)
+({24:-3.95} 2. Rd7 Rxd7 3. Rxd7 Rf8 4. Rd1 c2 5. Rc1 Qd2 $19) 2... Qxc3
+({24:Mat02} 2... Qxc3 3. Rxd8+ Rxd8 4. Rxd8# $18) ({24:5.16} 2... Rxd6 3. Qxa5
+Rxd1+ 4. Bxd1 Bxe4 5. Qxe5 Bd5 6. b4 $18) ({24:10.19} 2... Bd5 3. Qxa5 Rxd6 4.
+exd5 Rad8 5. Bc4 Kh8 6. g3 $18) ({24:11.43} 2... Qd5 3. R1xd5 Bxd5 4. Rxd8+ Rxd8
+5. Qc7 Ra8 6. exd5 $18) ({24:12.4} 2... Bxe4 3. Qxa5 Rf8 4. Bc4 Bc2 5. Rc1 Bg6 6.
+Qxe5 $18) 3. Rxd8+ ({24:Mat02} 3. Rxd8+ Rxd8 4. Rxd8# $18) ({24:-18.39} 3. R6d3
+Rxd3 4. Rxd3 Qc1+ 5. Rd1 Qc2 6. Kf1 Bxe4 $19) ({24:-19.96} 3. Bf1 Rxd6 4. Rxd6
+Bxe4 5. Rd7 Qe1 6. Rd6 Qc1 $19) ({24:-20.4} 3. Kf1 Rxd6 4. Rxd6 Bd5 5. Kg1 Qe1+
+6. Bf1 Bxe4 $19) 3... Rxd8 4. Rxd8# ({24:Mat01} 4. Rxd8# $18) ({24:-23.39} 4. Rf1
+Rd2 5. Bf3 Qxb3 6. Rc1 a5 7. Rf1 Qb6 $19) ({24:-Mat13} 4. h3 Rxd1+ 5. Bxd1 Qe1+
+6. Kh2 Qxd1 7. f3 Qxb3 8. Kg3 a5 9. Kh2 a4 10. Kg3 a3 11. Kg4 a2 12. Kh4 a1=Q
+13. Kg3 Qg1 14. h4 Qc2 15. Kg4 Qcxg2+ 16. Kh5 Qxf3# $19) ({24:-Mat13} 4. h4 Rxd1+
+5. Bxd1 Qe1+ 6. Kh2 Qxd1 7. f3 Qxb3 8. h5 a5 9. h6 a4 10. hxg7 a3 11. Kg3 a2 12.
+Kh3 Qe3 13. g3 Qxf3 14. Kh4 a1=Q 15. Kg5 Qxg3+ 16. Kh5 Qh1# $19) 1-0

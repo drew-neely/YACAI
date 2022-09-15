@@ -1,0 +1,32 @@
+[Event "37th Olympiad"]
+[Site "Turin ITA"]
+[Date "2006.05.23"]
+[Round "3"]
+[White "Hamdouchi,H"]
+[Black "Leyva,H"]
+[Result "*"]
+[SetUp "1"]
+[FEN "2rR2k1/4Qpp1/2N5/1p4Pb/8/2P1p3/PKP2qP1/8 b - - 0 1"]
+[PUZZLE_TYPE "checkmate"]
+[MOVES "3"]
+[FULL "40. ... Rxd8 41. Qxd8+ Kh7 42. Ne7 Qxc2+ 43. Kxc2"]
+[START_SCORE "Mat05"]
+[START_SCORE_DIFFERENCE "Mat06"]
+
+1... Rxd8 ({24:Mat05} 1... Rxd8 2. Qxd8+ Kh7 3. Ne7 Qxc2+ 4. Kxc2 Bd1+ 5. Kc1 e2
+6. Qg8# $18) ({24:16.62} 1... Kh7 2. Rxc8 Bg6 3. Nd4 Bf5 4. Rf8 Bg6 5. Qe8 Bxc2
+6. Nxc2 Kg6 7. Qe4+ Kh5 8. Rh8+ Kxg5 9. Qe5+ Kg6 10. Rh3 e2 11. Rg3+ Qxg3 12.
+Qxg3+ Kf6 13. Nd4 g6 14. Nxe2 Kg7 15. Qe5+ Kg8 16. Nd4 b4 17. Qf6 b3 18. axb3 g5
+19. Qd8+ Kg7 20. Qxg5+ Kf8 $18) 2. Qxd8+ ({24:Mat05} 2. Qxd8+ Kh7 3. Ne7 Qxc2+ 4.
+Kxc2 Bd1+ 5. Kc1 e2 6. Qg8# $18) ({24:-9.96} 2. g6 Rf8 3. Ne5 e2 4. Nd3 Qf1 5.
+Qh4 Bxg6 6. Ne1 Qg1 7. a3 Rb8 8. Kb3 Qe3 9. Kb2 Qd2 10. Qg3 Ra8 11. Qf3 Rf8 12.
+Qf2 Qd1 13. g3 Ra8 14. Qf3 Rc8 15. Qb7 Rf8 16. Qh1 Qd2 17. a4 Rc8 18. a5 b4 19.
+cxb4 $19) ({24:-10.84} 2. g4 Rf8 3. Qc5 Bg6 4. Ne7+ Kh7 5. Nf5 Re8 6. Qxb5 e2 7.
+Qxe8 e1=Q 8. Qxe1 Qxe1 9. Nd4 Qd2 10. a4 Qxg5 11. Nc6 Qxg4 12. Nb4 Qg5 13. Nc6
+Kg8 14. Nb4 Qc5 15. Kb3 Qe3 16. a5 $19) 2... Kh7 3. Ne7 ({24:Mat04} 3. Ne7 Qxc2+
+4. Kxc2 Bd1+ 5. Kc1 e2 6. Qg8# $18) ({24:0} 3. Qb8 Bd1 4. Qh2+ Kg8 5. Qb8+ Kh7 $12)
+({24:0} 3. Qc8 Bd1 4. Nb4 e2 5. Nd3 e1=Q 6. Nxe1 Qxe1 7. Qf5+ Kh8 8. Qc8+ Kh7 $12)
+3... Qxc2+ ({24:Mat03} 3... Qxc2+ 4. Kxc2 Bd1+ 5. Kc1 e2 6. Qg8# $18) ({24:Mat01}
+3... e2 4. Qg8# $18) ({24:Mat01} 3... b4 4. Qg8# $18) 4. Kxc2 ({24:Mat03} 4. Kxc2
+Bd1+ 5. Kc1 e2 6. Qg8# $18) ({24:-Mat01} 4. Ka3 Qxc3# $19) ({24:-Mat01} 4. Ka1
+Qc1# $19) *

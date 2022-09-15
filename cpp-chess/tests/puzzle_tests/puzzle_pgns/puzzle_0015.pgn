@@ -1,0 +1,16 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "1-0"]
+[SetUp "1"]
+[FEN "8/5Q2/7p/6pk/2P1b3/1P1q3P/P5PK/8 b - - 4 35"]
+[Puzzle_Length "3"]
+[Tactic_line "g4+ Kh4 Qf2+ Qg3+ Qxg3#"]
+
+35... Bg6 36. g4+ ({0.00} 36. Qe6 Qe4 37. Qf6 Qe2 38. Kg3 Qe1+ 39. Kh2 $12) 36...
+Kh4 37. Qf2+ ({♚ Mate in 4} 37. Qxg6 Qd2+ 38. Kg1 Kg3 39. Qd3+ Qxd3 40. Kh1 Qb1#
+−+) ({♚ Mate in 4} 37. Qe6 Qg3+ 38. Kh1 Kxh3 39. Qe2 Be4+ 40. Qxe4 Qh2# −+)
+37... Qg3+ 38. Qxg3# ({♚ Mate in 2} 38. Kh1 Be4+ 39. Qf3 Bxf3# −+) 1-0

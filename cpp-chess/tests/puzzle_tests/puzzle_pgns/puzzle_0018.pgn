@@ -1,0 +1,49 @@
+[Event "ch-Queensland"]
+[Site "Gold Coast AUS"]
+[Date "2011.06.12"]
+[Round "6.4"]
+[White "Wei,Robin"]
+[Black "Fitzpatrick,A"]
+[Result "*"]
+[SetUp "1"]
+[FEN "2r2rk1/1b1qb2p/p5p1/1p3p2/3B4/P2B2Q1/1PP2PPP/R3R1K1 b - - 0 1"]
+[PUZZLE_TYPE "material"]
+[MOVES "2"]
+[FULL "23. ... Bxa3 24. Qe5 Qxd4 25. Qxd4"]
+[START_SCORE "8.65"]
+[START_SCORE_DIFFERENCE "8.17"]
+
+1... Bxa3 ({24:8.56} 1... Bxa3 2. Qe5 Qxd4 3. Qxd4 Bc5 4. Qe5 Rf7 5. c3 Bb6 6.
+Bc2 Bc7 7. Qe6 Rf8 8. Bb3 Kh8 9. Qxf7 Rxf7 10. Bxf7 Be4 11. Rxa6 Bd8 12. Bb3 b4
+13. cxb4 Bh4 14. Ra5 Kg7 15. Ra7+ Kh6 $18) ({24:0.47} 1... f4 2. Qh3 Qxh3 3. gxh3
+Rf7 4. Bc3 Rd8 5. a4 b4 6. Be5 a5 7. Bc7 Rd5 8. Re5 Rxe5 9. Bxe5 Bf6 10. Bxf6
+Rxf6 11. Re1 Ba6 12. Bxa6 Rxa6 13. Kg2 Rc6 14. Re2 Kf7 15. Kf3 Rc4 16. Rd2 Kg7
+$14) ({24:0.82} 1... Qxd4 2. Rxe7 Qxb2 3. Rd1 Bd5 4. Qd6 Bf7 5. Qxa6 b4 6. axb4
+Qxb4 7. Qf6 Qc3 8. Qxc3 Rxc3 9. Ra1 Rfc8 10. f3 R3c7 11. Rxc7 Rxc7 12. Ra4 Be6
+13. Kf2 Kf7 14. Rb4 Ke7 15. Rb6 Bc4 16. Ke3 Kf7 $16) ({24:0.95} 1... Rf7 2. Be5
+Qc6 3. Rad1 Bh4 4. Qh3 Rd8 5. Bc3 Bf6 6. Bf1 Rxd1 7. Rxd1 Bxc3 8. bxc3 Kg7 9. c4
+bxc4 10. Qc3+ Qf6 11. Qxc4 Qe5 12. Rd8 f4 13. c3 a5 14. Qd3 Kh6 $16) 2. Qe5
+({24:8.76} 2. Qe5 Qxd4 3. Qxd4 Bc5 4. Qe5 Rf7 5. c3 Re7 6. Qf4 Rd7 7. Bc2 Bd5 8.
+Rad1 Bd6 9. Qe3 Bc4 10. Qb6 Bc5 11. Qxa6 Rdc7 12. b3 Bf7 13. Qxb5 Bf8 14. c4 Bc5
+15. Rd3 f4 16. Rd7 Rxd7 $18) ({24:0.61} 2. Bc3 Be7 3. Be5 Bc5 4. Bf4 Rce8 5. h4
+Rxe1+ 6. Rxe1 Re8 7. Rxe8+ Qxe8 8. Be5 Kf7 9. h5 Qe7 10. c3 Qe6 11. hxg6+ hxg6
+12. Qh2 Bxg2 13. Qh7+ Ke8 14. Kxg2 Qd5+ 15. f3 Qxd3 16. Kg3 f4+ 17. Bxf4 $14)
+({24:0.5} 2. Be5 Bc5 3. Bf4 Rce8 4. h4 Rxe1+ 5. Rxe1 Re8 6. Rxe8+ Qxe8 7. Be5
+Kf7 8. h5 Qe7 9. c3 Qe6 10. b4 Bf8 11. hxg6+ hxg6 12. Qh2 Bg7 13. Bxg7 Kxg7 14.
+Qc7+ Qf7 15. Qd6 Qf6 16. Qd7+ Qf7 17. Qd4+ Qf6 18. Qc5 Qf7 19. Qe5+ Qf6 $14) 2...
+Qxd4 ({24:8.61} 2... Qxd4 3. Qxd4 Bc5 4. Qe5 Rf7 5. c3 Bf8 6. Bc2 Rc5 7. Qd4 Rd5
+8. Qf4 Rdd7 9. Bb3 Bd5 10. Bxd5 Rxd5 11. Rxa6 Rd8 12. Rb6 b4 13. cxb4 Kg7 14.
+Qe5+ Kg8 15. Rb8 Re7 16. Rxd8 Rxe5 17. Rxe5 $18) ({24:18.05} 2... Be4 3. Bxe4
+fxe4 4. Rxa3 Qxd4 5. Qxd4 Rcd8 6. Qxe4 Rd7 7. Rxa6 b4 8. Qxb4 Rdf7 9. Qb5 Kg7
+10. Qe5+ Kg8 11. Qd4 Rc8 12. Ra7 Rxa7 13. Qxa7 h6 14. Qe7 Rf8 15. Qe6+ Kg7 16.
+Qd7+ Rf7 17. Qd4+ Kh7 18. Re8 $18) ({24:26.37} 2... Rf6 3. Qxf6 Qxd4 4. Qxd4 Bc5
+5. Qd7 Rf8 6. Qxb7 Bb4 7. Red1 a5 8. Qxb5 Kg7 9. Qe5+ Kh6 10. c3 Rf7 11. cxb4
+Rd7 12. bxa5 Kg5 13. Qe8 Rb7 14. Qe3+ Kf6 15. Qd4+ Kg5 16. a6 Re7 17. a7 Re8 18.
+a8=Q Rxa8 19. Rxa8 $18) 3. Qxd4 ({24:8.95} 3. Qxd4 Bc5 4. Qe5 Rf7 5. c3 h5 6. Bc2
+Kh7 7. Bb3 Rg7 8. Bd5 Bxd5 9. Qxd5 Rcc7 10. Rxa6 Rgd7 11. Qe6 Rg7 12. Qb3 b4 13.
+cxb4 Be7 14. b5 f4 15. Qe6 Bc5 16. Qd5 $18) ({24:-0.08} 3. Qe6+ Kg7 4. bxa3 Rfe8
+5. Qb3 Bd5 6. Qb4 Qxb4 7. axb4 Rxe1+ 8. Rxe1 Bc4 9. Kf1 Bxd3+ 10. cxd3 Rc3 11.
+Ke2 Ra3 12. Rc1 Kh6 13. Rc6 Ra4 14. g3 Rxb4 15. Rxa6 Rb2+ 16. Kf3 b4 17. Rb6 $12)
+({24:-0.08} 3. Rxa3 Qxe5 4. Rxe5 Be4 5. Bf1 Rc6 6. c4 bxc4 7. Rxa6 Rc7 8. f3 Bd3
+9. Rb6 Rff7 10. Rd5 Rfd7 11. Rxd7 Rxd7 12. Kf2 Kf7 13. Bxd3 cxd3 14. Ke1 d2+ 15.
+Kd1 Kg7 16. Rc6 Rb7 17. Kc2 $12) *

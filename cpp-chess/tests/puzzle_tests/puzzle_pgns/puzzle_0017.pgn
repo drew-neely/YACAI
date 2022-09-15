@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "2kr3r/1bp1p1Qp/1pq3p1/p7/3P2n1/N1P2N2/PP2BPP1/R4RK1 w - - 0 19"]
+[Puzzle_Length "1"]
+[Tactic_line "Qxg2#"]
+
+19. Ne5 Qxg2# ({+1.15} 19... Nxe5 20. f3 Nd7 21. Rfe1 Rhe8 22. Qf7 Qd5 23. Bc4
+Qg5 24. Be6 $14) 0-1

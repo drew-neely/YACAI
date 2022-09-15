@@ -1,0 +1,40 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "r4r2/6k1/ppp2p1p/5RP1/4P1Q1/4q3/P5K1/5R2 b - - 0 27"]
+[FirstMove "27b"]
+[AnalysisVersion "v5.9.5-dccfb02b9"]
+
+27... fxg5 ({24:4.23} 27... fxg5 28. Rxf8 Rxf8 29. Qd7+ Kg8 30. Qe6+ Kg7 31.
+Qe7+ Kg6 32. Rxf8 Qe2+ 33. Rf2 Qg4+ 34. Kh2 Qh4+ 35. Kg1 Qg4+ 36. Rg2 Qd1+ 37.
+Kh2 Qh5+ 38. Kg3 Qh4+ 39. Kf3 Qh3+ 40. Kf2 Qh4+ 41. Ke2 Qh5+ 42. Kd2 Qf3 43.
+Qd6+ Kg7 44. Rh2 Qf4+ 45. Qxf4 gxf4 46. Ke2 c5 47. Kf3) ({24:-1.27} 27... hxg5
+28. Rxf6 Rxf6 29. Qd7+ Kg8 30. Rxf6 Qxe4+ 31. Kh3 Rf8 32. Qxc6 Qh4+ 33. Kg2 Qg4+
+34. Kh2 Rxf6 35. Qxf6 Qf4+ 36. Qxf4 gxf4 37. Kg2 Kf7 38. Kf3 Ke6 39. Kxf4 Kd5
+40. Ke3 Kc4 41. Kd2 b5 42. Kc2 b4 43. Kb2 a5 44. Kc2 a4 45. Kb2 Kc5) 28. Rxf8
+({24:5.1} 28. Rxf8 Rxf8 29. Qd7+ Kg8 30. Qe6+ Kg7 31. Qe7+ Kg6 32. Rxf8 Qe2+ 33.
+Rf2 Qg4+ 34. Kh2 Qh5+ 35. Kg1 Qg4+ 36. Rg2 Qd1+ 37. Kh2 Qh5+ 38. Kg3 Qh4+ 39.
+Kf3 Qh5+ 40. Ke3 Qh3+ 41. Kf2 Qd3 42. Qe6+ Kg7 43. Qxc6 Qd2+ 44. Kf3 Qd3+ 45.
+Kg4 Qd1+ 46. Kg3 Qd3+ 47. Kh2 Qf3 48. Kg1 Qf4 49. Qd7+ Qf7 50. Qxf7+ Kxf7 51.
+Rf2+ Ke7 52. Rh2 b5 53. Rxh6) 28... Rxf8 ({24:5.21} 28... Rxf8 29. Qd7+ Kg8 30.
+Qe6+ Kg7 31. Qe7+ Kg6 32. Rxf8 Qe2+ 33. Rf2 Qg4+ 34. Kh2 Qh5+ 35. Kg1 Qg4+ 36.
+Rg2 Qd1+ 37. Kh2 Qf1 38. Qe8+ Kg7 39. Qxc6 b5 40. Rc2 Qf4+ 41. Kg2 Qg4+ 42. Kf2
+Qf4+ 43. Ke2 Qg4+ 44. Kd3 Qd1+ 45. Kc3 Qe1+ 46. Kb3 Qe3+ 47. Rc3 Qf2 48. Qxa6
+Qf7+ 49. Kb2 Qf6 50. Qxf6+ Kxf6 51. Rc6+ Ke5 52. Rxh6 Kxe4) 29. Qd7+ ({24:5.35}
+29. Qd7+ Kg8 30. Qe6+ Kg7 31. Qe7+ Kg6 32. Rxf8 Qe2+ 33. Rf2 Qg4+ 34. Kh2 Qh4+
+35. Kg1 Qg4+ 36. Rg2 Qd1+ 37. Kh2 Qh5+ 38. Kg3 Qh4+ 39. Kf3 Qh3+ 40. Kf2 Qh4+
+41. Ke2 Qh5+ 42. Kd2 Qf3 43. Qd6+ Kf7 44. Re2 Qf6 45. Qxf6+ Kxf6 46. Rf2+ Ke5
+47. Ke3 a5 48. Rh2 Kd6 49. Rxh6+ Kc5 50. Rg6 b5 51. Rxg5+ Kc4 52. Rg2 c5 53.
+Rc2+ Kb4 54. Kf4) 29... Kg8 ({24:5.25} 29... Kg8 30. Qe6+ Kg7 31. Qe7+ Kg6 32.
+Rxf8 Qe2+ 33. Rf2 Qg4+ 34. Kh2 Qh4+ 35. Kg1 Qg4+ 36. Rg2 Qd1+ 37. Kh2 Qh5+ 38.
+Kg3 Qh4+ 39. Kf3 Qh3+ 40. Kf2 Qh4+ 41. Ke2 Qh5+ 42. Kd2 Qf3 43. Qd6+ Kf7 44. Re2
+Qf6 45. Qxf6+ Kxf6 46. Rf2+ Ke5 47. Ke3 g4 48. Rh2 c5 49. Rh5+ Kd6 50. Rxh6+
+Kc7) 30. Qe6+ ({24:5.44} 30. Qe6+ Kg7 31. Qe7+ Kg6 32. Rxf8 Qe2+ 33. Rf2 Qg4+
+34. Kh2 Qh4+ 35. Kg1 Qg4+ 36. Rg2 Qd1+ 37. Kh2 Qh5+ 38. Kg3 Qh4+ 39. Kf3 Qh3+
+40. Kf2 Qd3 41. Qe6+ Kg7 42. Qxc6 Kh7 43. Qb7+ Kg8 44. Qd5+ Qxd5 45. exd5 Kf7
+46. Rh2 Kg6 47. d6) *
