@@ -1,0 +1,22 @@
+[Event "Olympiad URS"]
+[Site "Riga (Latvia)"]
+[Date "1975.??.??"]
+[Round "?"]
+[White "Anetbaev Berik (KAZ)"]
+[Black "Mordvintsev V"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "6rk/4p2q/5R2/1ppnB1b1/5NNP/1P6/P7/6K1 w - - 0 1"]
+[DELTA "10.97"]
+[FirstMove "41w"]
+[FULL "41. Ng6+ Kg7"]
+[MOVES "2"]
+[PlyCount "2"]
+[SCORE "-8.70"]
+
+1. Ng6+ ({24:-14.12} 1. Ng6+ Kg7 2. Rf5+ Kxg6 3. Rxg5+ Kf7 4. Nh2 Rxg5+ $19)
+({24:-8.28} 1. Rh6+ Bf6 2. Rxh7+ Kxh7 3. Nxd5 Rxg4+ 4. Kf2 Bxe5 $19) ({24:-8.36}
+1. Rf7+ Bf6 2. Rxh7+ Kxh7 3. Nxd5 Rxg4+ 4. Kf2 Bxe5 $19) ({24:-18.76} 1. Rf8+ Bf6
+2. Nxd5 Qb1+ 3. Kg2 Qxa2+ 4. Kf3 Qxb3+ $19) 1... Kg7 ({24:-14.47} 1... Kg7 2. Nf8
+Qxh4 3. Rh6+ Kxf8 4. Rxh4 Bxh4 5. Kg2 $19) ({24:0.43} 1... Qxg6 2. Rxg6+ Bf6 3.
+Rxg8+ Kxg8 4. Bxf6 exf6 5. Kf2 $14) ({24:Mat01} 1... Rxg6 2. Rf8# $18) 0-1

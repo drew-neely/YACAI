@@ -1,0 +1,22 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "6k1/6pp/2Q1p3/2Pp4/1p1P1q2/6PP/2R4K/4r3 b - - 0 33"]
+[Puzzle_Length "5"]
+[Tactic_line "Qe8+ Qf8 Qxf8+ Kxf8 c6 b3 c7 bxc2 c8=Q+"]
+
+33... Qf1 34. Qe8+ ({♚ Mate in 10} 34. Qc8+ Kf7 35. Qd7+ Kg6 36. Qe8+ Kh6 37.
+Qxe6+ Rxe6 38. g4 Re1 −+) 34... Qf8 35. Qxf8+ ({-2.25} 35. Qb5 h5 36. Qd3 b3 37.
+Rg2 Qf1 38. Qxf1 Rxf1 39. Rb2 Rf3 $17) ({-7.06} 35. Qc6 h6 36. Qb5 b3 37. Rg2 Qf3
+38. c6 Kh7 39. c7 Rc1 −+) 35... Kxf8 36. c6 ({-0.99} 36. Rb2 Rc1 37. Rxb4 Rc4
+38. Rb7 Rxd4 39. c6 Rc4 40. Rc7 Rc2+ $15) ({-1.56} 36. Rf2+ Ke7 37. Rb2 Rc1 38.
+Rxb4 Rc4 39. Rb7+ Kf6 40. Rd7 Rxd4 $17) 36... b3 37. c7 ({-1.39} 37. Rb2 Rc1 38.
+Rxb3 Rxc6 39. Kg2 Rc4 40. Rd3 Ra4 41. Kf3 Kf7 $15) ({-5.29} 37. Rf2+ Ke7 38. Kg2
+Rc1 39. Kf3 Rxc6 40. Rf1 Rc3+ 41. Ke2 Rxg3 −+) 37... bxc2 38. c8=Q+ ({-3.06} 38.
+c8=R+ Ke7 39. Rxc2 Rd1 40. g4 h6 41. Rc7+ Kf6 42. h4 Rxd4 $17) ({♚ Mate in 6} 38.
+g4 c1=Q 39. c8=R+ Qxc8 40. Kg3 Qc2 41. Kh4 Qc3 42. Kg5 Qxh3 −+) *

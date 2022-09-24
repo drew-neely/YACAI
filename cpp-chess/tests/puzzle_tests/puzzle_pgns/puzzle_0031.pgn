@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "1-0"]
+[SetUp "1"]
+[FEN "8/8/5Q1p/p6k/3P2p1/4r1P1/1q3PKP/8 b - - 1 38"]
+[Puzzle_Length "1"]
+[Tactic_line "Qf5#"]
+
+38... Re2 39. Qf5# ({-2.50} 39. Qf7+ Kg5 40. Qf4+ Kg6 41. Qd6+ Kf7 42. Qd7+ Re7
+43. Qf5+ Kg7 $17) 1-0

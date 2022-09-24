@@ -1,0 +1,13 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "4rb1k/1b3pp1/2q2n1p/p1p2P2/2P1NQ1P/Pp1P4/1P4R1/RB4K1 b - - 1 33"]
+[FirstMove "33w"]
+[Puzzle_Length "3"]
+
+33... Bd6 34. Qxd6 Nxe4 35. Qxc6 Bxc6 36. dxe4 *

@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "1-0"]
+[SetUp "1"]
+[FEN "8/8/1p6/p1p5/1k6/1P1p1r2/PK4R1/8 b - - 1 54"]
+[Puzzle_Length "1"]
+[Tactic_line "a3#"]
+
+54... b5 55. a3# ({-3.58} 55. Rh2 a4 56. Rh4+ Ka5 57. Kc3 Rf2 58. Rh8 Rxa2 59.
+Ra8+ Kb6 $17) 1-0

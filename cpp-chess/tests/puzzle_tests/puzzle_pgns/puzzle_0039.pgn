@@ -1,0 +1,18 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "5bk1/5pp1/2R4p/1R1B4/p3P3/1nP2PB1/1PK3PP/1N4q1 w - - 1 36"]
+[Puzzle_Length "3"]
+[Tactic_line "Qc1+ Kd3 Qxd2+ Kc4 Qe2#"]
+
+36. Nd2 Qc1+ ({+6.32} 36... h5 37. Bxb3 axb3+ 38. Rxb3 h4 39. Bxh4 Qxh2 40. g3
+g5 41. Bxg5 +−) 37. Kd3 Qxd2+ ({+3.53} 37... Nxd2 38. Rb8 Qd1 39. Bd6 Nxf3+ 40.
+Ke3 Ne1 41. Rxf8+ Kh7 42. Bg3 $16) ({+10.17} 37... Nc5+ 38. Rcxc5 Bxc5 39. Rxc5
+Kh7 40. Bxf7 Qxb2 41. Rc8 Qb5+ 42. Kc2 +−) 38. Kc4 Qe2# ({-1.27} 38... Qxb2 39.
+Bd6 Nd2+ 40. Kc5 Bxd6+ 41. Rxd6 Qxc3+ 42. Kb6 Nc4+ 43. Bxc4 $15) ({0.00} 38...
+Qxg2 39. Bd6 Bxd6 40. Rxd6 Qxb2 41. Rdb6 Qxh2 42. Rb7 Nd2+ 43. Kb4 $12) 0-1

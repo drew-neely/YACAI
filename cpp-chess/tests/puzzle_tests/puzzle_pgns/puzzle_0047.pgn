@@ -1,0 +1,13 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "1rb2kn1/p1p2r2/n2p4/2b5/Q7/5PP1/Pp2P1P1/RNB1KB1R w KQ - 0 24"]
+[Puzzle_Length "1"]
+[Tactic_line "bxc1=Q#"]
+
+24. Qh4 bxc1=Q# ({0.00} 24... bxa1=Q 25. Qd8+ Kg7 26. Qg5+ Kf8 27. Qd8+ $12) 0-1

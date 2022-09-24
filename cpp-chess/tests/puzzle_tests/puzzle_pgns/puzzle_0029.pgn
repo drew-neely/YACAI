@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "6k1/8/bp6/4p2Q/1P2P1K1/4q2P/8/3R3R w - - 2 40"]
+[Puzzle_Length "1"]
+[Tactic_line "Qf4#"]
+
+40. Rhg1 Qf4# ({♔ Mate in 8} 40... Qxe4+ 41. Kg5 Qf4+ 42. Kg6 Qf7+ 43. Kh6+ Kf8
+44. Qxe5 Bd3 45. Rxd3 +−) 0-1

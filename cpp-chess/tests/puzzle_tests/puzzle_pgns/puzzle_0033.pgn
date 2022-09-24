@@ -1,0 +1,38 @@
+[Event "It (open)"]
+[Site "Lyngby (Denmark)"]
+[Date "1988.??.??"]
+[Round "6"]
+[White "Stentebjerg-Hansen Per (DEN)"]
+[Black "Nyholm"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "1r1qr1k1/R5bp/3p4/Rp1P3n/1PpBPp2/2Nn4/3Q2PP/5NK1 w - - 0 1"]
+[DELTA "3.87"]
+[FirstMove "26w"]
+[FULL "26. Bxg7 Qb6+ 27. Kh1 Nf2+ 28. Kg1 Nh3+ 29. Kh1 Qg1#"]
+[MOVES "1"]
+[PlyCount "8"]
+[SCORE "-4.83"]
+
+1. Bxg7 ({24:-7.54} 1. Bxg7 Qb6+ 2. Ne3 fxe3 3. Qe2 Nxg7 4. Kh1 Nf2+ $19)
+({24:-1.27} 1. Rxg7+ Nxg7 2. h3 Qg5 3. Nh2 Qg6 4. Ra7 Nh5 $17) ({24:-3.85} 1. Bf2
+Bxc3 2. Qxc3 Rxe4 3. Qa1 Nxf2 4. Ra8 Nh3+ $19) ({24:-4.41} 1. Nxb5 Bxd4+ 2. Nxd4
+Qb6 3. Qc3 Rxe4 4. Qxc4 Rxd4 $19) 1... Qb6+ ({24:-7.35} 1... Qb6+ 2. Ne3 fxe3 3.
+Qe2 Nxg7 4. h3 Qd4 5. Ra3 $19) ({24:-0.94} 1... Nxg7 2. h3 Nh5 3. Qd1 Nf6 4. Kh2
+Re7 5. Qf3 $17) ({24:2.34} 1... Re5 2. Bxe5 Qb6+ 3. Ne3 fxe3 4. Qe2 Nxe5 5. Ra8
+$18) ({24:4.31} 1... Nf6 2. h3 Nxe4 3. Nxe4 Rxe4 4. R5a6 Rb6 5. Ra1 $18) 2. Kh1
+({24:-18.44} 2. Kh1 Nf2+ 3. Qxf2 Qxf2 4. Ra1 f3 5. Ne3 Qxe3 $19) ({24:-7.88} 2.
+Ne3 fxe3 3. Qe2 Nxg7 4. h3 Qd4 5. Ra3 Nf4 $19) ({24:-15.11} 2. Bd4 Qxd4+ 3. Ne3
+fxe3 4. Qe2 Nhf4 5. Qg4+ Kh8 $19) ({24:-19.02} 2. Qe3 fxe3 3. Ne2 Ndf4 4. R7a6
+Nxe2+ 5. Kh1 Qd8 $19) 2... Nf2+ ({24:-18.95} 2... Nf2+ 3. Qxf2 Qxf2 4. Ra1 f3 5.
+Ne3 Qxe3 6. Rf1 $19) ({24:-4.26} 2... Rb7 3. g3 Rxa7 4. Rxb5 Qf2 5. Qxf2 Nxf2+ 6.
+Kg1 $19) ({24:-2.03} 2... Nxg7 3. h3 Qf2 4. Qxf2 Nxf2+ 5. Kg1 Nxe4 6. Ne2 $19)
+({24:-1.43} 2... Re7 3. g4 Rxa7 4. Rxb5 Nf2+ 5. Kg2 f3+ 6. Kxf3 $17) 3. Kg1
+({24:-Mat02} 3. Kg1 Nh3+ 4. Kh1 Qg1# $19) ({24:-20.31} 3. Qxf2 Qxf2 4. Ra1 f3 5.
+Ne3 Qxe3 6. R7a2 Kxg7 $19) 3... Nh3+ ({24:-Mat02} 3... Nh3+ 4. Kh1 Qg1# $19)
+({24:-7.39} 3... Nd3+ 4. Ne3 fxe3 5. Qe2 Nxg7 6. h3 Qd4 7. Ra3 $19) ({24:0.22}
+3... Nxe4+ 4. Bd4 Nxd2 5. Bxb6 Nxf1 6. Kxf1 Rxb6 7. Rxb5 $12) ({24:6.53} 3... Nxg7
+4. Qxf2 Nh5 5. Qxb6 Rxb6 6. Rxb5 Rxb5 7. Nxb5 $18) 4. Kh1 Qg1# ({24:-Mat01} 4...
+Qg1# $19) ({24:-Mat02} 4... Ng3+ 5. hxg3 Qg1# $19) ({24:-20.71} 4... Nf2+ 5. Qxf2
+Qxf2 6. Ra1 f3 7. Ne3 Qxe3 8. Rf1 $19) ({24:4.77} 4... Qf2 5. Qxf2 Nxf2+ 6. Kg1
+Nxe4 7. Nxe4 Rxe4 8. Bc3 $18) 0-1
