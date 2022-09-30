@@ -1,0 +1,31 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "2r1qk1r/6pp/3nb3/2np2B1/8/Q2P4/PPP2PPP/RN2K2R w KQ - 5 16"]
+[FirstMove "16w"]
+[AnalysisVersion "v5.9.5-dccfb02b9"]
+
+16. Bf4 ({24:-2.58} 16. Bf4 Bg4+ 17. Be3 d4 18. O-O dxe3 19. fxe3+ Kg8 20. e4 h5
+21. Qb4 Qe5 22. Qc3 Qe6 23. Qd4 Nb5 24. Qf2 Qd7 25. Nc3 Nxc3 26. bxc3 Na4 27. h3
+Be6 28. c4 Kh7 29. Rae1 Nc3 30. Qd2 Nxa2) ({24:0.39} 16. Be3 Qc6 17. O-O Kf7 18.
+Nd2 Rhe8 19. Nf3 Nd7 20. Qb4 Nf5 21. Bd2 Kg8 22. Rfe1 d4 23. Nxd4 Nxd4 24. Qxd4
+Nf6 25. Bc3 Rcd8 26. Qh4 Nd5 27. Bd4 Bf7 28. c3 Bg6 29. Qg3 Nc7 30. Rxe8+ Rxe8
+31. a4 Ne6 32. a5 Nxd4) 16... Bg4+ ({24:-2.91} 16... Bg4+ 17. Be3 d4 18. O-O
+dxe3 19. fxe3+ Kg8 20. e4 h5 21. Qb4 Qe5 22. Qc3 Qe6 23. Qd4 Nb5 24. Qf2 Kh7 25.
+Nd2 Qh6 26. a4 Nd4 27. Nc4 Nce6 28. Rae1 Rhf8 29. Qe3 Qxe3+ 30. Nxe3) 17. Be3
+({24:-2.5} 17. Be3 d4 18. O-O dxe3 19. fxe3+ Kg8 20. e4 h5 21. Qb4 Qe5 22. Na3
+Ne6 23. Rae1 Rh6 24. Qb3 Nf7 25. Nc4 Qc7 26. Ne3 Nf4 27. Kh1 Be6 28. Qc3 Qb7 29.
+Qd4 Ng6 30. Nc4 Bxc4 31. dxc4) 17... d4 ({24:-3} 17... d4 18. O-O dxe3 19. fxe3+
+Kg8 20. e4 h5 21. Qb4 Qe5 22. Qc3 Qg5 23. Qd2 Qxd2 24. Nxd2 Ne6 25. e5 Rxc2 26.
+exd6 Rxd2 27. h3 Be2 28. Rf2 Rh6 29. a4 Nc5 30. Re1 Re6 31. d4) 18. O-O
+({24:-2.5} 18. O-O dxe3 19. fxe3+ Kg8 20. e4 h5 21. Qb4 Qe5 22. Nd2 Ne6 23. c3
+Kh7 24. d4 Qg5 25. Qxd6 Qxd2 26. Rf2 Qe3 27. Qg3 Qxe4 28. h3 Bf5 29. Qf3 Qxf3
+30. Rxf3 Bg6 31. Re1 Ng5 32. Rg3) 18... dxe3 ({24:-2.57} 18... dxe3 19. fxe3+
+Kg8 20. e4 h5 21. Qb4 Qe5 22. Nd2 Ne6 23. c3 Nf4 24. Nf3 Bxf3 25. Rxf3 Kh7 26.
+Kh1 Rhd8 27. Raf1 Ng6 28. Qd4 Ra8 29. Rh3 Rf8 30. Rxf8 Rxf8 31. Kg1 Qg5 32. Qe3)
+*

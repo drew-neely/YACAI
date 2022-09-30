@@ -1,0 +1,16 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "rn6/ppp5/1k1p4/1B2p3/P5Q1/2KPqp2/1PP5/5R2 b - - 2 25"]
+[Puzzle_Length "2"]
+[Tactic_line "a5+ Kxb5 Qc4+"]
+
+25... Qe2 26. a5+ ({-1.21} 26. Qxf3 Qxf3 27. Rxf3 a6 28. Be8 a5 29. d4 Na6 30.
+Bg6 exd4+ $15) 26... Kxb5 27. Qc4+ ({0.00} 27. Qb4+ Ka6 28. Qc4+ b5 29. axb6+ Kxb6
+30. Qb4+ Kc6 31. Qa4+ Kb6 $12) ({0.00} 27. a6 bxa6 28. Qc4+ Kb6 29. Qb3+ Kc6 30.
+Qc4+ Kb7 31. Qb3+ Kc6 $12) *

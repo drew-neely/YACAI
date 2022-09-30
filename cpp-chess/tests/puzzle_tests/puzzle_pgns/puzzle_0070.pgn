@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "0-1"]
+[SetUp "1"]
+[FEN "6k1/1R5p/4R3/1P1pQ1p1/6P1/q2K2P1/6P1/1r6 w - - 6 33"]
+[Puzzle_Length "1"]
+[Tactic_line "Rd1#"]
+
+33. Kd4 Rd1# ({+12.13} 33... Rb4+ 34. Kxd5 Qd3+ 35. Kc6 Rc4+ 36. Kb6 Qd8+ 37.
+Ka7 Ra4+ 38. Ra6 +−) 0-1

@@ -1,0 +1,14 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "r4rk1/1pp1npp1/p2p2qp/n1b1p3/PP2P3/2PP1N1b/B2N1PP1/R1BQR1K1 w - - 0 13"]
+[Puzzle_Length "1"]
+[Tactic_line "Qxg3+"]
+
+13. g3 Qxg3+ ({-0.90} 13... Ba7 14. Nf1 Nac6 15. Be3 Kh8 16. Bxa7 Nxa7 17. d4
+exd4 18. cxd4 $15) *

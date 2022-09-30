@@ -1,0 +1,29 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "2r3k1/2r3pp/p1P1p3/4p3/3R2Q1/1B1q2PP/P4P1K/5R2 b - - 0 29"]
+[FirstMove "29w"]
+[Puzzle_Length "3"]
+[AnalysisVersion "v5.9.5-dccfb02b9"]
+
+29... Qxd4 ({24:5.16} 29... Qxd4 30. Bxe6+ Kh8 31. Bxc8 Qxg4 32. Bxg4 Rxc6 33.
+Re1 Rc2 34. Rxe5 g6 35. Re2 Rxe2 36. Bxe2 a5 37. Kg2 Kg7 38. Kf3 Kf6 39. Ke4 $18)
+({24:0.83} 29... Qxf1 30. Bxe6+ Kh8 31. Rd2 Qc1 32. Qb4 Ra8 33. Bd7 Rxc6 34.
+Bxc6 Qxc6 35. Qd6 Qxd6 36. Rxd6 Kg8 37. Re6 g6 38. Kg2 Kf7 39. Rxe5 $16) 30. Bxe6+
+({24:5.47} 30. Bxe6+ Kh8 31. Bxc8 Qxg4 32. Bxg4 Rxc6 33. Re1 Rc5 34. f4 h5 35.
+Bxh5 exf4 36. Bg6 fxg3+ 37. Kg2 Rc8 38. Re6 a5 39. Ra6 Kg8 $18) 30... Kh8
+({24:5.48} 30... Kh8 31. Bxc8 Qxg4 32. Bxg4 Rxc6 33. Re1 Rc2 34. Rxe5 g6 35. Re2
+Rc7 36. Kg2 Ra7 37. Re5 a5 38. Bf3 Kg8 39. Be4 Kf7 40. Kf3 $18) 31. Bxc8
+({24:5.62} 31. Bxc8 Rxc6 32. Qf5 Rf6 33. Qc2 Qb6 34. Bf5 Qc6 35. Rc1 Qxc2 36.
+Rxc2 Kg8 37. Be4 Kf8 38. Rc8+ Ke7 39. Kg2 h6 40. Rc7+ Kf8 $18) 31... Qxg4
+({24:5.72} 31... Qxg4 32. Bxg4 Rxc6 33. Re1 Rc2 34. Rxe5 g6 35. Re2 Rc7 36. Kg2
+Ra7 37. Re6 a5 38. Bf3 Kg8 39. Be4 Kf7 40. Rc6 a4 41. Kf3 $18) ({24:5.51} 31...
+Rxc6 32. Qf5 Rf6 33. Qc2 Qb6 34. Bf5 Qc6 35. Rc1 Qxc2 36. Rxc2 g5 37. Be4 h6 38.
+Kg2 Kg7 39. Rc5 Re6 40. Rc7+ Kf8 41. Kf3 $18) 32. Bxg4 ({24:5.72} 32. Bxg4 Rxc6
+33. Re1 Rc2 34. Rxe5 g6 35. Re2 Rc7 36. Kg2 Ra7 37. Re6 a5 38. Bf3 Kg8 39. Be4
+Kf7 40. Rc6 a4 41. Kf3 Kg7 $18) *

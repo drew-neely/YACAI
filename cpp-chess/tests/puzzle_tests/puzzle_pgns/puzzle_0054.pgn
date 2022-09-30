@@ -1,0 +1,35 @@
+[Event "Ireland Tournament"]
+[Site "Chess.com"]
+[Date "2008.12.18"]
+[Round "1"]
+[White "Evil_Homer"]
+[Black "Nipper"]
+[Result "1-0"]
+[SetUp "1"]
+[FEN "2r2rk1/Q4pp1/1p1p4/3P2q1/3N1p1p/2P2B1b/P1P2PPP/1R3RK1 b - - 0 1"]
+[DELTA "-3.70"]
+[FirstMove "20b"]
+[FULL "20. ... Rxc3 21. Kh1 Rxf3 22. gxh3"]
+[MOVES "2"]
+[PlyCount "4"]
+[SCORE "2.44"]
+
+1... Rxc3 ({24:2.91} 1... Rxc3 2. Kh1 Rxf3 3. gxh3 Rxh3 4. Qd7 Rc3 5. Nf5 $18)
+({24:-5.97} 1... Bxg2 2. Qe7 Qxe7 3. Kxg2 Rxc3 4. Rfe1 Qg5+ 5. Kh1 $19)
+({24:-4.37} 1... Ra8 2. Kh1 Bxg2+ 3. Bxg2 Rxa7 4. Rxb6 Ra3 5. Be4 $19) ({24:2.06}
+1... Rc7 2. Qxc7 Bxg2 3. Qe7 Qxe7 4. Kxg2 Qg5+ 5. Kh1 $18) 2. Kh1 ({24:3.06} 2.
+Kh1 Rxf3 3. gxh3 Rc3 4. f3 Qxd5 5. Qxb6 Rc4 $18) ({24:-6.1} 2. Qe7 Qxe7 3. gxh3
+Rc4 4. Rfd1 Qf6 5. c3 Rxc3 $19) ({24:-7.63} 2. g3 fxg3 3. hxg3 hxg3 4. Qa4 gxf2+
+5. Kxf2 Qf4 $19) ({24:-9.05} 2. Ne6 fxe6 3. Kh1 Rxf3 4. gxh3 Qxd5 5. Kg1 Rf6 $19)
+2... Rxf3 ({24:3.16} 2... Rxf3 3. gxh3 Rc3 4. Qxb6 Qxd5+ 5. f3 Rfc8 6. Rfd1 $18)
+({24:3.97} 2... Bg4 3. Bxg4 Qxg4 4. f3 Qg5 5. Qxb6 Qxd5 6. a4 $18) ({24:4.43}
+2... Bxg2+ 3. Bxg2 h3 4. Be4 Qe5 5. Rbe1 Qxd4 6. Qe7 $18) ({24:5.12} 2... Qf6 3.
+Qxb6 Bc8 4. h3 Ra3 5. Rfd1 Rxa2 6. Qc7 $18) 3. gxh3 ({24:3.03} 3. gxh3 Rc3 4.
+Qxb6 Qxd5+ 5. f3 Rfc8 6. Rfd1 Re8 $18) ({24:-Mat19} 3. Qxf7+ Rxf7 4. gxh3 Rxh3 5.
+Nf5 Qxf5 6. Rg1 Qxd5+ 7. Rg2 Qd4 8. c3 Qe4 9. Rb4 Qe1+ 10. Rg1 Qxf2 11. Rg2 Qf1+
+12. Rg1 Qf3+ 13. Rg2 Qd1+ 14. Rg1 Qd5+ 15. Rg2 Rxc3 16. Rc4 Qxc4 17. h3 Rxh3+
+18. Kg1 Qc1+ 19. Kf2 Qc2+ 20. Kg1 Qd1+ 21. Kf2 Rf3# $19) ({24:-Mat09} 3. g4 fxg3
+4. hxg3 hxg3 5. fxg3 Rxg3 6. Qxf7+ Rxf7 7. Rxf7 Kxf7 8. Nf3 Rxf3 9. Rg1 Bg2+ 10.
+Rxg2 Rf1+ 11. Rg1 Qxg1# $19) ({24:-Mat09} 3. g3 fxg3 4. hxg3 hxg3 5. fxg3 Rxg3 6.
+Qxf7+ Rxf7 7. Rxf7 Kxf7 8. Nf3 Rxf3 9. Rg1 Bg2+ 10. Rxg2 Rf1+ 11. Rg1 Qxg1# $19)
+1-0

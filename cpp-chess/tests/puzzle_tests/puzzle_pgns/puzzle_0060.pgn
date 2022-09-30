@@ -1,0 +1,13 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "3k1bnr/p3pppp/1r6/qB1p4/3P4/2N5/PPP1QPPP/R3K2R w KQ - 5 12"]
+[FirstMove "12w"]
+[Puzzle_Length "2"]
+
+12. a4 Re6 13. Qxe6 fxe6 *

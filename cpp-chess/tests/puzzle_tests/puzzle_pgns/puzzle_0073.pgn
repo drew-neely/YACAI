@@ -1,0 +1,49 @@
+[Event "Live Chess"]
+[Site "Chess.com"]
+[Date "2014.07.22"]
+[Round "?"]
+[White "IFeelSorry"]
+[Black "Computer4-IMPOSSIBLE"]
+[Result "*"]
+[SetUp "1"]
+[FEN "1rb1kb1r/p4ppp/2p2p2/q2p4/8/2N1P3/PPP2PPP/1R1QKB1R w Kk - 0 1"]
+[PUZZLE_TYPE "materials"]
+[MOVES "3"]
+[FULL "10. Bd3 Rxb2 11. O-O Qxc3 12. Rxb2 Qxb2"]
+[START_SCORE "-4.05"]
+[START_SCORE_DIFFERENCE "-2.82"]
+
+1. Bd3 ({24:-4.41} 1. Bd3 Rxb2 2. O-O Qxc3 3. Rxb2 Qxb2 4. c4 Qxa2 5. cxd5 Qxd5
+6. Qb1 Bd6 7. Be4 Qb5 8. Qc2 Qc5 9. Qb1 Bd7 10. Rc1 Qb5 11. Qc2 Ke7 12. g3 a5
+13. Bg2 g6 14. Rd1 f5 15. Qc3 Qe5 16. Qc2 Rb8 17. Bxc6 $19) ({24:-1.03} 1. Qd2
+Bb4 2. Ra1 Bd6 3. Nd1 Qc7 4. c4 Be6 5. cxd5 Bxd5 6. Nc3 Bb4 7. f3 O-O 8. Bd3
+Rfd8 9. Qe2 Qe5 10. O-O Bxc3 11. bxc3 Qxc3 12. Rac1 Qa3 13. Rc2 c5 14. Rd1 Be6
+15. Kf2 Bd5 16. Qd2 $17) ({24:-1.5} 1. Qc1 Ba3 2. Qd2 Rxb2 3. Rxb2 Bxb2 4. Nd1
+Qxd2+ 5. Kxd2 Be5 6. Bd3 O-O 7. Nc3 d4 8. Ne2 dxe3+ 9. Kxe3 Re8 10. a4 Bd6+ 11.
+Kd2 Be6 12. Rb1 c5 13. g3 c4 14. Be4 Bc5 15. f3 Rd8+ 16. Kc3 Bb6 17. Nf4 $17) 1...
+Rxb2 ({24:-4.49} 1... Rxb2 2. O-O Qxc3 3. Rxb2 Qxb2 4. c4 Qxa2 5. cxd5 Qxd5 6.
+Qb1 Bd6 7. Be4 Qb5 8. Qc2 Qc5 9. Qb1 Bd7 10. Rc1 Qb5 11. Qc2 Ke7 12. Bf3 a5 13.
+g3 Qf5 14. Be4 Qe5 15. Rd1 Qc5 16. Qa4 h5 $19) ({24:-0.56} 1... Ba3 2. bxa3 Qxc3+
+3. Ke2 Rxb1 4. Qxb1 Qxa3 5. c3 g6 6. Qb3 Qa5 7. Rb1 O-O 8. Qb4 Qc7 9. Qf4 Qe7
+10. Kf1 c5 11. h4 Rd8 12. Rb8 Be6 13. Rb1 f5 14. h5 Qf6 15. Rb8 Bc8 16. c4 d4
+17. hxg6 fxg6 $15) 2. O-O ({24:-4.54} 2. O-O Qxc3 3. Rxb2 Qxb2 4. c4 Qxa2 5. cxd5
+Qxd5 6. Qc2 Qc5 7. Qd2 Qb6 8. Rb1 Qc7 9. Qc2 Bd6 10. g3 h5 11. Bf5 Bxf5 12. Qxf5
+h4 13. Qe4+ Kf8 14. Rc1 hxg3 15. hxg3 Bxg3 16. fxg3 Qxg3+ 17. Kf1 Rh2 18. Rc2
+Rxc2 $19) ({24:-4.74} 2. Ke2 Qxc3 3. Qe1 Qe5 4. Rxb2 Qxb2 5. Qa5 Bd6 6. Qxa7 O-O
+7. Qd4 Qa3 8. Rb1 Be5 9. Qb6 Qxa2 10. Rb4 Qa8 11. h3 Be6 12. Rb1 Rb8 13. Qa6
+Qxa6 14. Rxb8+ Bxb8 15. Bxa6 Bd6 $19) 2... Qxc3 ({24:-4.44} 2... Qxc3 3. Rxb2
+Qxb2 4. c4 Qxa2 5. cxd5 Qxd5 6. Qb1 Bd6 7. Be4 Qb5 8. Qc2 Qc5 9. Qb1 Bd7 10. Rc1
+Qb5 11. Qc2 Ke7 12. Bxc6 Bxc6 13. Qxc6 Qxc6 14. Rxc6 Rb8 15. g3 $19) ({24:-0.98}
+2... Rxb1 3. Qxb1 Bd6 4. Ne2 O-O 5. c4 dxc4 6. Bxh7+ Kh8 7. Be4 Qh5 8. Ng3 Qc5
+9. Rd1 Be5 10. Qc2 Be6 11. Qa4 Bd5 12. Bc2 Bxg3 13. hxg3 Rb8 14. Rb1 Rxb1+ 15.
+Bxb1 Qb6 16. Qc2 $17) 3. Rxb2 ({24:-4.55} 3. Rxb2 Qxb2 4. c4 Qxa2 5. cxd5 Qxd5 6.
+Qb1 Bd6 7. Be4 Qb5 8. Qc2 Qc5 9. Qb1 Bd7 10. Rc1 Qb5 11. Qc2 Ke7 12. Bxc6 Bxc6
+13. Qxc6 Qxc6 14. Rxc6 Rb8 15. g3 Rb2 16. Kg2 Ra2 17. Kf3 a5 18. Ra6 a4 19. Ra7+
+Ke6 $19) ({24:-4.64} 3. e4 d4 4. Rxb2 Qxb2 5. Bc4 Qc3 6. Qd3 Qxd3 7. cxd3 Bd6 8.
+f4 Ke7 9. g3 h5 10. h4 Rg8 11. Kf2 Bd7 12. Rb1 Rb8 13. Rxb8 Bxb8 14. Bb3 Bd6 15.
+Kf3 g6 16. Kf2 $19) 3... Qxb2 ({24:-4.56} 3... Qxb2 4. c4 Qxa2 5. cxd5 Qxd5 6.
+Qb1 Bd6 7. Be4 Qb5 8. Qc2 Qc5 9. Qb1 Bd7 10. Rc1 Qb5 11. Qc2 Ke7 12. Bxc6 Bxc6
+13. Qxc6 Qxc6 14. Rxc6 Rb8 15. g3 Rb2 16. Ra6 Bc5 17. h3 Bb6 18. g4 f5 19. gxf5
+Kf6 $19) ({24:0.47} 3... Bd6 4. Rb1 O-O 5. g3 Be6 6. Qe2 g6 7. Rfd1 Qc5 8. Qd2
+Rd8 9. Be2 Kg7 10. Rb3 Bf5 11. Rc1 Be6 12. Rcb1 Bf5 13. Bd3 Bh3 14. c3 Re8 15.
+Rb7 Qa5 $14) *

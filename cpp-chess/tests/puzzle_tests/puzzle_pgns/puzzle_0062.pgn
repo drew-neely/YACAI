@@ -1,0 +1,29 @@
+[Event "TCh-Serbia"]
+[Site "Zlatibor SCG"]
+[Date "2006.08.28"]
+[Round "3"]
+[White "Bogosavljevic,B"]
+[Black "Jovic,A"]
+[Result "*"]
+[SetUp "1"]
+[FEN "6k1/pNB2pbp/P1b3p1/3n4/2Q5/6Pq/5P1P/1R3RK1 b - - 0 1"]
+[PUZZLE_TYPE "material"]
+[MOVES "1"]
+[FULL "37. ... Ne7 38. f3"]
+[START_SCORE "9.55"]
+[START_SCORE_DIFFERENCE "Mat02"]
+
+1... Ne7 ({24:8.27} 1... Ne7 2. f3 Qe6 3. Qxe6 fxe6 4. Kg2 g5 5. Bd8 Nf5 6. Bxg5
+Bd5 7. Rbc1 h6 8. Bd2 Bd4 9. Rfe1 Bb6 10. Nc5 Nd4 11. Ne4 Kg7 12. Bf4 h5 13. Bc7
+Kg6 14. Bxb6 axb6 $18) ({24:-Mat03} 1... Qg2+ 2. Kxg2 Nf4+ 3. Kg1 Nh3# $19)
+({24:9.98} 1... Nb4 2. f3 Qd7 3. Bd6 Nxa6 4. Qxa6 Bd4+ 5. Kg2 Bb6 6. Na5 Bd5 7.
+Rxb6 axb6 8. Qxb6 Qe8 9. Rf2 Be6 10. Re2 h6 11. Nc6 g5 12. Nd4 Qd7 13. Be5 g4
+14. fxg4 Bxg4 $18) 2. f3 ({24:8.64} 2. f3 Qe6 3. Qxe6 fxe6 4. Kg2 g5 5. Nd8 Bd5
+6. Rb8 g4 7. Nxe6+ Kf7 8. Nxg7 Bxf3+ 9. Kf2 Kxg7 10. Rb7 Kg6 11. Rxa7 h5 12. Bd6
+Nd5 13. Be5 Nb4 14. Rg7+ Kh6 15. Rd7 Kg6 16. Rd6+ Kf5 $18) ({24:-0.93} 2. Qxc6
+Nxc6 3. Rfe1 Nd4 4. Re3 Bh6 5. f4 Qc8 6. Be5 Qc2 7. Rbe1 Qd2 8. Bxd4 Qxd4 9. h4
+Bf8 10. Kh2 Qc4 11. Re8 Kg7 12. h5 Qxa6 13. Nd8 Bb4 14. R1e5 Qa2+ 15. Kh3 Qc4
+16. Re2 a5 17. hxg6 hxg6 18. Rf2 $17) ({24:-3.93} 2. Qxf7+ Kxf7 3. Nd8+ Kg8 4.
+Nxc6 Nxc6 5. Kh1 Nd4 6. f3 Qe6 7. g4 Qxa6 8. Bg3 Qc6 9. Rbc1 Qe6 10. Rce1 Ne2
+11. Rd1 Nxg3+ 12. hxg3 a5 13. Rd8+ Kf7 14. Rc1 a4 15. Rc7+ Kf6 16. g5+ Kxg5 17.
+Rxg7 Qh3+ 18. Kg1 Qxg3+ 19. Kh1 Qxf3+ 20. Kh2 Kh6 $19) *

@@ -1,0 +1,20 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "2k2r2/ppp2bpp/8/4q3/7P/P2Q2P1/1PP5/1K1N1R2 w - - 0 31"]
+[Puzzle_Length "4"]
+[Tactic_line "Ba2+ Kxa2 Rxf1 Qg8+ Kd7 Ne3 Qxe3"]
+
+31. Qxh7 Ba2+ ({+2.56} 31... Rd8 32. Nc3 Be6 33. Qe4 Qxe4 34. Nxe4 Bh3 35. Rf4
+Rd1+ 36. Ka2 $16) 32. Kxa2 Rxf1 ({0.00} 32... Qe6+ 33. b3 Rxf1 34. Qh8+ Kd7 35.
+Qxg7+ Ke8 36. Qh8+ Kf7 37. Qh7+ $12) ({+4.32} 32... Qd5+ 33. b3 Rxf1 34. Ne3 Ra1+
+35. Kxa1 Qd4+ 36. Kb1 Qxe3 37. Qxg7 $16) 33. Qg8+ Kd7 ({+7.12} 33... Rf8 34. Qxf8+
+Kd7 35. Qf3 a5 36. Ne3 a4 37. Qf7+ Qe7 38. Qd5+ +−) ({♔ Mate in 1} 33... Qe8 34.
+Qxe8# +−) 34. Ne3 Qxe3 ({-1.75} 34... Re1 35. Qf7+ Qe7 36. Qd5+ Qd6 37. Qf7+ Kc8
+38. Nf5 Qd7 39. Qxd7+ $17) ({-0.15} 34... Rg1 35. Nc4 Qe7 36. Qd5+ Kc8 37. Qg8+
+Qd8 38. Qxg7 Qe8 39. Ne5 $12) *

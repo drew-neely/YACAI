@@ -1,0 +1,21 @@
+[Event "?"]
+[Site "?"]
+[Date "????.??.??"]
+[Round "?"]
+[White "?"]
+[Black "?"]
+[Result "*"]
+[SetUp "1"]
+[FEN "r1bqk2r/pppp2p1/7p/4np2/2B1n3/P1P5/1PP2PPP/R1BQR1K1 w kq - 0 10"]
+[Puzzle_Length "5"]
+[Tactic_line "g6 Rxe4 gxh5 Rxe5+ Kf8 Rxf5+ Kg7 Rf7+ Kg6"]
+
+10. Qh5+ g6 ({+5.19} 10... Ke7 11. Rxe4 fxe4 12. Qxe5+ Kf8 13. Qf4+ Qf6 14. Qxc7
+Ke8 15. Bf4 +−) 11. Rxe4 gxh5 ({-0.25} 11... Qe7 12. Rxe5 gxh5 13. Rxe7+ Kxe7
+14. Be3 Re8 15. Re1 d6 16. Bxh6+ $12) ({+4.37} 11... Qf6 12. Rxe5+ Qxe5 13. Qxg6+
+Kd8 14. Bf4 Qe7 15. Kf1 d6 16. Bxh6 $16) 12. Rxe5+ Kf8 ({-0.40} 12... Qe7 13.
+Rxe7+ Kxe7 14. Be3 d6 15. Re1 Kd8 16. Bf7 Rf8 17. Bxh5 $12) 13. Rxf5+ Kg7 ({+0.41}
+13... Ke8 14. Bd2 Qe7 15. Re1 Qxe1+ 16. Bxe1 d6 17. Rf6 c6 18. f3 $12) ({+1.47}
+13... Ke7 14. Bf4 d5 15. Re1+ Be6 16. Rxd5 Qf8 17. Rd4 Qf5 18. Bxc7 $14) 14. Rf7+
+Kg6 ({+8.77} 14... Kg8 15. Rxd7+ Kf8 16. Rxd8+ Kg7 17. Rxh8 Kxh8 18. Bf4 Bd7 19.
+Re1 +−) *
