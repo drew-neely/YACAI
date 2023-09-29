@@ -23,7 +23,7 @@ starting_fen = [
 	"8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1", # perf 3 // index 16
 	"6r1/2p5/K2p4/1P6/1R2PpPk/8/8/8 b - e3 0 3", # perf 3 - [a5a6, h5h8, g2g4, h8g8, e2e4]
 	"8/8/3p4/KPp4r/4Rp1k/8/4P1P1/8 w - - 0 2", # perf 3 - [b4e4, c7c5]
-][18]
+][0]
 
 print(starting_fen)
 
@@ -78,16 +78,20 @@ def find_diff(pyboard, board, depth, pre_moves=[]) :
 # 	exit()
 
 if __name__ == "__main__" :
-	for i in range(1, 2) :
+	cpp_depth = 9
+	python_depth = 5
+	for i in range(1, max(cpp_depth, python_depth)) :
 		print(f"----- Depth {i} -----")
-		start = time()
-		cpp_count = cpp_search(cpp_board, i)
-		cpp_time = time() - start
-		print(f"cpp   : {cpp_count:8} positions, ({cpp_time:5.2}s)")
-		start = time()
-		py_count = py_search(py_board, i)
-		py_time = time() - start
-		print(f"python: {py_count:8} positions, ({py_time:5.2}s)")
+		if(i < cpp_depth) :
+			start = time()
+			cpp_count = cpp_search(cpp_board, i)
+			cpp_time = time() - start
+			print(f"cpp   : {cpp_count:8} positions, ({cpp_time:.2f}s)")
+		if(i < python_depth) :
+			start = time()
+			py_count = py_search(py_board, i)
+			py_time = time() - start
+			print(f"python: {py_count:8} positions, ({py_time:.2f}s)")
 		print()
 	print([m.uci() for m in py_board.legal_moves])
 

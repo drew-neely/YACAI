@@ -449,9 +449,6 @@ MoveGenerator Board::legalMoves() {
 	} else if(isDrawInsuficientMaterial()) {
 		state->game_end_reason = INSUFICIENT_MATERIAL;
 		co_return;
-	} else if(isDrawFiftyMove()) {
-		state->game_end_reason = FIFTY_MOVE;
-		co_return;
 	}
 
 	SquareSet check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
@@ -646,6 +643,9 @@ MoveGenerator Board::legalMoves() {
 		} else {
 			state->game_end_reason = STALEMATE;
 		}
+	}  else if(isDrawFiftyMove()) {
+		state->game_end_reason = FIFTY_MOVE;
+		co_return;
 	}
 
 	// print_vector(moves);

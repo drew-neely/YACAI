@@ -3,11 +3,11 @@ import pathlib
 from chess import Move
 
 chess = CDLL(pathlib.Path().absolute() / "bin" / "cpp-chess")
-libc = CDLL("libc++.1.dylib")
+# libc = CDLL("libc++.1.dylib")
 
 # libc free(void* p) => void
-free = libc.free
-free.argtypes = [c_void_p]
+# free = libc.free
+# free.argtypes = [c_void_p]
 
 # create_board() => int
 create_board = chess.create_board
@@ -68,7 +68,7 @@ class Board() :
 	def get_fen(self) :
 		_fen = get_fen(self.bd)
 		result = cast(_fen, c_char_p).value.decode("utf-8")
-		libc.free(_fen)
+		# libc.free(_fen)
 		return result
 
 

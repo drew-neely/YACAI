@@ -10,9 +10,9 @@ all : bin/cpp-chess bin/cpp-chess-wprof bin/cpp-chess-test
 ###############################
 ###### compile chess engine
 ###############################
-bin/cpp-chess : $(cpp_files) $(h_files)
+bin/cpp-chess : $(cpp_files) $(h_files) $(test_cpp_files) $(test_h_files)
 	mkdir -p bin
-	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++2a -Werror -fcoroutines
+	g++ $(cpp_files) $(test_cpp_files) -O3 -o bin/cpp-chess -std=c++2a -Werror -fcoroutines -fPIC --shared
 
 ###############################
 ###### testing
@@ -64,7 +64,7 @@ clean :
 test_seq : all
 	python test_seq.py
 
-count_positions : all
+count_positions : bin/cpp-chess
 	python count_positions.py
 
 .PHONY: all clean callgrind pdf profile callgrind
