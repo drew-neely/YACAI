@@ -65,7 +65,9 @@ struct Composition {
 	Composition(BoardState& state);
 
 	void add(uint8_t pid, uint8_t sq_color);
-	void remove(uint8_t pid, uint8_t sq_color) ;
+	void remove(uint8_t pid, uint8_t sq_color);
+	uint8_t getNumPieces(uint8_t pid);
+	
 
 	// Calculates if the composition represents a draw by insufficient material (Following USCF rules)
 	// and sets the corresponding bit in the encoding

@@ -34,6 +34,11 @@ void Composition::remove(uint8_t pid, uint8_t sq_color) {
 	encodeInsufficientMaterial();
 }
 
+uint8_t Composition::getNumPieces(uint8_t pid) {
+	uint8_t idx = ((pid & BLACK) << 1) | (piece(pid) << 2);
+	return (compositionId >> idx) & 0xF;
+}
+
 #define set_insuficient()   compositionId |= 0x80000000'00000000
 #define clear_insuficient() compositionId &= 0x7FFFFFFF'FFFFFFFF
 

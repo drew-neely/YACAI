@@ -78,7 +78,7 @@ def find_diff(pyboard, board, depth, pre_moves=[]) :
 # 	exit()
 
 if __name__ == "__main__" :
-	cpp_depth = 9
+	cpp_depth = 8
 	python_depth = 5
 	for i in range(1, max(cpp_depth, python_depth)) :
 		print(f"----- Depth {i} -----")
