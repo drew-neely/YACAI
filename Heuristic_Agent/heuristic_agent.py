@@ -19,7 +19,6 @@ class Heuristic_Agent(Agent) :
 		self.node_ordering = node_ordering
 		self.it_deepening = it_deepening
 		self.verbose = verbose
-		super().__init__()
 		
 	def get_move(self, board, color) :
 		minimax = ChessMinimax(board, self.depth, timeout=self.timeout, color=color, pruning=self.pruning, t_table=self.t_table, node_ordering=self.node_ordering, it_deepening=self.it_deepening, verbose=self.verbose)

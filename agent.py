@@ -14,6 +14,9 @@ agentCount = 0
 
 class Agent :
 
+	def __init__(self) :
+		pass
+
 	def __init__(self, net) :
 		global agentCount
 		self.net = net
@@ -44,15 +47,4 @@ class Agent :
 		return best_move
 
 
-import os, neat, pickle
-
-def get_agent_from_pickle(pickle_name) :
-	local_dir = os.path.dirname(__file__)
-	config_path = os.path.join(local_dir, 'Config')
-	config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
-						 neat.DefaultSpeciesSet, neat.DefaultStagnation,
-						 config_path)
-	file = open(pickle_name, "rb")
-	genome = pickle.load(file)
-	net = neat.nn.FeedForwardNetwork.create(genome, config)
-	return Agent(net)
+import os, pickle

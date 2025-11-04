@@ -1,9 +1,14 @@
 from ctypes import *
+import ctypes.util
 import pathlib
 from chess import Move
 
 chess = CDLL(pathlib.Path().absolute() / "bin" / "cpp-chess")
-libc = CDLL("libc++.1.dylib")
+
+libc_name = ctypes.util.find_library("c")
+if libc_name is None:
+	raise OSError("Unable to locate the C standard library")
+libc = CDLL(libc_name)
 
 # libc free(void* p) => void
 free = libc.free
@@ -24,10 +29,10 @@ free_board = chess.free_board
 free_board.res_type = None
 free_board.argtypes = [c_int]
 
-# make_move(int bd, uint8_t from_square, uint8_t to_square, uint8_t promotion_type) => void
+# make_move(int bd, const char* uci_move) => void
 make_move = chess.make_move
 make_move.res_type = None
-make_move.argtypes = [c_int, c_ubyte, c_ubyte, c_ubyte]
+make_move.argtypes = [c_int, c_char_p]
 
 # unmake_move(int bd) => void
 unmake_move = chess.unmake_move
@@ -39,7 +44,7 @@ count_positions = chess.count_positions
 count_positions.restype = c_ulonglong
 count_positions.argtypes = [c_int, c_ubyte]
 
-# get_fen(int bd) => const char*
+# get_fen(int bd) => char*
 get_fen = chess.get_fen
 get_fen.restype = c_void_p # really returns a c_char_p, but can only be freed if a raw pointer is returned
 get_fen.argtypes = [c_int]
@@ -56,8 +61,8 @@ class Board() :
 			raise MemoryError("Couldn't allocate board")
 	
 	def make_move(self, move) :
-		promotion = move.promotion - 1 if move.promotion else 255
-		make_move(self.bd, move.from_square, move.to_square, promotion)
+		uci = move.uci().encode('ascii')
+		make_move(self.bd, uci)
 	
 	def unmake_move(self) :
 		unmake_move(self.bd)
@@ -67,8 +72,12 @@ class Board() :
 
 	def get_fen(self) :
 		_fen = get_fen(self.bd)
-		result = cast(_fen, c_char_p).value.decode("utf-8")
-		libc.free(_fen)
+		if not _fen :
+			raise MemoryError("Failed to allocate FEN string")
+		try :
+			result = cast(_fen, c_char_p).value.decode("utf-8")
+		finally :
+			libc.free(_fen)
 		return result
 
 
@@ -78,4 +87,3 @@ class Board() :
 
 	
 	
-

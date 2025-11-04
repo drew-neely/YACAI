@@ -1,11 +1,12 @@
 
-import PySimpleGUI as sg
-import os, sys
+import os
+import sys
+import tkinter as tk
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import chess
-import time
 
-from yacai_agent import YACAI_Agent
+# from yacai_agent import YACAI_Agent
 
 
 BLANK = 0  # piece names
@@ -65,157 +66,216 @@ def reset_square_colors() :
 
 reset_square_colors()
 
-def redraw_board(window, board):
-	for sq in chess.SQUARES :
-		piece = board.piece_at(sq)
-		piece_str = piece.symbol() if piece else ''
-		color = square_colors[sq]
-		piece_image = images[piece_str]
-		elem = window.FindElement(key=chess.square_name(sq))
-		elem.Update(button_color=('white', color),
-					image_filename=piece_image, )
-	window.finalize()
+class ChessGUI:
+	def __init__(self, board, white_perspective=True):
+		self.white_perspective = white_perspective
+		self.root = tk.Tk()
+		self.root.title("Chess")
+		self.root.protocol("WM_DELETE_WINDOW", self._on_close)
+		self._closed = False
 
-def get_board_layout(board, white_perspective=True) :
-	board_layout = [[None] * 8 for _ in range(8)]
-	# file = column - rank = row
-	for sq in chess.SQUARES :
-		piece = board.piece_at(sq)
-		piece_str = piece.symbol() if piece else ''
-		row, col = (7 - chess.square_rank(sq), chess.square_file(sq))
-		piece_image = images[piece_str]
-		sq_button = sg.RButton('', image_filename=piece_image, size=(1, 1),
-						border_width=0, button_color=('white', square_colors[sq]),
-						pad=(0, 0), key=chess.square_name(sq))
-		if white_perspective :
-			board_layout[row][col] = sq_button
-		else :
-			board_layout[7-row][7-col] = sq_button
-	return board_layout
+		self.selected_square = tk.StringVar()
+		self.board_frame = tk.Frame(self.root)
+		self.board_frame.pack(padx=0, pady=0)
 
-def get_square_click(window) :
-	event, _ = window.read()
-	if event == sg.WIN_CLOSED :
-		window.close()
-		exit()
-	else :
-		return chess.parse_square(event)
+		self.piece_images = self._load_images()
+		self.square_buttons = {}
+		self._build_board(board)
+		self.redraw_board(board)
 
-class UserAgent() :
-	def __init__(self, window) :
-		self.window = window
+	def _load_images(self):
+		loaded = {}
+		for key, path in images.items():
+			loaded[key] = tk.PhotoImage(file=path)
+		return loaded
 
-	def highlight(self, board, sqs) :
-		global square_colors
-		for sq in sqs :
-			square_colors[sq] = show_move_sq_light_color if is_square_light(sq) else show_move_sq_dark_color
-		redraw_board(self.window, board)
+	def _build_board(self, board):
+		for sq in chess.SQUARES:
+			row, col = 7 - chess.square_rank(sq), chess.square_file(sq)
+			display_row, display_col = self._transform_coordinates(row, col)
+			square_name = chess.square_name(sq)
+			button = tk.Button(
+				self.board_frame,
+				image=self.piece_images[''],
+				borderwidth=0,
+				relief="flat",
+				background=square_colors[sq],
+				activebackground=square_colors[sq],
+				command=lambda name=square_name: self._on_square_click(name),
+			)
+			button.grid(row=display_row, column=display_col, padx=0, pady=0, ipadx=0, ipady=0)
+			self.square_buttons[square_name] = button
 
-	def get_promotion_piece(self, color):
-		piece = None
-		board_layout = []
+	def _transform_coordinates(self, row, col):
+		if self.white_perspective:
+			return row, col
+		return 7 - row, 7 - col
 
-		# Loop through board and create buttons with images        
+	def _on_square_click(self, square_name):
+		self.selected_square.set(square_name)
+
+	def _on_close(self):
+		self._closed = True
+		self.selected_square.set("WINDOW_CLOSED")
+
+	def redraw_board(self, board):
+		for sq in chess.SQUARES:
+			piece = board.piece_at(sq)
+			piece_symbol = piece.symbol() if piece else ''
+			color = square_colors[sq]
+			square_name = chess.square_name(sq)
+			button = self.square_buttons[square_name]
+			button.configure(
+				image=self.piece_images[piece_symbol],
+				background=color,
+				activebackground=color,
+			)
+		self.root.update_idletasks()
+
+	def wait_for_square(self):
+		self.selected_square.set("")
+		while True:
+			self.root.wait_variable(self.selected_square)
+			value = self.selected_square.get()
+			if value == "WINDOW_CLOSED":
+				self.close()
+				sys.exit(0)
+			if value:
+				return chess.parse_square(value)
+
+	def show_promotion_dialog(self, color):
 		piece_symbols = ['N', 'B', 'R', 'Q'] if color == chess.WHITE else ['n', 'b', 'r', 'q']
 		colors = [sq_dark_color, sq_light_color, sq_dark_color, sq_light_color]
-		for piece_symbol in piece_symbols :
-			piece_image = images[piece_symbol]
-			square = sg.RButton('', image_filename=piece_image, size=(1, 1),
-						border_width=0, button_color=('white', colors.pop()),
-						pad=(0, 0), key=piece_symbol)
-			board_layout.append(square)
+		selected_piece = tk.StringVar()
 
-		board_layout = [board_layout]
+		dialog = tk.Toplevel(self.root)
+		dialog.title("Select Promotion Type")
+		dialog.grab_set()
+		dialog.protocol("WM_DELETE_WINDOW", lambda: selected_piece.set(""))
 
-		promo_window = sg.Window('Select Promotion Type', board_layout,
-								default_button_element_size=(12, 1),
-								auto_size_buttons=False)
+		for idx, piece_symbol in enumerate(piece_symbols):
+			piece_image = self.piece_images[piece_symbol]
+			bg_color = colors[idx]
+			button = tk.Button(
+				dialog,
+				image=piece_image,
+				borderwidth=0,
+				relief="flat",
+				background=bg_color,
+				activebackground=bg_color,
+				command=lambda sym=piece_symbol: selected_piece.set(sym),
+			)
+			button.grid(row=0, column=idx, padx=0, pady=0, ipadx=0, ipady=0)
 
-		piece, _ = promo_window.Read()
-		if piece == sg.WIN_CLOSED :
-			return self.get_promotion_piece(color)
-		assert piece in piece_symbols
-		promo_window.Close()
-		return piece.lower()
+		dialog.wait_variable(selected_piece)
+		dialog.grab_release()
+		dialog.destroy()
 
-	def get_move(self, board, color) :
+		choice = selected_piece.get()
+		if not choice:
+			return self.show_promotion_dialog(color)
+		return choice.lower()
+
+	def close(self):
+		if not self._closed:
+			self._closed = True
+			self.root.destroy()
+
+
+class UserAgent:
+	def __init__(self, gui):
+		self.gui = gui
+
+	def highlight(self, board, squares):
+		global square_colors
+		for sq in squares:
+			square_colors[sq] = show_move_sq_light_color if is_square_light(sq) else show_move_sq_dark_color
+		self.gui.redraw_board(board)
+
+	def get_promotion_piece(self, color):
+		return self.gui.show_promotion_dialog(color)
+
+	def get_move(self, board, color):
 		global square_colors
 		moves = list(board.legal_moves)
 		move_sqs = [(m.from_square, m.to_square) for m in moves]
-		starting_sq_colors = {sq: c for sq,c in square_colors.items()}
+		starting_sq_colors = {sq: c for sq, c in square_colors.items()}
 		saved_from_sq = None
-		while True :
-			if saved_from_sq :
+
+		while True:
+			if saved_from_sq is not None:
 				from_sq = saved_from_sq
 				saved_from_sq = None
-			else :
-				from_sq = get_square_click(self.window)
+			else:
+				from_sq = self.gui.wait_for_square()
+
 			piece = board.piece_at(from_sq)
-			if piece == None or piece.color != color :
-				redraw_board(self.window, board)
+			if piece is None or piece.color != color:
+				square_colors = {sq: c for sq, c in starting_sq_colors.items()}
+				self.gui.redraw_board(board)
 				continue
+
 			dest_sqs = [sq2 for (sq1, sq2) in move_sqs if sq1 == from_sq]
 			self.highlight(board, dest_sqs + [from_sq])
-			if not dest_sqs : # piece cannot move
-				square_colors = {sq: c for sq,c in starting_sq_colors.items()}
+
+			if not dest_sqs:
+				square_colors = {sq: c for sq, c in starting_sq_colors.items()}
 				continue
-			to_sq = get_square_click(self.window)
-			if to_sq in dest_sqs :
+
+			to_sq = self.gui.wait_for_square()
+			if to_sq in dest_sqs:
 				move_str = chess.square_name(from_sq) + chess.square_name(to_sq)
-				if piece.piece_type == chess.PAWN and chess.square_rank(to_sq) in [0,7] :
+				if piece.piece_type == chess.PAWN and chess.square_rank(to_sq) in [0, 7]:
 					move_str += self.get_promotion_piece(color)
 				move = chess.Move.from_uci(move_str)
 				assert move in moves
 				return move
-			else :
+			else:
 				piece = board.piece_at(to_sq)
-				if piece != None and piece.color == color :
+				if piece is not None and piece.color == color:
 					saved_from_sq = to_sq
-				square_colors = {sq: c for sq,c in starting_sq_colors.items()}
-				redraw_board(self.window, board)
+				square_colors = {sq: c for sq, c in starting_sq_colors.items()}
+				self.gui.redraw_board(board)
 				continue
 
 
-def start_game(white_agent, black_agent, board=None, perspective=chess.WHITE) :
-	if board == None :
+def start_game(white_agent, black_agent, board=None, perspective=chess.WHITE):
+	if board is None:
 		board = chess.Board()
-	
-	layout = get_board_layout(board, perspective==chess.WHITE)
-	window = sg.Window("Chess", layout)
+
+	gui = ChessGUI(board, white_perspective=(perspective == chess.WHITE))
 
 	agents = [white_agent, black_agent]
-	for i in [0, 1] :
-		if isinstance(agents[i], str) :
-			if agents[i].lower() == "user" :
-				agents[i] = UserAgent(window)
-			else :
-				agents[i] = YACAI_Agent.from_file(agents[i])
-	
-	window.Finalize()
+	for i in [0, 1]:
+		if isinstance(agents[i], str):
+			if agents[i].lower() == "user":
+				agents[i] = UserAgent(gui)
+			else:
+				raise Exception("YACAI_Agent not found")
+				# agents[i] = YACAI_Agent.from_file(agents[i])
 
 	whites_turn = board.turn == chess.WHITE
-	while not board.is_game_over(claim_draw = True):
-		move = None
-		if whites_turn :
+	while not board.is_game_over(claim_draw=True):
+		if whites_turn:
 			move = agents[0].get_move(board, chess.WHITE)
-		else :
+		else:
 			move = agents[1].get_move(board, chess.BLACK)
 		board.push(move)
 		reset_square_colors()
-		for sq in [move.from_square, move.to_square] :
+		for sq in [move.from_square, move.to_square]:
 			square_colors[sq] = move_sq_light_color if is_square_light(sq) else move_sq_dark_color
-		redraw_board(window, board)
+		gui.redraw_board(board)
 		whites_turn = not whites_turn
-		
+
 	result = board.result()
-	if result == "1-0" :
+	if result == "1-0":
 		print("WHITE WON!")
-	elif result == "0-1" :
+	elif result == "0-1":
 		print("BLACK WON!")
-	else :
+	else:
 		print("DRAW!")
 
-	window.close()
+	gui.close()
 
 
 if __name__ == "__main__" :

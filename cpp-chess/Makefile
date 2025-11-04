@@ -12,7 +12,9 @@ all : bin/cpp-chess bin/cpp-chess-wprof bin/cpp-chess-test
 ###############################
 bin/cpp-chess : $(cpp_files) $(h_files)
 	mkdir -p bin
-	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++2a -Werror -fcoroutines
+	g++ $(cpp_files) -O3 -o bin/cpp-chess -std=c++2a -Werror -fcoroutines -shared -fPIC
+
+chess : bin/cpp-chess
 
 ###############################
 ###### testing

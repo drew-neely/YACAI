@@ -5,8 +5,6 @@ import random
 import time 
 from multiprocessing import cpu_count, Pool
 
-
-from yacai_agent import YACAI_Agent
 from stockfish_agent import Stockfish_Agent
 from match import Match, Result
 
@@ -51,9 +49,4 @@ def run_matches(agent, stockfish_level, number, board = None) :
 		
 	results = pool.starmap(run_match, [(agent, stockfish_level, board.copy()) for _ in range(number)])
 	print(results)
-	
-if __name__ == "__main__" :
-	agent = YACAI_Agent.from_file("best_iter110.pickle")
-	
-	run_matches(agent, 1, 12)
 	

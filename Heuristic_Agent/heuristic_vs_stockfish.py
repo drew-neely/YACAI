@@ -7,6 +7,6 @@ import chess
 
 if __name__ == "__main__" :
 	t_table = TranspositionTable()
-	agent = Heuristic_Agent(0, timeout=10, pruning=True, t_table=t_table, node_ordering=True, it_deepening=True, verbose=False)
+	agent = Heuristic_Agent(0, timeout=2, pruning=True, t_table=t_table, node_ordering=True, it_deepening=True, verbose=False)
 	run_matches(agent, 1, 20, board = chess.Board("4k3/pppppppp/8/8/8/8/PPPPPPPP/3K4 w - - 0 1"))
 

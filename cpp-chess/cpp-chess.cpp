@@ -1,5 +1,8 @@
-#include <stdio.h>
 #include <assert.h>
+#include <stdio.h>
+#include <cstdlib>
+#include <cstring>
+#include <string>
 
 #include "board.h"
 #include "move.h"
@@ -48,11 +51,12 @@ extern "C" void free_board(int bd) {
 	boardDescriptorTable[bd] = NULL;
 }
 
-extern "C" void make_move(int bd, uint8_t from_square, uint8_t to_square, uint8_t promotion_type) {
-	assert(false);
-	// assert_valid_bd(bd);
-	// Move move = Move(from_square, to_square, promotion_type);
-	// boardDescriptorTable[bd]->makeMove(move);
+extern "C" void make_move(int bd, const char* uci_move) {
+	assert_valid_bd(bd);
+	assert(uci_move != NULL);
+	Board* board = boardDescriptorTable[bd];
+	Move move(std::string(uci_move), *board);
+	board->makeMove(move);
 }
 
 extern "C" void unmake_move(int bd) {
@@ -68,10 +72,17 @@ extern "C" uint64_t count_positions(int bd, uint8_t depth) {
 }
 
 
-extern "C" const char* get_fen(int bd) {
-	assert(false);
-	// assert_valid_bd(bd);
-	// return boardDescriptorTable[bd]->get_fen().c_str();
+extern "C" char* get_fen(int bd) {
+	// assert(false);
+	assert_valid_bd(bd);
+	std::string fen = boardDescriptorTable[bd]->get_fen();
+	size_t length = fen.size() + 1;
+	char* buffer = static_cast<char*>(std::malloc(length));
+	if(buffer == NULL) {
+		return NULL;
+	}
+	std::memcpy(buffer, fen.c_str(), length);
+	return buffer;
 }
 
 
