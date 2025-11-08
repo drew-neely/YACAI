@@ -61,7 +61,7 @@ public:
     using Score_t = Score<Eval_t>;
     using MinimaxScore_t = MinimaxScore<Eval_t>;
 
-    TransTable<MinimaxScore_t> table;
+    TransTable<Score_t> table;
     uint8_t search_depth;
 
     Minimax() : table(DEFAULT_TRANS_TABLE_SIZE) {}
@@ -108,6 +108,7 @@ public:
         minimaxScore.score = bestScore.score;
         minimaxScore.mate_in = bestScore.mate_in;
         minimaxScore.depth = bestScore.depth;
+        minimaxScore.bestMove = bestMove;
         return minimaxScore;
     }
 
@@ -115,6 +116,8 @@ public:
         /*
             Handle leaf nodes - game end, transposition table lookup, or depth limit
         */
+        MoveGenerator fake_moves = board.legalMoves();
+        for(Move move : fake_moves) {}
         if(game_end(board.state->game_end_reason)) {
             uint8_t winner = winner(board.state->game_end_reason);
             if(winner == DRAW) {
@@ -140,11 +143,11 @@ public:
         bool maxing = board.state->turn == WHITE;
         Score_t bestScore;
         MoveGenerator moves = board.legalMoves();
-        printf("%s\n", board.get_fen().c_str());
+        // printf("%s\n", board.get_fen().c_str());
         bool firstIteration = true;
         for(Move move : moves) {
-            printf("makeMove :");
-            move.print();
+            // printf("makeMove :");
+            // move.print();
             board.makeMove(move);
             Score_t score = _search(board, depth - 1);
             if(firstIteration) {
@@ -153,12 +156,16 @@ public:
             } else if((maxing && score > bestScore) || (!maxing && score < bestScore)) {
                 bestScore = score;
             }
-            printf("unMove   :");
-            move.print();
+            // printf("unMove   :");
+            // move.print();
             board.unmakeMove();
         }
+        if(firstIteration) {
+            printf("No moves found\n");
+            printf("game end = %d\n", game_end(board.state->game_end_reason));
+        }
         assert(!firstIteration); // There should always be at least one move
-
+        table.set(board.state->zobrist, bestScore);
         return bestScore;
     }
 

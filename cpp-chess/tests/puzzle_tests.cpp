@@ -15,15 +15,27 @@ using namespace std;
 
 void run_puzzle_tests(string filename) {
     MinimaxMaterial minimax;
-    minimax.setDepth(6);
+    minimax.setDepth(4);
     vector<PuzzleTest> tests = get_puzzle_tests(filename);
     for(PuzzleTest test : tests) {
         Board board(test.fen);
         test.solution[0].build_context(board);
         board.makeMove(test.solution[0]);
-        uint8_t player = board.state->turn;
         auto score = minimax.search(board);
         printf("score = %d, mate_in = %d, depth = %d\n", score.score, score.mate_in, score.depth);
+        printf("Move: ");
+        score.bestMove.print();
+        // apply
+        board.makeMove(score.bestMove);
+        // second
+        Move secondMove = Move("g7g8");
+        secondMove.build_context(board);
+        board.makeMove(secondMove);
+        minimax.setDepth(7);
+        score = minimax.search(board);
+        printf("score = %d, mate_in = %d, depth = %d\n", score.score, score.mate_in, score.depth);
+        printf("Move: ");
+        score.bestMove.print();
         return;
     }
 }
