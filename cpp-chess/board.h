@@ -135,6 +135,14 @@ struct Board;
 #include "move.h"
 #include "chess_containers.h"
 
+struct MoveCacheEntry {
+	bool valid;
+	bool in_check;
+	std::vector<Move> moves;
+
+	MoveCacheEntry() : valid(false), in_check(false), moves() {}
+};
+
 
 struct BoardState {
 	uint8_t squares[64]; // array of p_ids or NULL for empty - indecies correstend to squares { 0: A1, 1: B1, ... 7: H1, 8: A2, ... }
@@ -155,6 +163,7 @@ struct Board {
 
 	BoardState* state;
 	vector<BoardState> stateStack;
+	vector<MoveCacheEntry> moveCacheStack;
 
 	// Methods
 
@@ -169,6 +178,8 @@ struct Board {
 				map<uint8_t, SquareSet >& pinned_squares);
 	MoveGenerator legalMoves();
 	void setGameEndReason();
+	void ensureMoveCache();
+	void rebuildMoveCache();
 
 	bool isDrawRepitition();
 	bool isDrawFiftyMove();

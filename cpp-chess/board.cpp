@@ -74,6 +74,8 @@ Board::Board(const char* fen) {
 	stateStack.reserve(STATE_STACK_STARTING_SIZE);
 	stateStack.emplace_back();
 	state = stateStack.data();
+	moveCacheStack.reserve(STATE_STACK_STARTING_SIZE);
+	moveCacheStack.emplace_back();
 
 	char* pos = (char*) fen;
 	size_t idx;
@@ -206,6 +208,7 @@ Board::Board(const char* fen) {
 		state->game_end_reason = NO_GAME_END;
 	}
 	
+	ensureMoveCache();
 }
 
 // Initializes board to starting position
@@ -215,6 +218,8 @@ Board::Board() {
 	stateStack.reserve(STATE_STACK_STARTING_SIZE);
 	stateStack.emplace_back();
 	state = stateStack.data();
+	moveCacheStack.reserve(STATE_STACK_STARTING_SIZE);
+	moveCacheStack.emplace_back();
 
 	// place the pieces
 	state->squares[0] = WHITE | ROOK;
@@ -264,6 +269,7 @@ Board::Board() {
 	// initialize game end reason
 	state->game_end_reason = NO_GAME_END;
 
+	ensureMoveCache();
 }
 
 // Initializes board from state
@@ -272,6 +278,9 @@ Board::Board(BoardState s) {
 	stateStack.reserve(STATE_STACK_STARTING_SIZE);
 	stateStack.push_back(s);
 	state = stateStack.data();
+	moveCacheStack.reserve(STATE_STACK_STARTING_SIZE);
+	moveCacheStack.emplace_back();
+	ensureMoveCache();
 
 }
 
@@ -441,115 +450,122 @@ void Board::attackSquares(SquareSet& attack_squares, uint8_t color, SquareSet& c
 }
 
 MoveGenerator Board::legalMoves() {
-	
-	// Check for insufficient material, three move repetition, and 50 move rule
+	ensureMoveCache();
+	size_t cache_index = moveCacheStack.size() - 1;
+	size_t num_moves = moveCacheStack[cache_index].moves.size();
+	for(size_t i = 0; i < num_moves; i++) {
+		co_yield moveCacheStack[cache_index].moves[i];
+	}
+}
+
+void Board::ensureMoveCache() {
+	if(moveCacheStack.empty()) {
+		moveCacheStack.emplace_back();
+	}
+	if(!moveCacheStack.back().valid) {
+		rebuildMoveCache();
+	}
+}
+
+void Board::rebuildMoveCache() {
+	assert(!moveCacheStack.empty());
+	MoveCacheEntry& cache = moveCacheStack.back();
+	cache.moves.clear();
+	cache.valid = true;
+	cache.in_check = false;
+
+	uint8_t pending_draw_reason = NO_GAME_END;
 	if(isDrawRepitition()) {
-		state->game_end_reason = REPITION;
-		co_return;
-	} else if(isDrawInsuficientMaterial()) {
+		pending_draw_reason = REPITION;
+	}
+	if(isDrawInsuficientMaterial()) {
 		state->game_end_reason = INSUFICIENT_MATERIAL;
-		co_return;
-	} else if(isDrawFiftyMove()) {
-		state->game_end_reason = FIFTY_MOVE;
-		co_return;
+		return;
+	}
+	if(pending_draw_reason == NO_GAME_END && isDrawFiftyMove()) {
+		pending_draw_reason = FIFTY_MOVE;
 	}
 
-	SquareSet check_path; // only look at if check == True && double_check == False // lists squares which a piece may move to or capture on to stop check
-	SquareSet check_path_end; // square_ids of squares covered by check bechind king - 255 if NA
-	bool check = false; // true if the king is in check
-	bool double_check = false; // true if the king is in check and is threatened by two pieces from different directions
-	map<uint8_t, SquareSet > pinned_squares; // key = square of pinned piece, value = squares it is pinned to
-	SquareSet attack_squares; // set of all squares the other color may psuedolegally move to
+	state->game_end_reason = NO_GAME_END;
+
+	SquareSet check_path;
+	SquareSet check_path_end;
+	bool check = false;
+	bool double_check = false;
+	map<uint8_t, SquareSet > pinned_squares;
+	SquareSet attack_squares;
 	bool move_found = false;
 
 	// build all the check info
 	checksAndPins(check_path, check, double_check, pinned_squares);
 	// build attack_squares
 	attackSquares(attack_squares, other_color(state->turn), check_path_end);
+	cache.in_check = check;
 
 	// Calculate normal (non-castle) king moves first
 	uint8_t king = king_pos(state->turn);
 	for(int p = 0; p < attack_paths(king, KING).size(); p++) {
 		uint8_t sq = attack_paths(king, KING)[p][0];
-		if(color(state->squares[sq]) != state->turn && !attack_squares.contains(sq) && !check_path_end.contains(sq)) { // sq is safe
-			co_yield Move(king, sq);
+		if(color(state->squares[sq]) != state->turn && !attack_squares.contains(sq) && !check_path_end.contains(sq)) {
+			cache.moves.emplace_back(king, sq);
 			move_found = true;
 		}
 	}
 
-	// printf("king is at %s\n", square_name(king));
-	// printf("finished king moves\n");
-	// print_vector(moves);
-
-	if(double_check) { // double_check -> king must move
-		if(!move_found) { // no moves + double check = checkmate
+	if(double_check) {
+		if(!move_found) {
 			state->game_end_reason = other_color(state->turn) | CHECKMATE;
+		} else if(pending_draw_reason != NO_GAME_END) {
+			state->game_end_reason = pending_draw_reason;
 		}
-		co_return;
+		return;
 	}
 
 	// Next do castles
-	if(castle_avail(state->turn, CASTLE_KING) && !check &&             // check if the king can castle kingside
+	if(castle_avail(state->turn, CASTLE_KING) && !check &&
 				state->squares[king+1] == 0 && state->squares[king+2] == 0 &&
 				!attack_squares.contains(king+1) &&
 				!attack_squares.contains(king+2)) {
-		co_yield Move(king, king+2, MOVE_CASTLE, CASTLE_KING);
+		cache.moves.emplace_back(king, king+2, MOVE_CASTLE, CASTLE_KING);
 		move_found = true;
 	}
-	if(castle_avail(state->turn, CASTLE_QUEEN) && !check &&            // check if the king can castle queenside
+	if(castle_avail(state->turn, CASTLE_QUEEN) && !check &&
 				state->squares[king-1] == 0 && state->squares[king-2] == 0 && state->squares[king-3] == 0 &&
 				!attack_squares.contains(king-1) &&
 				!attack_squares.contains(king-2)) {
-		co_yield Move(king, king-2, MOVE_CASTLE, CASTLE_QUEEN);
+		cache.moves.emplace_back(king, king-2, MOVE_CASTLE, CASTLE_QUEEN);
 		move_found = true;
 	}
 
-	// printf("finished castle moves\n");
-	// print_vector(moves);
-
-	/*
-		All other moves must fulfil the following requirements
-		 - if from_square is in a pinned set, to_square must be in the pinned set
-		 - if check == true, move must be a king move or to_square must be in check_path
-	*/
 	for(int sq = 0; sq < 64; sq++) {
-		if(color(state->squares[sq]) == state->turn && sq != king) { // found piece to look for moves
+		if(color(state->squares[sq]) == state->turn && sq != king) {
 
 			bool pinned = _contains(pinned_squares, sq);
 			SquareSet* pinned_set = pinned ? &pinned_squares[sq] : NULL;
 
-			if(piece(state->squares[sq]) == PAWN) { // piece is a pawn
-				// look at attacks first (captures + en-passant)
+			if(piece(state->squares[sq]) == PAWN) {
 				vector<uint8_t>& attacks = pawn_attack_squares(sq, state->turn);
-				for(int s = 0; s < attacks.size(); s++) { // iterate over attack squares
+				for(int s = 0; s < attacks.size(); s++) {
 					uint8_t asq = attacks[s];
 					uint8_t csq = enpass_capture_square(asq);
 					if(state->enpass_info != NO_ENPASS &&
 								(asq == enpass_square(state->enpass_info)) &&
 								(state->squares[csq] == (other_color(state->turn) | PAWN)) &&
 								(!pinned || pinned_set->contains(asq)) &&
-								(!check || check_path.contains(csq))) { // potential enpassant
-						/* 
-							The if statement qualifies that the movement of the capturing pawn is legal, but
-							Need to check that removing the captured pawn doesnt put king in check
-							This is done by looking for rook/bishops/queens in line with the king and removed pawn
-							Technically, no legal position can have a revealed bishop check from enpassant, but i'll
-							still check anyways since this can come up in artificial positions
-							revealed rook checks can only possible arrise horizontally
-						*/
+								(!check || check_path.contains(csq))) {
 						int8_t df = file(csq) - file(king),
 							dr = rank(csq) - rank(king);
 						uint8_t pinning_piece;
-						if(dr == 0) { // look for horizontal pin
+						if(dr == 0) {
 							pinning_piece = ROOK;
-						} else if(df == dr || -df == dr) { // look for revealed diagonal pin
+						} else if(df == dr || -df == dr) {
 							pinning_piece = BISHOP;
-						} else { // no possible pin
-							co_yield Move(sq, asq, MOVE_ENPASS, csq);
+						} else {
+							cache.moves.emplace_back(sq, asq, MOVE_ENPASS, csq);
 							move_found = true;
 							continue;
 						}
-						df = (df > 0) - (df < 0); // get signs of dr and df (+1 or -1)
+						df = (df > 0) - (df < 0);
 						dr = (dr > 0) - (dr < 0);
 						bool valid = true;
 						for(uint8_t f = file(csq) + df, r = rank(csq) + dr; f >= 0 && f < 8 && r >= 0 && r < 8; f += df, r+= dr) {
@@ -558,14 +574,14 @@ MoveGenerator Board::legalMoves() {
 								uint8_t pid = state->squares[tsq];
 								if(pid != 0) {
 									if(pid == (other_color(state->turn) | pinning_piece) || pid == (other_color(state->turn) | QUEEN)) {
-										valid = false; // there is an attacker and pin
+										valid = false;
 										break;
 									}
 									break;
 								}
 							}
 						}
-						if(!valid) { // check to make sure the pin isnt blocked on the other side
+						if(!valid) {
 							for(uint8_t f = file(csq) - df, r = rank(csq) - dr; f >= 0 && f < 8 && r >= 0 && r < 8; f -= df, r-= dr) {
 								uint8_t tsq = square_id(r, f);
 								if(tsq == king) {
@@ -576,57 +592,56 @@ MoveGenerator Board::legalMoves() {
 							}
 						}
 						if(valid) {
-							co_yield Move(sq, asq, MOVE_ENPASS, csq);
+							cache.moves.emplace_back(sq, asq, MOVE_ENPASS, csq);
 							move_found = true;
 						}
 					} else if(color(state->squares[asq]) == other_color(state->turn) && 
 								(!pinned || pinned_set->contains(asq)) &&
-								(!check || check_path.contains(asq))) {     // pawn capture
+								(!check || check_path.contains(asq))) {
 						if(rank(asq) == 0 || rank(asq) == 7) {
-							co_yield Move(sq, asq, MOVE_PROMOTE, KNIGHT);
-							co_yield Move(sq, asq, MOVE_PROMOTE, BISHOP);
-							co_yield Move(sq, asq, MOVE_PROMOTE, ROOK);
-							co_yield Move(sq, asq, MOVE_PROMOTE, QUEEN);
+							cache.moves.emplace_back(sq, asq, MOVE_PROMOTE, KNIGHT);
+							cache.moves.emplace_back(sq, asq, MOVE_PROMOTE, BISHOP);
+							cache.moves.emplace_back(sq, asq, MOVE_PROMOTE, ROOK);
+							cache.moves.emplace_back(sq, asq, MOVE_PROMOTE, QUEEN);
 						} else {
-							co_yield Move(sq, asq);
+							cache.moves.emplace_back(sq, asq);
 						}
 						move_found = true;
 					}
 				}
-				// Time to look at pawn pushes
 				vector<uint8_t>& path = pawn_move_path(sq, state->turn);
-				for(int s = 0; s < path.size(); s++) { // iterate over push squares
+				for(int s = 0; s < path.size(); s++) {
 					uint8_t tsq = path[s];
-					if(state->squares[tsq] != 0) { // There is a piece blocking the path
+					if(state->squares[tsq] != 0) {
 						break;
 					}
 					if((!pinned || pinned_set->contains(tsq)) && (!check || check_path.contains(tsq))) {
 						if(rank(tsq) == 0 || rank(tsq) == 7) {
-							co_yield Move(sq, tsq, MOVE_PROMOTE, KNIGHT);
-							co_yield Move(sq, tsq, MOVE_PROMOTE, BISHOP);
-							co_yield Move(sq, tsq, MOVE_PROMOTE, ROOK);
-							co_yield Move(sq, tsq, MOVE_PROMOTE, QUEEN);
+							cache.moves.emplace_back(sq, tsq, MOVE_PROMOTE, KNIGHT);
+							cache.moves.emplace_back(sq, tsq, MOVE_PROMOTE, BISHOP);
+							cache.moves.emplace_back(sq, tsq, MOVE_PROMOTE, ROOK);
+							cache.moves.emplace_back(sq, tsq, MOVE_PROMOTE, QUEEN);
 						} else {
-							co_yield Move(sq, tsq);
+							cache.moves.emplace_back(sq, tsq);
 						}
 						move_found = true;
 					}
 				}
 			} 
-			else { // piece is Knight, Bishop, Rook or Queen
+			else {
 				vector<vector<uint8_t> >& paths = attack_paths(sq, piece(state->squares[sq]));
-				for(int p = 0; p < paths.size(); p++) { // iterate over all paths the piece can take
+				for(int p = 0; p < paths.size(); p++) {
 					vector<uint8_t>& path = paths[p];
-					for(int s = 0; s < path.size(); s++) { // iterate over the squares in a single path
+					for(int s = 0; s < path.size(); s++) {
 						uint8_t tsq = path[s];
-						if(color(state->squares[tsq]) == state->turn) { // path blocked by same color piece
+						if(color(state->squares[tsq]) == state->turn) {
 							break;
 						}
-						if((!pinned || pinned_set->contains(tsq)) && (!check || check_path.contains(tsq))) { // check for pins and check
-							co_yield Move(sq, tsq);
+						if((!pinned || pinned_set->contains(tsq)) && (!check || check_path.contains(tsq))) {
+							cache.moves.emplace_back(sq, tsq);
 							move_found = true;
 						}
-						if(state->squares[tsq] != 0) { // move was capture (ie. blocked by other color piece)
+						if(state->squares[tsq] != 0) {
 							break;
 						}
 					}
@@ -635,38 +650,24 @@ MoveGenerator Board::legalMoves() {
 		}
 	}
 
-	/*
-		Check for game end scenarios
-		(Draw by repitition, 50 move rule and insufficient material were already checked)
-		Here I check for checkmate and stalemate
-	*/
-	if(!move_found) { // no moves = game over
+	if(!move_found) {
 		if(check) {
 			state->game_end_reason = other_color(state->turn) | CHECKMATE;
 		} else {
 			state->game_end_reason = STALEMATE;
 		}
+	} else if(pending_draw_reason != NO_GAME_END) {
+		state->game_end_reason = pending_draw_reason;
 	}
-
-	// print_vector(moves);
-	co_return;
 }
 
-
 /*
-	legal_moves will do all the same work as this function in addition to returning the legal moves.
-	This function is meant for the instances where it needs to be known if the game has ended, but 
-	the possible moves do not matter if the game has not ended.
-
-	Calling both legal_moves and setGameEndReason is inneficient
+	Ensures that the cached move list (and therefore the game end reason) for
+	the current state is up to date without forcing the caller to iterate moves.
 */
 void Board::setGameEndReason() {
 
-	// execute legalMoves until a move is found, or until completion
-	// legal moves will set endreason if needed, otherwise will quit
-	// upon discovering a move since if there is a move available the
-	// game is not over
-	legalMoves().is_empty();
+	ensureMoveCache();
 
 }
 
@@ -743,6 +744,7 @@ void Board::makeMove(Move move) {
 	// Copy existing board state to top of stack and update state pointer
 	stateStack.push_back(*state);
 	state = &stateStack.back();
+	moveCacheStack.emplace_back();
 
 	// set variables for special moves (enpassant, castling right changes, and promotion)
 	uint8_t from_pid = state->squares[move.from_square];
@@ -871,10 +873,12 @@ void Board::makeMove(Move move) {
 	state->clock = new_clock;
 	state->halfmoves++;
 
+	rebuildMoveCache();
 }
 
 void Board::unmakeMove() {
 	stateStack.pop_back();
+	moveCacheStack.pop_back();
 	state = &stateStack.back();
 }
 

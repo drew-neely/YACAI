@@ -25,12 +25,12 @@ const uint64_t _r4[] = {1, 6,  264,  9467,  422333,  15833292,  706045033       
 const uint64_t _r5[] = {1, 44, 1486, 62379, 2103487, 89941194                                                     };
 const uint64_t _r6[] = {1, 46, 2079, 89890, 3894594, 164075551, 6923051137, 287188994746                          };
 const vector<PerftTest> perft_tests = {
-	PerftTest("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",                 6 , _r1),
-	PerftTest("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",     5 , _r2),
-	PerftTest("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",                                7 , _r3),
+	PerftTest("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",                 7 , _r1),
+	PerftTest("r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1",     6 , _r2),
+	PerftTest("8/2p5/3p4/KP5r/1R3p1k/8/4P1P1/8 w - - 0 1",                                8 , _r3),
 	PerftTest("r3k2r/Pppp1ppp/1b3nbN/nP6/BBP1P3/q4N2/Pp1P2PP/R2Q1RK1 w kq - 0 1",         6 , _r4),
 	PerftTest("rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8",                5 , _r5),
-	PerftTest("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 5 , _r6),
+	PerftTest("r4rk1/1pp1qppp/p1np1n2/2b1p1B1/2B1P1b1/P1NP1N2/1PP1QPPP/R4RK1 w - - 0 10", 6 , _r6),
 };
 
 void run_pert_tests() {
