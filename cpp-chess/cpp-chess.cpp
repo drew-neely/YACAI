@@ -6,6 +6,7 @@
 
 #include "board.h"
 #include "move.h"
+#include "tests/perft-tests.h"
 // #include "zobrist.h"
 
 #define DESCRIPTOR_TABLE_SIZE 100
@@ -64,11 +65,12 @@ extern "C" void unmake_move(int bd) {
 	boardDescriptorTable[bd]->unmakeMove();
 }
 
-extern "C" uint64_t count_positions(int bd, uint8_t depth) {
-	assert(false);
-	// assert_valid_bd(bd);
+extern "C" int count_positions(int bd, uint8_t depth) {
+	// assert(false);
+	assert_valid_bd(bd);
+	uint64_t res = countPositionsZobristTransTable(*boardDescriptorTable[bd], depth);
 	// uint64_t res = boardDescriptorTable[bd]->countPositions(depth);
-	// return res;
+	return res;
 }
 
 

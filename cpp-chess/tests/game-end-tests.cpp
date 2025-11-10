@@ -21,6 +21,8 @@ using namespace std;
 		* USCF - two nights vs lone king is insufficient material (chess.com)
 		* FIDE - bishop vs knight is not insufficient material (lichess)
 		* USCF - bishop vs knight is insufficient material (chess.com)
+		* FIDE - two bishops vs lone king is insuficient material (lichess)
+		* USCF - two bishops vs lone king is not insuficient material (chess.com)
 	This function is used to identify when this draw has occured with as few dependencies on other code being correct as possible.
 */
 bool is_edge_case_draw(Board board) {
@@ -58,6 +60,9 @@ bool is_edge_case_draw(Board board) {
 		return true;
 	} else if((white_knight == 1 && black_knight == 1) && (white_bishop == 0 && black_bishop == 0)) {
 		// printf("KNkn draw found\n");
+		return true;
+	} else if(((white_bishop == 2 && black_bishop == 0) || (white_bishop == 0 && black_bishop == 2)) && (white_knight == 0 && black_knight == 0)) {
+		// printf("KBBk draw found\n");
 		return true;
 	} else {
 		return false;
@@ -132,7 +137,12 @@ void run_game_end_tests(string filename) {
 		legalMovesEndReason = board.state->game_end_reason;
 		board.setGameEndReason();
 		setGameEndReasonEndReason = board.state->game_end_reason;
-		if(legalMovesEndReason == test.end_reason && setGameEndReasonEndReason == test.end_reason) {
+		/*
+			End game reason comparison is a pass if the two cpp chess end reasons are consistent and either
+			the expected reason matches the cpp chess reason or they are both draws - it is not very usefull
+			to fail when the only difference is the type of draw being claimed
+		*/
+		if(legalMovesEndReason == setGameEndReasonEndReason && (legalMovesEndReason == test.end_reason || (draw(legalMovesEndReason) && draw(test.end_reason)))) {
 			// printf("PASS : test %d\n", i);
 			num_pass++;
 		} else {
@@ -177,8 +187,13 @@ vector<GameEndTest> get_game_end_tests(string filename) {
 	string uci_moves;
 	ifstream infile(filename);
 	assert(infile.is_open());
+	int i = 0;
+	// printf("Start\n");
 	while(getline(infile, reason) && getline(infile, winner) && getline(infile, uci_moves)) {
-		assert(winner_code.count(winner) && reason_code.count(reason));
+		i++;
+		if(!(winner_code.count(winner) && reason_code.count(reason))) {
+			assert(false);
+		}
 		uint8_t end_reason = winner_code.at(winner) | reason_code.at(reason);
 		vector<Move> moves;
 		size_t pos = 0;

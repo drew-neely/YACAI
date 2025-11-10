@@ -124,7 +124,7 @@ const uint8_t AGREEMENT            = 7;
 #define winner(end_code)   ((end_code) & 0b11000)
 #define reason(end_code)   ((end_code) & 0b00111)
 #define game_end(end_code) ((end_code) != 0)
-#define draw(end_code)     (((end_code) & 0b11000) == 0)
+#define draw(end_code)     (((end_code) & 0b11000) == 0 && (end_code) != 0)
 
 
 

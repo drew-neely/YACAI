@@ -11,8 +11,8 @@ if libc_name is None:
 libc = CDLL(libc_name)
 
 # libc free(void* p) => void
-free = libc.free
-free.argtypes = [c_void_p]
+# free = libc.free
+# free.argtypes = [c_void_p]
 
 # create_board() => int
 create_board = chess.create_board
