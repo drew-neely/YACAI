@@ -24,23 +24,28 @@ struct Score {
     uint8_t depth;
 
     bool operator<(const Score<Eval_t>& other) const {
-        if(mate_in == 0 && other.mate_in == 0) { // neither score is mate
-            return score < other.score;
-        } else if(mate_in > 0 && other.mate_in > 0) { // both scores are white mate
-            return mate_in > other.mate_in;
-        } else { // one score is mate and the other is not, or both scores are black mate
-            return mate_in < other.mate_in;
+        auto mate_rank = [](int8_t mate) {
+            if(mate > 0) return 2;
+            if(mate == 0) return 1;
+            return 0;
+        };
+
+        int self_rank = mate_rank(mate_in);
+        int other_rank = mate_rank(other.mate_in);
+        if(self_rank != other_rank) {
+            return self_rank < other_rank;
         }
+
+        if(self_rank == 1) { // neither is mate
+            return score < other.score;
+        }
+
+        // For mates (either white or black) smaller |mate_in| is better
+        return mate_in > other.mate_in;
     }
 
     bool operator>(const Score<Eval_t>& other) const {
-        if(mate_in == 0 && other.mate_in == 0) { // neither score is mate
-            return score > other.score;
-        } else if(mate_in < 0 && other.mate_in < 0) { // both scores are black mate
-            return mate_in < other.mate_in;
-        } else { // one score is mate and the other is not, or both scores are white mate
-            return mate_in > other.mate_in;
-        }
+        return other < *this;
     }
 };
 
@@ -64,6 +69,12 @@ public:
     TransTable<Score_t> table;
     uint8_t search_depth;
 
+    // stats
+    uint64_t leaf_nodes;
+    uint64_t moves_generated;
+    uint64_t positions_evaled;
+    uint64_t table_lookups;
+
     Minimax() : table(DEFAULT_TRANS_TABLE_SIZE) {}
     Minimax(size_t capacity) : table(capacity) {}
 
@@ -78,15 +89,22 @@ public:
 
         assert(game_end(board.state->game_end_reason) == false); // Cannot search on a leaf node
 
+        leaf_nodes = 0;
+        moves_generated = 0;
+        positions_evaled = 0;
+        table_lookups = 0;
+
         /*
             Do a first level search
         */
+        Score_t score = _search(board, search_depth);
         bool maxing = board.state->turn == WHITE;
         Score_t bestScore;
         Move bestMove;
         MoveGenerator moves = board.legalMoves();
         bool firstIteration = true;
         for(Move move : moves) {
+            moves_generated++;
             board.makeMove(move);
             Score_t score = _search(board, search_depth - 1);
             if(firstIteration) {
@@ -109,6 +127,9 @@ public:
         minimaxScore.mate_in = bestScore.mate_in;
         minimaxScore.depth = bestScore.depth;
         minimaxScore.bestMove = bestMove;
+
+        printf("Search stats: leafs %ld, moves %ld, evals %ld, table_lookups %ld\n", leaf_nodes, moves_generated, positions_evaled, table_lookups);
+
         return minimaxScore;
     }
 
@@ -120,21 +141,25 @@ public:
         for(Move move : fake_moves) {}
         if(game_end(board.state->game_end_reason)) {
             uint8_t winner = winner(board.state->game_end_reason);
+            leaf_nodes++;
             if(winner == DRAW) {
-                return {0, 0, (uint8_t)(search_depth - depth)};
+                return {0, 0, 0};
             } else if(winner == WHITE) {
-                return {0, (int8_t)(search_depth - depth), (uint8_t)(search_depth - depth)};
+                return {0, (int8_t)(search_depth - depth), 0};
             } else if(winner == BLACK) {
-                return {0, (int8_t)(-(search_depth - depth)), (uint8_t)(search_depth - depth)};
+                return {0, (int8_t)(-(search_depth - depth)), 0};
             }
             assert(false);
+
         } else if(table.contains(board.state->zobrist)) {
             Score_t score = table.get(board.state->zobrist);
             if(score.depth >= depth) {
+                table_lookups++;
                 return score;
             }
         } else if(depth == 0) {
-            return {eval(board), 0, search_depth};
+            positions_evaled++;
+            return {eval(board), 0, 0};
         }
 
         /*
@@ -146,6 +171,7 @@ public:
         // printf("%s\n", board.get_fen().c_str());
         bool firstIteration = true;
         for(Move move : moves) {
+            moves_generated++;
             // printf("makeMove :");
             // move.print();
             board.makeMove(move);
@@ -165,6 +191,7 @@ public:
             printf("game end = %d\n", game_end(board.state->game_end_reason));
         }
         assert(!firstIteration); // There should always be at least one move
+        bestScore.depth++;
         table.set(board.state->zobrist, bestScore);
         return bestScore;
     }
